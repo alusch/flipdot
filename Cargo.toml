@@ -1,0 +1,28 @@
+[package]
+name = "flipdot"
+version = "0.1.0" # remember to update html_root_url
+authors = ["Adam Lusch <alusch@gmail.com>"]
+description = "A library for interacting with Luminator flip-dot and LED signs over RS-485"
+license = "MIT"
+documentation = "https://docs.rs/flipdot"
+repository = "https://github.com/alusch/flipdot"
+readme = "README.md"
+keywords = ["flip-dot", "Luminator", "bus", "sign", "RS-485"]
+categories = ["hardware-support"]
+
+[dependencies]
+error-chain = "0.11"
+
+flipdot-core = { version = "0.1", path = "libs/core" }
+flipdot-serial = { version = "0.1", path = "libs/serial" }
+
+[dev-dependencies]
+env_logger = "0.4"
+log = "0.3"
+matches = "0.1"
+serial = "0.4"
+serial-core = "0.4"
+
+flipdot-testing = { version = "0.1", path = "libs/testing" }
+
+[workspace]

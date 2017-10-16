@@ -1,0 +1,27 @@
+[package]
+name = "flipdot-core"
+version = "0.1.0" # remember to update html_root_url
+authors = ["Adam Lusch <alusch@gmail.com>"]
+description = "Core types for describing communication with Luminator flip-dot and LED signs"
+license = "MIT"
+documentation = "https://docs.rs/flipdot-core"
+repository = "https://github.com/alusch/flipdot"
+readme = "README.md"
+keywords = ["flip-dot", "Luminator", "bus"]
+categories = ["hardware-support"]
+
+[dependencies]
+error-chain = "0.11"
+lazy_static = "0.2"
+macro-attr = "0.2"
+newtype_derive = "0.1"
+num-traits = "0.1"
+regex = "0.2"
+
+[dev-dependencies]
+matches = "0.1"
+serial = "0.4"
+
+flipdot = { version = "0.1", path = "../.." }
+flipdot-serial = { version = "0.1", path = "../serial" }
+flipdot-testing = { version = "0.1", path = "../testing" }

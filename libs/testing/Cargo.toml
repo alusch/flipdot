@@ -1,0 +1,22 @@
+[package]
+name = "flipdot-testing"
+version = "0.1.0" # remember to update html_root_url
+authors = ["Adam Lusch <alusch@gmail.com>"]
+description = "Tools for testing and debugging Luminator sign communications"
+license = "MIT"
+documentation = "https://docs.rs/flipdot-testing"
+repository = "https://github.com/alusch/flipdot"
+readme = "README.md"
+keywords = ["flip-dot", "Luminator", "bus"]
+categories = ["hardware-support", "development-tools::testing"]
+
+[dependencies]
+error-chain = "0.11"
+log = "0.3"
+serial-core = "0.4"
+
+flipdot-core = { version = "0.1", path = "../core" }
+flipdot-serial = { version = "0.1", path = "../serial" }
+
+[dev-dependencies]
+serial = "0.4"
