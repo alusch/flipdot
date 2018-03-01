@@ -85,7 +85,8 @@ pub enum Message<'a> {
 
     // Don't actually use this; it's just here to prevent exhaustive matching
     // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)] __Nonexhaustive,
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 macro_attr! {
@@ -169,7 +170,8 @@ pub enum State {
 
     // Don't actually use this; it's just here to prevent exhaustive matching
     // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)] __Nonexhaustive,
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 /// Operations that can be requested of a sign, which trigger actions and/or state changes.
@@ -198,7 +200,8 @@ pub enum Operation {
 
     // Don't actually use this; it's just here to prevent exhaustive matching
     // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)] __Nonexhaustive,
+    #[doc(hidden)]
+    __Nonexhaustive,
 }
 
 impl<'a> Display for Message<'a> {
@@ -373,10 +376,10 @@ impl<'a> From<Message<'a>> for Frame<'a> {
 
             Message::Unknown(frame) => frame,
 
-            Message::__Nonexhaustive |
-            Message::ReportState(_, State::__Nonexhaustive) |
-            Message::RequestOperation(_, Operation::__Nonexhaustive) |
-            Message::AckOperation(_, Operation::__Nonexhaustive) => unreachable!(),
+            Message::__Nonexhaustive
+            | Message::ReportState(_, State::__Nonexhaustive)
+            | Message::RequestOperation(_, Operation::__Nonexhaustive)
+            | Message::AckOperation(_, Operation::__Nonexhaustive) => unreachable!(),
         }
     }
 }
@@ -416,11 +419,23 @@ mod tests {
             Message::SendData(Offset(16), Data::from(&[0x00, 0x15, 0x51, 0xF7])),
         );
 
-        verify_roundtrip(Frame::new(Address(13), MsgType(1), Data::from(&[])), Message::DataChunksSent(ChunkCount(13)));
+        verify_roundtrip(
+            Frame::new(Address(13), MsgType(1), Data::from(&[])),
+            Message::DataChunksSent(ChunkCount(13)),
+        );
 
-        verify_roundtrip(Frame::new(Address(0x7F), MsgType(2), Data::from(&[0xFF])), Message::Hello(Address(0x7F)));
-        verify_roundtrip(Frame::new(Address(0x11), MsgType(2), Data::from(&[0x55])), Message::Goodbye(Address(0x11)));
-        verify_roundtrip(Frame::new(Address(0xFF), MsgType(2), Data::from(&[0x00])), Message::QueryState(Address(0xFF)));
+        verify_roundtrip(
+            Frame::new(Address(0x7F), MsgType(2), Data::from(&[0xFF])),
+            Message::Hello(Address(0x7F)),
+        );
+        verify_roundtrip(
+            Frame::new(Address(0x11), MsgType(2), Data::from(&[0x55])),
+            Message::Goodbye(Address(0x11)),
+        );
+        verify_roundtrip(
+            Frame::new(Address(0xFF), MsgType(2), Data::from(&[0x00])),
+            Message::QueryState(Address(0xFF)),
+        );
 
         verify_roundtrip(
             Frame::new(Address(0x01), MsgType(4), Data::from(&[0x0F])),

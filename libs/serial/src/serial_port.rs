@@ -43,6 +43,7 @@ pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> errors:
         settings.set_flow_control(serial::FlowNone);
         Ok(())
     }).chain_err(|| ErrorKind::Serial("Couldn't configure serial port".to_owned()))?;
-    port.set_timeout(timeout).chain_err(|| ErrorKind::Serial("Couldn't set serial timeout".to_owned()))?;
+    port.set_timeout(timeout)
+        .chain_err(|| ErrorKind::Serial("Couldn't set serial timeout".to_owned()))?;
     Ok(())
 }

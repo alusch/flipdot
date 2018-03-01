@@ -7,10 +7,12 @@ use std::error::Error;
 use std::io;
 use std::rc::Rc;
 
-use flipdot::{Address, Page, PageId, Sign, SignBus, SignType};
 use flipdot::core::{ChunkCount, Data, Message, Offset, Operation, State};
+use flipdot::{Address, Page, PageId, Sign, SignBus, SignType};
 
-const CONFIG: &[u8] = &[0x04, 0x20, 0x00, 0x06, 0x07, 0x1E, 0x1E, 0x1E, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+const CONFIG: &[u8] = &[
+    0x04, 0x20, 0x00, 0x06, 0x07, 0x1E, 0x1E, 0x1E, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+];
 
 #[cfg_attr(rustfmt, rustfmt_skip)]
 const DATA: &[u8] = &[
@@ -511,12 +513,10 @@ fn page_flip() {
 
 #[test]
 fn shut_down() {
-    let script = vec![
-        ScriptItem {
-            expected: Message::Goodbye(Address(3)),
-            response: Ok(None),
-        },
-    ];
+    let script = vec![ScriptItem {
+        expected: Message::Goodbye(Address(3)),
+        response: Ok(None),
+    }];
 
     let bus = ScriptedSignBus::new(script.into_iter());
     let bus = Rc::new(RefCell::new(bus));
@@ -656,12 +656,10 @@ fn unexpected_response_error() {
 
 #[test]
 fn flip_page_unexpected_response_error() {
-    let script = vec![
-        ScriptItem {
-            expected: Message::QueryState(Address(3)),
-            response: Ok(Some(Message::ReportState(Address(3), State::Unconfigured))),
-        },
-    ];
+    let script = vec![ScriptItem {
+        expected: Message::QueryState(Address(3)),
+        response: Ok(Some(Message::ReportState(Address(3), State::Unconfigured))),
+    }];
 
     let bus = ScriptedSignBus::new(script.into_iter());
     let bus = Rc::new(RefCell::new(bus));
@@ -675,12 +673,10 @@ fn flip_page_unexpected_response_error() {
 
 #[test]
 fn error_propagates() {
-    let script = vec![
-        ScriptItem {
-            expected: Message::Hello(Address(3)),
-            response: Err(Box::new(io::Error::new(io::ErrorKind::Other, "oh no!"))),
-        },
-    ];
+    let script = vec![ScriptItem {
+        expected: Message::Hello(Address(3)),
+        response: Err(Box::new(io::Error::new(io::ErrorKind::Other, "oh no!"))),
+    }];
 
     let bus = ScriptedSignBus::new(script.into_iter());
     let bus = Rc::new(RefCell::new(bus));

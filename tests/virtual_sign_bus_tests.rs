@@ -4,8 +4,8 @@ extern crate flipdot_testing;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use flipdot::{Address, PageId, Sign, SignType};
 use flipdot::core::State;
+use flipdot::{Address, PageId, Sign, SignType};
 use flipdot_testing::{VirtualSign, VirtualSignBus};
 
 #[test]

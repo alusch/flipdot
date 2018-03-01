@@ -88,11 +88,7 @@ impl Sign {
     ///
     /// [`SignBus`]: struct.SignBus.html
     pub fn new(bus: Rc<RefCell<SignBus>>, address: Address, sign_type: SignType) -> Self {
-        Sign {
-            address,
-            sign_type,
-            bus,
-        }
+        Sign { address, sign_type, bus }
     }
 
     /// Returns the sign's address.
@@ -288,7 +284,12 @@ impl Sign {
         self.ensure_unconfigured()?;
 
         let config = self.sign_type.to_bytes();
-        self.send_data(&iter::once(config), Operation::ReceiveConfig, State::ConfigReceived, State::ConfigFailed)
+        self.send_data(
+            &iter::once(config),
+            Operation::ReceiveConfig,
+            State::ConfigReceived,
+            State::ConfigFailed,
+        )
     }
 
     /// Sends one or more pages of pixel data to the sign.
@@ -511,7 +512,8 @@ impl Sign {
     /// and conveniently localizes the error chaining on failure.
     fn send_message(&self, message: Message) -> errors::Result<Option<Message>> {
         let mut bus = self.bus.borrow_mut();
-        bus.process_message(message).map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))
+        bus.process_message(message)
+            .map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))
     }
 
     /// Borrows the bus mutably, sends a message, and verifies that the response is as expected.
@@ -633,8 +635,8 @@ impl Sign {
                     )?;
                 }
 
-                Some(Message::ReportState(address, State::PageLoadInProgress)) |
-                Some(Message::ReportState(address, State::PageShowInProgress)) if address == self.address => {}
+                Some(Message::ReportState(address, State::PageLoadInProgress))
+                | Some(Message::ReportState(address, State::PageShowInProgress)) if address == self.address => {}
 
                 _ => bail!(ErrorKind::UnexpectedResponse(
                     format!("Some(ReportState({:?}, Page*))", self.address),
@@ -649,7 +651,10 @@ impl Sign {
 /// Fails with an `UnexpectedResponse` error if `response` is not equal to `expected`.
 fn verify_response<'a>(expected: &Option<Message<'a>>, response: &Option<Message<'a>>) -> errors::Result<()> {
     if response != expected {
-        bail!(ErrorKind::UnexpectedResponse(format!("{:?}", expected), format!("{:?}", response)));
+        bail!(ErrorKind::UnexpectedResponse(
+            format!("{:?}", expected),
+            format!("{:?}", response)
+        ));
     }
     Ok(())
 }

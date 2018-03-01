@@ -324,7 +324,9 @@ impl<'a> Frame<'a> {
                 (?:\r\n)?$                          # Optional newline sequence
             ").unwrap(); // Regex is valid so safe to unwrap.
         }
-        let captures = RE.captures(bytes).ok_or_else(|| ErrorKind::Parse(bytes.to_owned(), "Invalid format".to_owned()))?;
+        let captures = RE
+            .captures(bytes)
+            .ok_or_else(|| ErrorKind::Parse(bytes.to_owned(), "Invalid format".to_owned()))?;
 
         // Regex always matches all capture groups so safe to unwrap.
         let data_len = parse_hex::<u8>(captures.name("data_len").unwrap().as_bytes());
@@ -335,7 +337,10 @@ impl<'a> Frame<'a> {
 
         let data = data_bytes.chunks(2).map(parse_hex::<u8>).collect::<Vec<_>>();
         if data.len() != data_len as usize {
-            bail!(ErrorKind::Parse(bytes.to_owned(), format!("Expected data length {}, got {}", data_len, data.len())));
+            bail!(ErrorKind::Parse(
+                bytes.to_owned(),
+                format!("Expected data length {}, got {}", data_len, data.len())
+            ));
         }
 
         let frame = Frame::new(Address(address), MsgType(message_type), Data::new(data)?);
@@ -549,9 +554,10 @@ impl<'a> Data<'a> {
     pub fn new<T: Into<Cow<'a, [u8]>>>(data: T) -> errors::Result<Self> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {
-            bail!(ErrorKind::Argument(
-                format!("Frame data length must fit in a single byte (at most 255), got {}", data.len())
-            ));
+            bail!(ErrorKind::Argument(format!(
+                "Frame data length must fit in a single byte (at most 255), got {}",
+                data.len()
+            )));
         }
         Ok(Data(data))
     }
@@ -615,9 +621,9 @@ mod tests {
 
     #[test]
     fn roundtrip_complex_frame() {
-        let data = Data::new(
-            vec![0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00],
-        ).unwrap();
+        let data = Data::new(vec![
+            0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
+        ]).unwrap();
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes();
@@ -629,9 +635,9 @@ mod tests {
 
     #[test]
     fn roundtrip_complex_frame_newline() {
-        let data = Data::new(
-            vec![0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00],
-        ).unwrap();
+        let data = Data::new(vec![
+            0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
+        ]).unwrap();
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes_with_newline();

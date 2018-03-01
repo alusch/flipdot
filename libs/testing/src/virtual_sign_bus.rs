@@ -289,7 +289,10 @@ impl<'a> VirtualSign<'a> {
                 _ => return None,
             };
 
-            info!("Vsign {:04X} configuration: {} x {} {} sign", self.address.0, width, height, kind);
+            info!(
+                "Vsign {:04X} configuration: {} x {} {} sign",
+                self.address.0, width, height, kind
+            );
 
             self.sign_type = SignType::from_bytes(data).ok();
             match self.sign_type {
@@ -333,12 +336,12 @@ impl<'a> VirtualSign<'a> {
     /// Handles `RequestOperation` messages for `ReceivePixels`.
     fn receive_pixels<'b>(&mut self) -> Option<Message<'b>> {
         match self.state {
-            State::ConfigReceived |
-            State::PixelsFailed |
-            State::PageLoaded |
-            State::PageLoadInProgress |
-            State::PageShown |
-            State::PageShowInProgress => {
+            State::ConfigReceived
+            | State::PixelsFailed
+            | State::PageLoaded
+            | State::PageLoadInProgress
+            | State::PageShown
+            | State::PageShowInProgress => {
                 self.state = State::PixelsInProgress;
                 self.pages.clear();
                 Some(Message::AckOperation(self.address, Operation::ReceivePixels))
@@ -352,7 +355,14 @@ impl<'a> VirtualSign<'a> {
         if self.state == State::PixelsReceived {
             self.state = State::PageLoaded;
             for page in &self.pages {
-                info!("Vsign {:04X} Page {} ({} x {})\n{}", self.address.0, page.id(), page.width(), page.height(), page);
+                info!(
+                    "Vsign {:04X} Page {} ({} x {})\n{}",
+                    self.address.0,
+                    page.id(),
+                    page.width(),
+                    page.height(),
+                    page
+                );
             }
         }
         None
@@ -462,8 +472,10 @@ mod tests {
         let response = sign.process_message(&Message::QueryState(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::ConfigInProgress)), response);
 
-        let response =
-            sign.process_message(&Message::SendData(Offset(0x00), Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap()));
+        let response = sign.process_message(&Message::SendData(
+            Offset(0x00),
+            Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
+        ));
         assert_eq!(None, response);
 
         let response = sign.process_message(&Message::QueryState(Address(3)));
@@ -593,8 +605,10 @@ mod tests {
         let response = sign.process_message(&Message::QueryState(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::ConfigInProgress)), response);
 
-        let response =
-            sign.process_message(&Message::SendData(Offset(0x00), Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap()));
+        let response = sign.process_message(&Message::SendData(
+            Offset(0x00),
+            Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
+        ));
         assert_eq!(None, response);
 
         let response = sign.process_message(&Message::QueryState(Address(3)));
@@ -659,7 +673,9 @@ mod tests {
         let response = sign.process_message(&Message::QueryState(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::ConfigInProgress)), response);
 
-        let data = vec![0x04, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        let data = vec![
+            0x04, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        ];
         let response = sign.process_message(&Message::SendData(Offset(0x00), Data::new(data).unwrap()));
         assert_eq!(None, response);
 
@@ -687,7 +703,9 @@ mod tests {
         let response = sign.process_message(&Message::QueryState(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::ConfigInProgress)), response);
 
-        let data = vec![0x0F, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        let data = vec![
+            0x0F, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        ];
         let response = sign.process_message(&Message::SendData(Offset(0x00), Data::new(data).unwrap()));
         assert_eq!(None, response);
 

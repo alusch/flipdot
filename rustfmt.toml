@@ -1,9 +1,4 @@
-array_width = 130
-chain_one_line_max = 100
-fn_call_width = 100
 max_width = 130
 newline_style = "Native"
-reorder_imported_names = true
 reorder_imports = true
-reorder_imports_in_group = true
 write_mode = "Overwrite"

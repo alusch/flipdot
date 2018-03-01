@@ -164,9 +164,13 @@ impl<'a> Page<'a> {
 
         let expected_bytes = Self::total_bytes(width, height);
         if page.bytes.len() != expected_bytes {
-            bail!(ErrorKind::Argument(
-                format!("Expected {} bytes for {}x{} page, got {}", expected_bytes, width, height, page.bytes.len())
-            ));
+            bail!(ErrorKind::Argument(format!(
+                "Expected {} bytes for {}x{} page, got {}",
+                expected_bytes,
+                width,
+                height,
+                page.bytes.len()
+            )));
         }
 
         Ok(page)
@@ -292,7 +296,10 @@ impl<'a> Page<'a> {
     /// Given an x-y coordinate, returns the byte and bit at which it is stored.
     fn byte_bit_indices(&self, x: u32, y: u32) -> (usize, u8) {
         if x >= self.width || y >= self.height {
-            panic!("Coordinate ({}, {}) out of bounds for page of size {} x {}", x, y, self.width, self.height);
+            panic!(
+                "Coordinate ({}, {}) out of bounds for page of size {} x {}",
+                x, y, self.width, self.height
+            );
         }
 
         let byte_index = 4 + x as usize * Self::bytes_per_column(self.height) + y as usize / 8;

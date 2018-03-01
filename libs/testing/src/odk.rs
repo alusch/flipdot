@@ -124,7 +124,9 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
         let response = {
             let frame = Frame::read(&mut self.port)?;
             let message = Message::from(frame);
-            self.bus.process_message(message).map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))?
+            self.bus
+                .process_message(message)
+                .map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))?
         };
 
         if let Some(message) = response {

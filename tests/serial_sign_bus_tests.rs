@@ -6,8 +6,8 @@ use std::io::{self, Read, Write};
 use std::rc::Rc;
 use std::time::Duration;
 
-use flipdot::{Address, PageId, SerialSignBus, Sign, SignType};
 use flipdot::core::{Frame, Message, Operation, State};
+use flipdot::{Address, PageId, SerialSignBus, Sign, SignType};
 use serial_core::{PortSettings, SerialDevice};
 
 /// Mock serial port implementation that reads data from a vector
