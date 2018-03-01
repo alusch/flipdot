@@ -89,9 +89,9 @@ impl Sign {
     /// [`SignBus`]: struct.SignBus.html
     pub fn new(bus: Rc<RefCell<SignBus>>, address: Address, sign_type: SignType) -> Self {
         Sign {
-            address: address,
-            sign_type: sign_type,
-            bus: bus,
+            address,
+            sign_type,
+            bus,
         }
     }
 

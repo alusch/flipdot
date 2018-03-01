@@ -39,7 +39,7 @@ impl<I: Iterator<Item = ScriptItem>> SignBus for ScriptedSignBus<I> {
 
 impl<I: Iterator<Item = ScriptItem>> ScriptedSignBus<I> {
     pub fn new(iter: I) -> Self {
-        ScriptedSignBus { iter: iter }
+        ScriptedSignBus { iter }
     }
 
     pub fn done(&mut self) {

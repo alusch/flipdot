@@ -137,9 +137,9 @@ impl<'a> Frame<'a> {
     /// ```
     pub fn new(address: Address, message_type: MsgType, data: Data<'a>) -> Self {
         Frame {
-            address: address,
-            message_type: message_type,
-            data: data,
+            address,
+            message_type,
+            data,
         }
     }
 

@@ -113,8 +113,8 @@ impl<'a> Page<'a> {
         bytes.resize(Self::total_bytes(width, height), 0xFF);
 
         Page {
-            width: width,
-            height: height,
+            width,
+            height,
             bytes: bytes.into(),
         }
     }
@@ -157,8 +157,8 @@ impl<'a> Page<'a> {
     /// [`ErrorKind::Argument`]: enum.ErrorKind.html
     pub fn from_bytes<T: Into<Cow<'a, [u8]>>>(width: u32, height: u32, bytes: T) -> errors::Result<Self> {
         let page = Page {
-            width: width,
-            height: height,
+            width,
+            height,
             bytes: bytes.into(),
         };
 

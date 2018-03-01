@@ -148,7 +148,7 @@ impl<'a> VirtualSign<'a> {
     /// ```
     pub fn new(address: Address) -> Self {
         VirtualSign {
-            address: address,
+            address,
             state: State::Unconfigured,
             pages: vec![],
             pending_data: vec![],

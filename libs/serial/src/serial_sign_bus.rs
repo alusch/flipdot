@@ -60,7 +60,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// ```
     pub fn new(mut port: P) -> errors::Result<Self> {
         serial_port::configure_port(&mut port, Duration::from_secs(5))?;
-        Ok(SerialSignBus { port: port })
+        Ok(SerialSignBus { port })
     }
 
     /// Returns a reference to the underlying serial port.

@@ -22,7 +22,7 @@ struct MockSerialPort {
 impl MockSerialPort {
     fn new(data: Vec<u8>) -> Self {
         MockSerialPort {
-            data: data,
+            data,
             offset: 0,
             // Initialize settings to some weird defaults to verify we set them correctly later.
             settings: PortSettings {

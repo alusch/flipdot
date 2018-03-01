@@ -81,10 +81,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// `RUST_LOG=debug` to watch the bus messages go by.
     pub fn new(mut port: P, bus: B) -> errors::Result<Self> {
         flipdot_serial::configure_port(&mut port, Duration::from_secs(10))?;
-        Ok(Odk {
-            port: port,
-            bus: bus,
-        })
+        Ok(Odk { port, bus })
     }
 
     /// Reads the next frame from the ODK over the serial port, forwards it
