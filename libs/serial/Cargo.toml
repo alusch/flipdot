@@ -11,11 +11,11 @@ keywords = ["flip-dot", "Luminator", "bus", "sign", "RS-485"]
 categories = ["hardware-support"]
 
 [dependencies]
-error-chain = "0.11"
-log = "0.3"
-serial-core = "0.4"
+error-chain = "0.11.0"
+log = "0.4.1"
+serial-core = "0.4.0"
 
 flipdot-core = { version = "0.1", path = "../core" }
 
 [dev-dependencies]
-serial = "0.4"
+serial = "0.4.0"
