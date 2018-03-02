@@ -288,7 +288,7 @@ impl Sign {
         self.ensure_unconfigured()?;
 
         let config = self.sign_type.to_bytes();
-        self.send_data(iter::once(config), Operation::ReceiveConfig, State::ConfigReceived, State::ConfigFailed)
+        self.send_data(&iter::once(config), Operation::ReceiveConfig, State::ConfigReceived, State::ConfigFailed)
     }
 
     /// Sends one or more pages of pixel data to the sign.
@@ -344,9 +344,9 @@ impl Sign {
         <I as IntoIterator>::IntoIter: Clone,
     {
         let data = pages.into_iter().map(Page::as_bytes);
-        self.send_data(data, Operation::ReceivePixels, State::PixelsReceived, State::PixelsFailed)?;
+        self.send_data(&data, Operation::ReceivePixels, State::PixelsReceived, State::PixelsFailed)?;
 
-        self.send_message_expect_response(Message::PixelsComplete(self.address), None)
+        self.send_message_expect_response(Message::PixelsComplete(self.address), &None)
     }
 
     /// Loads the next page into memory.
@@ -502,7 +502,7 @@ impl Sign {
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
     pub fn shut_down(&self) -> errors::Result<()> {
-        self.send_message_expect_response(Message::Goodbye(self.address), None)
+        self.send_message_expect_response(Message::Goodbye(self.address), &None)
     }
 
     /// Borrows the bus mutably and sends a message.
@@ -517,9 +517,9 @@ impl Sign {
     /// Borrows the bus mutably, sends a message, and verifies that the response is as expected.
     ///
     /// Serves the same purpose as `send_message` when exactly one response is expected.
-    fn send_message_expect_response(&self, message: Message, expected_response: Option<Message>) -> errors::Result<()> {
+    fn send_message_expect_response(&self, message: Message, expected_response: &Option<Message>) -> errors::Result<()> {
         let response = self.send_message(message)?;
-        verify_response(&expected_response, &response)
+        verify_response(expected_response, &response)
     }
 
     /// Ensures that the sign is in the `Unconfigured` state.
@@ -534,34 +534,34 @@ impl Sign {
             Some(Message::ReportState(address, State::ReadyToReset)) if address == self.address => {
                 self.send_message_expect_response(
                     Message::RequestOperation(self.address, Operation::FinishReset),
-                    Some(Message::AckOperation(self.address, Operation::FinishReset)),
+                    &Some(Message::AckOperation(self.address, Operation::FinishReset)),
                 )?;
 
                 self.send_message_expect_response(
                     Message::Hello(self.address),
-                    Some(Message::ReportState(self.address, State::Unconfigured)),
+                    &Some(Message::ReportState(self.address, State::Unconfigured)),
                 )?;
             }
 
             _ => {
                 self.send_message_expect_response(
                     Message::RequestOperation(self.address, Operation::StartReset),
-                    Some(Message::AckOperation(self.address, Operation::StartReset)),
+                    &Some(Message::AckOperation(self.address, Operation::StartReset)),
                 )?;
 
                 self.send_message_expect_response(
                     Message::Hello(self.address),
-                    Some(Message::ReportState(self.address, State::ReadyToReset)),
+                    &Some(Message::ReportState(self.address, State::ReadyToReset)),
                 )?;
 
                 self.send_message_expect_response(
                     Message::RequestOperation(self.address, Operation::FinishReset),
-                    Some(Message::AckOperation(self.address, Operation::FinishReset)),
+                    &Some(Message::AckOperation(self.address, Operation::FinishReset)),
                 )?;
 
                 self.send_message_expect_response(
                     Message::Hello(self.address),
-                    Some(Message::ReportState(self.address, State::Unconfigured)),
+                    &Some(Message::ReportState(self.address, State::Unconfigured)),
                 )?;
             }
         };
@@ -575,7 +575,7 @@ impl Sign {
     /// If `success`, we're done. If `failure`, repeat the process a fixed number
     /// of times in case the data was corrupted in transit. Fails after exhausting
     /// the retries or if any other state is reported.
-    fn send_data<'a, I>(&self, data: I, operation: Operation, success: State, failure: State) -> errors::Result<()>
+    fn send_data<'a, I>(&self, data: &I, operation: Operation, success: State, failure: State) -> errors::Result<()>
     where
         I: Iterator<Item = &'a [u8]> + Clone,
     {
@@ -584,7 +584,7 @@ impl Sign {
         loop {
             self.send_message_expect_response(
                 Message::RequestOperation(self.address, operation),
-                Some(Message::AckOperation(self.address, operation)),
+                &Some(Message::AckOperation(self.address, operation)),
             )?;
 
             let mut chunks_sent = 0;
@@ -593,13 +593,13 @@ impl Sign {
                     // Safe to unwrap the Data creation as the chunk will obviously always be less than 255 bytes.
                     self.send_message_expect_response(
                         Message::SendData(Offset((i * 16) as u16), Data::new(chunk).unwrap()),
-                        None,
+                        &None,
                     )?;
                     chunks_sent += 1;
                 }
             }
 
-            self.send_message_expect_response(Message::DataChunksSent(ChunkCount(chunks_sent)), None)?;
+            self.send_message_expect_response(Message::DataChunksSent(ChunkCount(chunks_sent)), &None)?;
 
             let response = self.send_message(Message::QueryState(self.address))?;
             if response == Some(Message::ReportState(self.address, failure)) && attempts < MAX_ATTEMPTS {
@@ -629,7 +629,7 @@ impl Sign {
                 Some(Message::ReportState(address, state)) if address == self.address && state == trigger => {
                     self.send_message_expect_response(
                         Message::RequestOperation(self.address, operation),
-                        Some(Message::AckOperation(self.address, operation)),
+                        &Some(Message::AckOperation(self.address, operation)),
                     )?;
                 }
 
