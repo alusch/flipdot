@@ -17,12 +17,13 @@
 //! ```no_run
 //! extern crate flipdot_core;
 //! # extern crate flipdot_testing;
-//! # use std::error::Error;
+//! # extern crate failure;
+//! # use failure::Error;
 //! use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
 //! # use flipdot_testing::{VirtualSign, VirtualSignBus};
 //!
 //! # fn get_bus() -> Box<SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
-//! # fn try_main() -> Result<(), Box<Error + Send>> {
+//! # fn try_main() -> Result<(), Error> {
 //! #
 //! // Assume we have a helper function to obtain a SignBus.
 //! let mut bus: Box<SignBus> = get_bus();
@@ -49,14 +50,13 @@
 #![warn(missing_docs, unused_extern_crates, unused_import_braces, unused_qualifications, unused_results)]
 
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 #[macro_use]
 extern crate lazy_static;
 #[macro_use]
 extern crate macro_attr;
-#[cfg(test)]
-#[macro_use]
-extern crate matches;
 #[macro_use]
 extern crate newtype_derive;
 extern crate num_traits;
@@ -69,7 +69,7 @@ mod page;
 mod sign_bus;
 mod sign_type;
 
-pub use self::errors::{Error, ErrorKind, Result, ResultExt};
+pub use self::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 pub use self::frame::{Address, Data, Frame, MsgType};
 pub use self::message::{ChunkCount, Message, Offset, Operation, State};
 pub use self::page::{Page, PageId};

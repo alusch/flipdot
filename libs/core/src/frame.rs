@@ -1,13 +1,13 @@
 use std::borrow::Cow;
-use std::error::Error;
 use std::fmt::{self, Display, Formatter};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::str;
 
+use failure::{Fail, ResultExt};
 use num_traits::Num;
 use regex::bytes::Regex;
 
-use errors::{self, ErrorKind};
+use errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 
 /// A low-level representation of an Intel HEX data frame.
 ///
@@ -21,10 +21,12 @@ use errors::{self, ErrorKind};
 /// # Examples
 ///
 /// ```
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
+/// # extern crate flipdot_core;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
 /// println!("Parsed frame is {}", frame);
@@ -75,10 +77,12 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// // Create a frame with message type 1.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
@@ -99,10 +103,12 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// // Create a frame addressed to sign 2.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
@@ -120,9 +126,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// // some_data is moved into owning_frame.
     /// let some_data = vec![1, 2, 3];
@@ -148,9 +156,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// match frame.message_type() {
@@ -170,9 +180,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// if frame.address() == Address(3) {
@@ -191,9 +203,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![10, 20])?);
     /// if (frame.data().as_ref() == &[10, 20]) {
@@ -212,9 +226,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![6, 7])?);
     /// let frame2 = Frame::new(Address(2), MsgType(2), frame.into_data());
@@ -231,9 +247,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes();
@@ -266,9 +284,11 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes_with_newline();
@@ -288,18 +308,19 @@ impl<'a> Frame<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Parse`]`, _)` if the data does not conform to the
-    /// Intel HEX format or if the actual number of data bytes does not match the specified amount.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::Checksum`]`, _)` if the computed checksum on the data
-    /// does not match the specified one.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::InvalidFrame`] if the data does not conform to the Intel HEX format.
+    /// * [`ErrorKind::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
+    /// * [`ErrorKind::BadChecksum`] if the computed checksum on the data does not match the specified one.
     ///
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bytes = b":02000201031FD9\r\n";
     /// let frame = Frame::from_bytes(&bytes[..])?;
@@ -309,10 +330,10 @@ impl<'a> Frame<'a> {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Parse`]: enum.ErrorKind.html
-    /// [`ErrorKind::Checksum`]: enum.ErrorKind.html
-    pub fn from_bytes(bytes: &[u8]) -> errors::Result<Self> {
+    /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
+    /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
+    /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"(?x)
                 ^:                                  # Colon marks beginning of frame
@@ -326,7 +347,7 @@ impl<'a> Frame<'a> {
         }
         let captures = RE
             .captures(bytes)
-            .ok_or_else(|| ErrorKind::Parse(bytes.to_owned(), "Invalid format".to_owned()))?;
+            .ok_or_else(|| format_err!("[{}] is not valid Intel HEX", string_for_error(bytes)).context(ErrorKind::InvalidFrame))?;
 
         // Regex always matches all capture groups so safe to unwrap.
         let data_len = parse_hex::<u8>(captures.name("data_len").unwrap().as_bytes());
@@ -337,10 +358,12 @@ impl<'a> Frame<'a> {
 
         let data = data_bytes.chunks(2).map(parse_hex::<u8>).collect::<Vec<_>>();
         if data.len() != data_len as usize {
-            bail!(ErrorKind::Parse(
-                bytes.to_owned(),
-                format!("Expected data length {}, got {}", data_len, data.len())
-            ));
+            return Err(WrongValueError::new(
+                data_len as usize,
+                data.len(),
+                format!("[{}] has wrong number of data bytes", string_for_error(bytes)),
+            ).context(ErrorKind::FrameDataMismatch)
+                .into());
         }
 
         let frame = Frame::new(Address(address), MsgType(message_type), Data::new(data)?);
@@ -348,7 +371,12 @@ impl<'a> Frame<'a> {
         let computed_checksum = checksum(&payload);
 
         if computed_checksum != provided_checksum {
-            bail!(ErrorKind::Checksum(bytes.to_owned(), provided_checksum, computed_checksum));
+            return Err(WrongValueError::new(
+                provided_checksum as usize,
+                computed_checksum as usize,
+                format!("[{}] computed checksum didn't match", string_for_error(bytes)),
+            ).context(ErrorKind::BadChecksum)
+                .into());
         }
 
         Ok(frame)
@@ -357,16 +385,18 @@ impl<'a> Frame<'a> {
     /// Writes the byte representation (including CRLF) of the frame to a writer.
     ///
     /// # Errors
-    /// Returns [`Error`]`(`[`ErrorKind::Io`]`, _)` if the write fails.
+    ///
+    /// Returns an error of kind [`ErrorKind::Io`] if the write fails.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// extern crate serial;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # extern crate flipdot_core;
-    /// # use std::error::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
@@ -376,10 +406,9 @@ impl<'a> Frame<'a> {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Io`]: enum.ErrorKind.html
-    pub fn write<W: Write>(&self, writer: &mut W) -> errors::Result<()> {
-        writer.write_all(&self.to_bytes_with_newline())?;
+    /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
+    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
+        writer.write_all(&self.to_bytes_with_newline()).context(ErrorKind::Io)?;
         Ok(())
     }
 
@@ -387,22 +416,22 @@ impl<'a> Frame<'a> {
     /// into a new `Frame`.
     ///
     /// # Errors
-    /// Returns [`Error`]`(`[`ErrorKind::Io`]`, _)` if the read fails.
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Parse`]`, _)` if the data does not conform to the
-    /// Intel HEX format or if the actual number of data bytes does not match the specified amount.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::Checksum`]`, _)` if the computed checksum on the data
-    /// does not match the specified one.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Io`] if the read fails.
+    /// * [`ErrorKind::InvalidFrame`] if the data does not conform to the Intel HEX format.
+    /// * [`ErrorKind::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
+    /// * [`ErrorKind::BadChecksum`] if the computed checksum on the data does not match the specified one.
     ///
     /// # Examples
     ///
     /// ```no_run
     /// extern crate serial;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # extern crate flipdot_core;
-    /// # use std::error::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::read(&mut port)?;
@@ -411,15 +440,15 @@ impl<'a> Frame<'a> {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Io`]: enum.ErrorKind.html
-    /// [`ErrorKind::Parse`]: enum.ErrorKind.html
-    /// [`ErrorKind::Checksum`]: enum.ErrorKind.html
-    pub fn read<R: Read>(mut reader: &mut R) -> errors::Result<Self> {
+    /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
+    /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
+    /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
+    /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
+    pub fn read<R: Read>(mut reader: &mut R) -> Result<Self, Error> {
         // One-byte buffer seems to work best with such small payloads
         let mut buf_reader = BufReader::with_capacity(1, &mut reader);
         let mut data = Vec::<u8>::new();
-        let _ = buf_reader.read_until(b'\n', &mut data)?;
+        let _ = buf_reader.read_until(b'\n', &mut data).context(ErrorKind::Io)?;
         let frame = Frame::from_bytes(&data)?;
         Ok(frame)
     }
@@ -461,11 +490,18 @@ impl<'a> Display for Frame<'a> {
 /// Assumes that the data has already been validated and panics if it is invalid.
 fn parse_hex<T: Num>(bytes: &[u8]) -> T
 where
-    <T as Num>::FromStrRadixErr: 'static + Error,
+    <T as Num>::FromStrRadixErr: 'static + ::std::error::Error,
 {
     // Regex already determined these are valid hex digits, so we can just unwrap.
     let string = str::from_utf8(bytes).unwrap();
     T::from_str_radix(string, 16).unwrap()
+}
+
+/// Formats a supposed Intel HEX byte string for display as part of an error message.
+///
+/// Does a lossy UTF-8 conversion (invalid characters represented as `?`) and removes whitespace.
+fn string_for_error(bytes: &[u8]) -> String {
+    String::from_utf8_lossy(bytes).trim().to_string()
 }
 
 /// Computes the LRC of the given byte slice.
@@ -486,9 +522,11 @@ fn checksum(bytes: &[u8]) -> u8 {
 /// # Examples
 ///
 /// ```
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
+/// # extern crate flipdot_core;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let data = Data::new(vec![1, 2, 3])?; // Ok since length under 255
 /// let frame = Frame::new(Address(2), MsgType(1), data);
@@ -509,14 +547,16 @@ impl<'a> Data<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Argument`]`, _)` if the data length is greater than 255 (`0xFF`).
+    /// Returns an error of kind [`ErrorKind::DataTooLong`] if the data length is greater than 255 (`0xFF`).
     ///
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let data = Data::new(vec![1, 2, 3])?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
@@ -528,9 +568,11 @@ impl<'a> Data<'a> {
     /// Borrowed data can also be used:
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bytes = vec![1, 2, 3];
     /// let data = Data::new(bytes.as_ref())?;
@@ -549,15 +591,13 @@ impl<'a> Data<'a> {
     /// ```
     ///
     /// [`Frame`]: struct.Frame.html
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Argument`]: enum.ErrorKind.html
-    pub fn new<T: Into<Cow<'a, [u8]>>>(data: T) -> errors::Result<Self> {
+    /// [`ErrorKind::DataTooLong`]: enum.ErrorKind.html#variant.DataTooLong
+    pub fn new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, Error> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {
-            bail!(ErrorKind::Argument(format!(
-                "Frame data length must fit in a single byte (at most 255), got {}",
-                data.len()
-            )));
+            return Err(MaxExceededError::new(0xFF, data.len(), "Too many data bytes")
+                .context(ErrorKind::DataTooLong)
+                .into());
         }
         Ok(Data(data))
     }
@@ -567,9 +607,11 @@ impl<'a> Data<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let data = Data::new(vec![])?;
     /// assert!(data.get().is_empty());
@@ -606,7 +648,6 @@ impl_from_array_ref_with_length!(4);
 #[cfg(test)]
 mod tests {
     use super::*;
-    use errors::*;
 
     #[test]
     fn roundtrip_simple_frame() {
@@ -660,8 +701,11 @@ mod tests {
 
     #[test]
     fn data_length_over_255_rejected() {
-        let data = Data::new(vec![0; 256]);
-        assert_matches!(data, Err(Error(ErrorKind::Argument(_), _)));
+        let error = Data::new(vec![0; 256]).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::DataTooLong);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<MaxExceededError>()).unwrap();
+        assert_eq!(255, cause.max);
+        assert_eq!(256, cause.actual);
     }
 
     #[test]
@@ -672,56 +716,65 @@ mod tests {
 
     #[test]
     fn bad_checksum_detected() {
-        let decoded = Frame::from_bytes(b":01007F02FF7E");
-        assert_matches!(decoded, Err(Error(ErrorKind::Checksum(_, _, _), _)));
+        let error = Frame::from_bytes(b":01007F02FF7E").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::BadChecksum);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
+        assert_eq!(0x7E, cause.expected);
+        assert_eq!(0x7F, cause.actual);
     }
 
     #[test]
     fn extra_data_detected() {
-        let decoded = Frame::from_bytes(b":00007F02007F");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":00007F02007F").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::FrameDataMismatch);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
+        assert_eq!(0, cause.expected);
+        assert_eq!(1, cause.actual);
     }
 
     #[test]
     fn missing_data_detected() {
-        let decoded = Frame::from_bytes(b":01007F027E");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":01007F027E").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::FrameDataMismatch);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
+        assert_eq!(1, cause.expected);
+        assert_eq!(0, cause.actual);
     }
 
     #[test]
     fn invalid_format_detected() {
-        let decoded = Frame::from_bytes(b":01");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":01").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]
     fn garbage_detected() {
-        let decoded = Frame::from_bytes(b"asdgdfg");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b"asdgdfg").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]
     fn bad_char_detected() {
-        let decoded = Frame::from_bytes(b":01007F020z7E");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":01007F020z7E").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]
     fn missing_char_detected() {
-        let decoded = Frame::from_bytes(b":01007F0207E");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":01007F0207E").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]
     fn leading_chars_detected() {
-        let decoded = Frame::from_bytes(b"abc:01007F02FF7Fa");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b"abc:01007F02FF7Fa").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]
     fn trailing_chars_detected() {
-        let decoded = Frame::from_bytes(b":01007F02FF7Fabc");
-        assert_matches!(decoded, Err(Error(ErrorKind::Parse(_, _), _)));
+        let error = Frame::from_bytes(b":01007F02FF7Fabc").unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
     }
 
     #[test]

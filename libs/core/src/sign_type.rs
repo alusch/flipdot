@@ -1,6 +1,8 @@
-use errors::{self, ErrorKind};
+use failure::Fail;
 
-/// Represents the configuration information for a particular model of sign.
+use errors::{Error, ErrorKind, WrongValueError};
+
+/// The configuration information for a particular model of sign.
 ///
 /// In order to communicate with a sign, we need to send the proper configuration
 /// data, which includes an ID, size information, and a few other things.
@@ -10,10 +12,12 @@ use errors::{self, ErrorKind};
 /// # Examples
 ///
 /// ```
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
+/// # extern crate flipdot_core;
 /// use flipdot_core::SignType;
 ///
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let sign_type = SignType::Max3000Front112x16;
 /// assert_eq!((112, 16), sign_type.dimensions());
@@ -97,15 +101,18 @@ impl SignType {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Argument`]`, _)` if the data is not 16 bytes long
-    /// or does not correspond to a known sign type.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::WrongConfigLength`] if the data is not 16 bytes long.
+    /// * [`ErrorKind::UnknownConfig`] if the data does not correspond to a known sign type.
     ///
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::SignType;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bytes = vec![0x04, 0x62, 0x00, 0x04, 0x0A, 0x1E, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     /// let sign_type = SignType::from_bytes(&bytes)?;
@@ -115,11 +122,13 @@ impl SignType {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Argument`]: enum.ErrorKind.html
-    pub fn from_bytes(bytes: &[u8]) -> errors::Result<Self> {
+    /// [`ErrorKind::WrongConfigLength`]: enum.ErrorKind.html#variant.WrongConfigLength
+    /// [`ErrorKind::UnknownConfig`]: enum.ErrorKind.html#variant.UnknownConfig
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         if bytes.len() != 16 {
-            bail!(ErrorKind::Argument("Expected 16-byte configuration data".to_owned()));
+            return Err(WrongValueError::new(16, bytes.len(), "Wrong number of data bytes for config")
+                .context(ErrorKind::WrongConfigLength)
+                .into());
         }
 
         match (bytes[0], bytes[1]) {
@@ -136,7 +145,9 @@ impl SignType {
             (0x8, 0xB5) => Ok(SignType::HorizonRear48x16),
             (0x8, 0xB9) => Ok(SignType::HorizonDash40x12),
 
-            _ => bail!(ErrorKind::Argument(format!("Unknown sign configuration data {:?}", bytes))),
+            _ => Err(format_err!("Unknown config data: {:?}", bytes)
+                .context(ErrorKind::UnknownConfig)
+                .into()),
         }
     }
 
@@ -223,7 +234,6 @@ impl SignType {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use errors::*;
 
     fn verify_roundtrip(sign_type: SignType, expected_bytes: &[u8]) {
         let encoded = sign_type.to_bytes();
@@ -334,8 +344,8 @@ mod tests {
         let data = vec![
             0x10, 0xB9, 0x00, 0x06, 0x8C, 0x0C, 0x00, 0x28, 0x01, 0x00, 0x28, 0x00, 0x04, 0x00, 0x00, 0x00,
         ];
-        let sign_type = SignType::from_bytes(&data);
-        assert_matches!(sign_type, Err(Error(ErrorKind::Argument(_), _)));
+        let error = SignType::from_bytes(&data).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::UnknownConfig);
     }
 
     #[test]
@@ -343,8 +353,8 @@ mod tests {
         let data = vec![
             0x08, 0xBA, 0x00, 0x06, 0x8C, 0x0C, 0x00, 0x18, 0x01, 0x00, 0x28, 0x00, 0x04, 0x00, 0x00, 0x00,
         ];
-        let sign_type = SignType::from_bytes(&data);
-        assert_matches!(sign_type, Err(Error(ErrorKind::Argument(_), _)));
+        let error = SignType::from_bytes(&data).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::UnknownConfig);
     }
 
     #[test]
@@ -352,15 +362,18 @@ mod tests {
         let data = vec![
             0x04, 0x21, 0x00, 0x06, 0x07, 0x10, 0x10, 0x10, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ];
-        let sign_type = SignType::from_bytes(&data);
-        assert_matches!(sign_type, Err(Error(ErrorKind::Argument(_), _)));
+        let error = SignType::from_bytes(&data).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::UnknownConfig);
     }
 
     #[test]
     fn not_enough_data() {
         let data = vec![0x04];
-        let sign_type = SignType::from_bytes(&data);
-        assert_matches!(sign_type, Err(Error(ErrorKind::Argument(_), _)));
+        let error = SignType::from_bytes(&data).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::WrongConfigLength);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
+        assert_eq!(16, cause.expected);
+        assert_eq!(1, cause.actual);
     }
 
     #[test]
@@ -368,7 +381,10 @@ mod tests {
         let data = vec![
             0x08, 0xB9, 0x00, 0x06, 0x8C, 0x0C, 0x00, 0x28, 0x01, 0x00, 0x28, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
         ];
-        let sign_type = SignType::from_bytes(&data);
-        assert_matches!(sign_type, Err(Error(ErrorKind::Argument(_), _)));
+        let error = SignType::from_bytes(&data).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::WrongConfigLength);
+        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
+        assert_eq!(16, cause.expected);
+        assert_eq!(17, cause.actual);
     }
 }

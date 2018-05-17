@@ -1,13 +1,13 @@
-use std::error::Error;
 use std::thread;
 use std::time::Duration;
 
+use failure;
 use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus, State};
 use serial_port;
 
-use errors;
+use errors::Error;
 
 /// An implementation of `SignBus` that communicates with one or more signs over serial.
 ///
@@ -20,10 +20,11 @@ use errors;
 /// ```no_run
 /// # extern crate serial;
 /// # extern crate flipdot_serial;
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
 /// use flipdot_serial::SerialSignBus;
 ///
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let port = serial::open("/dev/ttyUSB0")?;
 /// let bus = SerialSignBus::new(port)?;
@@ -43,14 +44,20 @@ pub struct SerialSignBus<P: SerialPort> {
 impl<P: SerialPort> SerialSignBus<P> {
     /// Creates a new `SerialSignBus` that communicates over the specified serial port.
     ///
+    /// # Errors
+    ///
+    /// Returns an error of kind [`ErrorKind::Configuration`] if the serial port
+    /// cannot be configured.
+    ///
     /// # Examples
     ///
     /// ```no_run
     /// # extern crate serial;
     /// # extern crate flipdot_serial;
     /// # use flipdot_serial::SerialSignBus;
-    /// # use std::error::Error;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let port = serial::open("COM3")?;
     /// let bus = SerialSignBus::new(port)?;
@@ -58,7 +65,9 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// # Ok(()) }
     /// # fn main() { try_main().unwrap(); }
     /// ```
-    pub fn new(mut port: P) -> errors::Result<Self> {
+    ///
+    /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
+    pub fn new(mut port: P) -> Result<Self, Error> {
         serial_port::configure_port(&mut port, Duration::from_secs(5))?;
         Ok(SerialSignBus { port })
     }
@@ -71,7 +80,7 @@ impl<P: SerialPort> SerialSignBus<P> {
 
 impl<P: SerialPort> SignBus for SerialSignBus<P> {
     /// Handles a bus message by sending it to the serial port and reading a response if necessary.
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, Box<Error + Send>> {
+    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error> {
         debug!("Bus message: {}", message);
 
         let response_expected = response_expected(&message);

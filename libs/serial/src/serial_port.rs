@@ -1,9 +1,10 @@
 use std::time::Duration;
 
+use failure::ResultExt;
 use serial_core as serial;
 use serial_core::prelude::*;
 
-use errors::{self, ErrorKind, ResultExt};
+use errors::{Error, ErrorKind};
 
 /// Configures the given serial port appropriately for use with Luminator signs.
 ///
@@ -11,7 +12,7 @@ use errors::{self, ErrorKind, ResultExt};
 ///
 /// # Errors
 ///
-/// Returns [`Error`]`(`[`ErrorKind::Serial`]`, _)` if the underlying serial port
+/// Returns an error of kind [`ErrorKind::Configuration`] if the underlying serial port
 /// reports an error.
 ///
 /// # Examples
@@ -19,10 +20,11 @@ use errors::{self, ErrorKind, ResultExt};
 /// ```no_run
 /// # extern crate serial;
 /// # extern crate flipdot_serial;
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
 /// use std::time::Duration;
 ///
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let mut port = serial::open("COM3")?;
 /// flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;
@@ -32,9 +34,8 @@ use errors::{self, ErrorKind, ResultExt};
 /// # fn main() { try_main().unwrap(); }
 /// ```
 ///
-/// [`Error`]: struct.Error.html
-/// [`ErrorKind::Serial`]: enum.ErrorKind.html
-pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> errors::Result<()> {
+/// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
+pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<(), Error> {
     port.reconfigure(&|settings| {
         settings.set_baud_rate(serial::Baud19200)?;
         settings.set_char_size(serial::Bits8);
@@ -42,8 +43,7 @@ pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> errors:
         settings.set_stop_bits(serial::Stop1);
         settings.set_flow_control(serial::FlowNone);
         Ok(())
-    }).chain_err(|| ErrorKind::Serial("Couldn't configure serial port".to_owned()))?;
-    port.set_timeout(timeout)
-        .chain_err(|| ErrorKind::Serial("Couldn't set serial timeout".to_owned()))?;
+    }).context(ErrorKind::Configuration)?;
+    port.set_timeout(timeout).context(ErrorKind::Configuration)?;
     Ok(())
 }

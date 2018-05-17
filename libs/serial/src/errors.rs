@@ -1,21 +1,58 @@
-use flipdot_core;
+use std::fmt;
 
-error_chain! {
-    links {
-        Core(flipdot_core::Error, flipdot_core::ErrorKind) #[doc = "Error propagated from `flipdot_core`."];
-    }
+use failure::{Backtrace, Context, Fail};
 
-    errors {
-        /// An error occurred trying to configure the serial port.
-        Serial(message: String) {
-            description("Sign communication failure")
-            display("I/O error: {}", message)
-        }
+/// The error type.
+#[derive(Debug)]
+pub struct Error {
+    inner: Context<ErrorKind>,
+}
+
+/// The specific kind of error that occurred.
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+pub enum ErrorKind {
+    /// Failed to configure serial port.
+    #[fail(display = "Failed to configure serial port")]
+    Configuration,
+
+    // Don't actually use this; it's just here to prevent exhaustive matching
+    // so we can extend this enum in the future without a breaking change.
+    #[doc(hidden)]
+    #[fail(display = "")]
+    __Nonexhaustive,
+}
+
+impl Error {
+    /// The specific kind of error that occurred.
+    pub fn kind(&self) -> ErrorKind {
+        *self.inner.get_context()
     }
 }
 
-impl From<Error> for Box<::std::error::Error + Send> {
-    fn from(e: Error) -> Self {
-        Box::new(e)
+impl Fail for Error {
+    fn cause(&self) -> Option<&Fail> {
+        self.inner.cause()
+    }
+
+    fn backtrace(&self) -> Option<&Backtrace> {
+        self.inner.backtrace()
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.inner.fmt(f)
+    }
+}
+
+impl From<ErrorKind> for Error {
+    fn from(kind: ErrorKind) -> Error {
+        Error::from(Context::new(kind))
+    }
+}
+
+impl From<Context<ErrorKind>> for Error {
+    fn from(inner: Context<ErrorKind>) -> Error {
+        Error { inner }
     }
 }

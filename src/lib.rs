@@ -15,12 +15,14 @@
 //! extern crate serial;
 //! extern crate flipdot;
 //!
-//! # use std::error::Error;
+//! # extern crate failure;
+//! # use failure::Error;
+//! #
 //! use std::cell::RefCell;
 //! use std::rc::Rc;
 //! use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 //!
-//! # fn try_main() -> Result<(), Box<Error>> {
+//! # fn try_main() -> Result<(), Error> {
 //! #
 //! // Set up bus. Because the bus can be shared among
 //! // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -75,7 +77,9 @@
 #![warn(missing_docs, unused_extern_crates, unused_import_braces, unused_qualifications, unused_results)]
 
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 
 pub extern crate flipdot_core as core;
 pub extern crate flipdot_serial as serial;
@@ -83,7 +87,7 @@ pub extern crate flipdot_serial as serial;
 mod errors;
 mod sign;
 
-pub use self::errors::{Error, ErrorKind, Result, ResultExt};
+pub use self::errors::{Error, ErrorKind};
 pub use self::sign::Sign;
 
 pub use core::{Address, Page, PageId, SignBus, SignType};

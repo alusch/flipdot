@@ -1,5 +1,6 @@
-use std::error::Error;
 use std::mem;
+
+use failure;
 
 use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBus, SignType, State};
 
@@ -24,8 +25,10 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # use std::error::Error;
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # extern crate failure;
+/// # use failure::Error;
+/// #
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 /// let port = serial::open("/dev/ttyUSB0")?;
@@ -58,8 +61,10 @@ impl<'a> VirtualSignBus<'a> {
     /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use std::error::Error;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// #
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
@@ -99,7 +104,7 @@ impl<'a> VirtualSignBus<'a> {
 
 impl<'a> SignBus for VirtualSignBus<'a> {
     /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
-    fn process_message<'b>(&mut self, message: Message) -> Result<Option<Message<'b>>, Box<Error + Send>> {
+    fn process_message<'b>(&mut self, message: Message) -> Result<Option<Message<'b>>, failure::Error> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
             let response = sign.process_message(&message);

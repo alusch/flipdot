@@ -11,13 +11,14 @@ use {Address, Data, Frame, MsgType};
 /// # Examples
 ///
 /// ```
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
 /// # extern crate flipdot_core;
 /// # extern crate flipdot_testing;
 /// use flipdot_core::{Address, Message, SignBus, State};
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
-/// # fn try_main() -> Result<(), Box<Error + Send>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 ///
@@ -95,10 +96,12 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// use flipdot_core::{Data, Message, Offset};
     ///
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     /// let message1 = Message::SendData(Offset(0), Data::new(data.as_ref())?);
@@ -109,7 +112,7 @@ macro_attr! {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`SendData`]: enum.Message.html
+    /// [`SendData`]: enum.Message.html#variant.SendData
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
     pub struct Offset(pub u16);
 }
@@ -126,8 +129,8 @@ macro_attr! {
     /// let message = Message::DataChunksSent(ChunkCount(3));
     /// ```
     ///
-    /// [`SendData`]: enum.Message.html
-    /// [`DataChunksSent`]: enum.Message.html
+    /// [`SendData`]: enum.Message.html#variant.SendData
+    /// [`DataChunksSent`]: enum.Message.html#variant.DataChunksSent
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
     pub struct ChunkCount(pub u16);
 }
@@ -137,9 +140,9 @@ macro_attr! {
 /// These are reported by the sign in a [`ReportState`] message
 /// in response to [`Hello`] or [`QueryState`].
 ///
-/// [`ReportState`]: enum.Message.html
-/// [`Hello`]: enum.Message.html
-/// [`QueryState`]: enum.Message.html
+/// [`ReportState`]: enum.Message.html#variant.ReportState
+/// [`Hello`]: enum.Message.html#variant.Hello
+/// [`QueryState`]: enum.Message.html#variant.QueryState
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum State {
     /// The initial state upon power on or after a reset.
@@ -178,7 +181,7 @@ pub enum State {
 ///
 /// These are requested by the ODK via a [`RequestOperation`] message.
 ///
-/// [`RequestOperation`]: enum.Message.html
+/// [`RequestOperation`]: enum.Message.html#variant.RequestOperation
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Operation {
     /// Receive the 16-byte configuration data.
@@ -191,11 +194,11 @@ pub enum Operation {
     LoadNextPage,
     /// Begin the process of resetting back to the [`Unconfigured`] state.
     ///
-    /// [`Unconfigured`]: enum.State.html
+    /// [`Unconfigured`]: enum.State.html#variant.Unconfigured
     StartReset,
     /// Finish the process of resetting back to the [`Unconfigured`] state.
     ///
-    /// [`Unconfigured`]: enum.State.html
+    /// [`Unconfigured`]: enum.State.html#variant.Unconfigured
     FinishReset,
 
     // Don't actually use this; it's just here to prevent exhaustive matching
@@ -248,9 +251,11 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(0x12), MsgType(4), Data::new(vec![0x07])?);
     /// let message = Message::from(frame);
@@ -322,9 +327,11 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let message = Message::ReportState(Address(0xFF), State::ConfigReceived);
     /// let frame = Frame::from(message);

@@ -18,8 +18,10 @@
 //! use flipdot_serial::SerialSignBus;
 //! use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 //!
-//! # use std::error::Error;
-//! # fn try_main() -> Result<(), Box<Error>> {
+//! # extern crate failure;
+//! # use failure::Error;
+//! #
+//! # fn try_main() -> Result<(), Error> {
 //! #
 //! // Populate bus with signs from addresses 2 to 126
 //! // (which seems to be the possible range for actual signs).
@@ -45,8 +47,9 @@
 #![deny(missing_copy_implementations, missing_debug_implementations, trivial_casts, trivial_numeric_casts, unsafe_code)]
 #![warn(missing_docs, unused_extern_crates, unused_import_braces, unused_qualifications, unused_results)]
 
+extern crate failure;
 #[macro_use]
-extern crate error_chain;
+extern crate failure_derive;
 #[macro_use]
 extern crate log;
 extern crate serial_core;
@@ -58,7 +61,7 @@ mod errors;
 mod odk;
 mod virtual_sign_bus;
 
-pub use self::errors::{Error, ErrorKind, Result, ResultExt};
+pub use self::errors::{Error, ErrorKind};
 pub use self::odk::Odk;
 pub use self::virtual_sign_bus::{VirtualSign, VirtualSignBus};
 

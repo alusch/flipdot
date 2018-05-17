@@ -1,11 +1,12 @@
 use std::time::Duration;
 
+use failure::ResultExt;
 use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus};
 use flipdot_serial;
 
-use errors::{self, ErrorKind};
+use errors::{Error, ErrorKind};
 
 /// Connects to a real ODK over the specified serial port and uses it to drive a `SignBus`.
 ///
@@ -21,8 +22,10 @@ use errors::{self, ErrorKind};
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # use std::error::Error;
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # extern crate failure;
+/// # use failure::Error;
+/// #
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// // Populate bus with signs from addresses 2 to 126
 /// // (which seems to be the possible range for actual signs).
@@ -52,11 +55,9 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// Create a new `Odk` that connects the specified serial port and bus.
     ///
     /// # Errors
-    /// Returns [`Error`]`(`[`ErrorKind::Serial`]`, _)` if the serial port
-    /// cannot be configured.
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Serial`]: enum.ErrorKind.html
+    /// Returns an error of kind [`ErrorKind::Configuration`] if the serial port
+    /// cannot be configured.
     ///
     /// # Examples
     ///
@@ -66,8 +67,10 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use std::error::Error;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// #
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
@@ -79,8 +82,10 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// Note: You would typically use the `env_logger` crate and run with
     /// `RUST_LOG=debug` to watch the bus messages go by.
-    pub fn new(mut port: P, bus: B) -> errors::Result<Self> {
-        flipdot_serial::configure_port(&mut port, Duration::from_secs(10))?;
+    ///
+    /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
+    pub fn new(mut port: P, bus: B) -> Result<Self, Error> {
+        flipdot_serial::configure_port(&mut port, Duration::from_secs(10)).context(ErrorKind::Configuration)?;
         Ok(Odk { port, bus })
     }
 
@@ -89,11 +94,9 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Core`]`, _)` if there was an error
-    /// reading or writing the data.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the bus failed to
-    /// process the message.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Communication`] if there was an error reading or writing the data.
+    /// * [`ErrorKind::Bus`] if the bus failed to process the message.
     ///
     /// # Examples
     ///
@@ -103,8 +106,10 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use std::error::Error;
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # extern crate failure;
+    /// # use failure::Error;
+    /// #
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("/dev/ttyUSB0")?;
@@ -117,21 +122,18 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Core`]: enum.ErrorKind.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    pub fn process_message(&mut self) -> errors::Result<()> {
+    /// [`ErrorKind::Communication`]: enum.ErrorKind.html#variant.Communication
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    pub fn process_message(&mut self) -> Result<(), Error> {
         let response = {
-            let frame = Frame::read(&mut self.port)?;
+            let frame = Frame::read(&mut self.port).context(ErrorKind::Communication)?;
             let message = Message::from(frame);
-            self.bus
-                .process_message(message)
-                .map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))?
+            self.bus.process_message(message).context(ErrorKind::Bus)?
         };
 
         if let Some(message) = response {
             let frame = Frame::from(message);
-            frame.write(&mut self.port)?;
+            frame.write(&mut self.port).context(ErrorKind::Communication)?;
         }
 
         Ok(())

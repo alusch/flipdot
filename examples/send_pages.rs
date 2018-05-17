@@ -1,30 +1,18 @@
-#[macro_use]
-extern crate error_chain;
+extern crate failure;
 extern crate flipdot;
 extern crate flipdot_testing;
 
 use std::cell::RefCell;
+use std::iter;
+use std::process;
 use std::rc::Rc;
+
+use failure::Error;
 
 use flipdot::{Address, PageId, Sign, SignType};
 use flipdot_testing::{VirtualSign, VirtualSignBus};
 
-// The flipdot crate uses error-chain so you can easily link it to your own errors.
-mod errors {
-    use flipdot;
-
-    error_chain! {
-        links {
-            Flipdot(flipdot::Error, flipdot::ErrorKind);
-        }
-    }
-}
-use errors::*;
-
-// Using error-chain's main wrapper that calls the run function below.
-quick_main!(run);
-
-fn run() -> Result<()> {
+fn run() -> Result<(), Error> {
     // Create a virtual sign bus for testing purposes.
     // To control a real sign you would use SerialSignBus instead.
     let virtual_signs = vec![VirtualSign::new(Address(3))];
@@ -64,4 +52,18 @@ fn run() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn main() {
+    match run() {
+        Ok(_) => process::exit(0),
+        Err(ref e) => {
+            let headings = iter::once("Error").chain(iter::repeat("Caused by"));
+            for (heading, failure) in headings.zip(e.causes()) {
+                eprintln!("{}: {}", heading, failure);
+            }
+            eprintln!("{:?}", e.backtrace());
+            process::exit(1);
+        }
+    }
 }

@@ -11,7 +11,8 @@ keywords = ["flip-dot", "Luminator", "bus", "sign", "RS-485"]
 categories = ["hardware-support"]
 
 [dependencies]
-error-chain = "0.11.0"
+failure = "0.1.1"
+failure_derive = "0.1.1"
 log = "0.4.1"
 serial-core = "0.4.0"
 

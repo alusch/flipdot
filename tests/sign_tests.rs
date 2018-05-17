@@ -1,9 +1,7 @@
+extern crate failure;
 extern crate flipdot;
-#[macro_use]
-extern crate matches;
 
 use std::cell::RefCell;
-use std::error::Error;
 use std::io;
 use std::rc::Rc;
 
@@ -32,7 +30,7 @@ struct ScriptedSignBus<I: Iterator<Item = ScriptItem>> {
 }
 
 impl<I: Iterator<Item = ScriptItem>> SignBus for ScriptedSignBus<I> {
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, Box<Error + Send>> {
+    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error> {
         let current_row = self.iter.next().expect("Ran out of scripted responses");
         assert_eq!(current_row.expected, message);
         current_row.response
@@ -54,7 +52,7 @@ impl<I: Iterator<Item = ScriptItem>> ScriptedSignBus<I> {
 #[derive(Debug)]
 struct ScriptItem {
     pub expected: Message<'static>,
-    pub response: Result<Option<Message<'static>>, Box<Error + Send>>,
+    pub response: Result<Option<Message<'static>>, failure::Error>,
 }
 
 #[test]
@@ -247,8 +245,8 @@ fn config_retry_unexpected_state_fails() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let result = sign.configure();
-    assert_matches!(result, Err(flipdot::Error(flipdot::ErrorKind::UnexpectedResponse(_, _), _)));
+    let error = sign.configure().unwrap_err();
+    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
 
     bus.borrow_mut().done();
 }
@@ -314,8 +312,8 @@ fn config_retry_gives_up() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let result = sign.configure();
-    assert_matches!(result, Err(flipdot::Error(flipdot::ErrorKind::UnexpectedResponse(_, _), _)));
+    let error = sign.configure().unwrap_err();
+    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
 
     bus.borrow_mut().done();
 }
@@ -648,8 +646,8 @@ fn unexpected_response_error() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let result = sign.configure();
-    assert_matches!(result, Err(flipdot::Error(flipdot::ErrorKind::UnexpectedResponse(_, _), _)));
+    let error = sign.configure().unwrap_err();
+    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
 
     bus.borrow_mut().done();
 }
@@ -665,8 +663,8 @@ fn flip_page_unexpected_response_error() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let result = sign.show_loaded_page();
-    assert_matches!(result, Err(flipdot::Error(flipdot::ErrorKind::UnexpectedResponse(_, _), _)));
+    let error = sign.show_loaded_page().unwrap_err();
+    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
 
     bus.borrow_mut().done();
 }
@@ -675,15 +673,15 @@ fn flip_page_unexpected_response_error() {
 fn error_propagates() {
     let script = vec![ScriptItem {
         expected: Message::Hello(Address(3)),
-        response: Err(Box::new(io::Error::new(io::ErrorKind::Other, "oh no!"))),
+        response: Err(io::Error::new(io::ErrorKind::Other, "oh no!").into()),
     }];
 
     let bus = ScriptedSignBus::new(script.into_iter());
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let result = sign.configure();
-    assert_matches!(result, Err(flipdot::Error(flipdot::ErrorKind::Bus, _)));
+    let error = sign.configure().unwrap_err();
+    assert_eq!(error.kind(), flipdot::ErrorKind::Bus);
 
     bus.borrow_mut().done();
 }

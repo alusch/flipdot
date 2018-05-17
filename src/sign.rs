@@ -2,11 +2,13 @@ use std::cell::RefCell;
 use std::iter;
 use std::rc::Rc;
 
+use failure::ResultExt;
+
 use core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
 
-use errors::{self, ErrorKind};
+use errors::{Error, ErrorKind};
 
-/// Represents a single on an associated bus and exposes methods to control it.
+/// A single sign on an associated bus.
 ///
 /// Basic operation consists of configuring the sign, sending one or more pages of a message,
 /// then requesting a page flip as desired. The types of signs that are supported are "dumb"
@@ -17,12 +19,13 @@ use errors::{self, ErrorKind};
 /// ```no_run
 /// # extern crate serial;
 /// # extern crate flipdot;
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 ///
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// // Set up bus. Because the bus can be shared among
 /// // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -69,7 +72,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -77,7 +81,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -98,7 +102,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -106,7 +111,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -126,7 +131,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -134,7 +140,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -154,7 +160,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -162,7 +169,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -182,7 +189,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -190,7 +198,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -210,7 +218,8 @@ impl Sign {
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -218,7 +227,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -245,18 +254,18 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the underlying bus failed to process a message.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::UnexpectedResponse`]`, _)` if the sign did not
-    /// send the expected response according to the protocol. In this case it is recommended
-    /// to re-`configure` the sign and start over.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
+    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-`configure` the sign and start over.
     ///
     /// # Examples
     ///
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -266,7 +275,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -277,10 +286,9 @@ impl Sign {
     /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
-    pub fn configure(&self) -> errors::Result<()> {
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    pub fn configure(&self) -> Result<(), Error> {
         self.ensure_unconfigured()?;
 
         let config = self.sign_type.to_bytes();
@@ -299,19 +307,18 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the underlying bus failed to
-    /// process a message.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::UnexpectedResponse`]`, _)` if the sign did not
-    /// send the expected response according to the protocol. In this case it is recommended
-    /// to re-[`configure`] the sign and start over.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
+    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
     ///
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -321,7 +328,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -336,10 +343,9 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
-    pub fn send_pages<'a, I>(&self, pages: I) -> errors::Result<()>
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), Error>
     where
         I: IntoIterator<Item = &'a Page<'a>>,
         <I as IntoIterator>::IntoIter: Clone,
@@ -356,19 +362,18 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the underlying bus failed to
-    /// process a message.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::UnexpectedResponse`]`, _)` if the sign did not
-    /// send the expected response according to the protocol. In this case it is recommended
-    /// to re-[`configure`] the sign and start over.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
+    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
     ///
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -378,7 +383,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -396,10 +401,9 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
-    pub fn load_next_page(&self) -> errors::Result<()> {
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    pub fn load_next_page(&self) -> Result<(), Error> {
         self.switch_page(State::PageLoaded, State::PageShown, Operation::LoadNextPage)
     }
 
@@ -409,18 +413,18 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the underlying bus failed to process a message.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::UnexpectedResponse`]`, _)` if the sign did not
-    /// send the expected response according to the protocol. In this case it is recommended
-    /// to re-[`configure`] the sign and start over.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
+    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
     ///
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -430,7 +434,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -446,10 +450,9 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
-    pub fn show_loaded_page(&self) -> errors::Result<()> {
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    pub fn show_loaded_page(&self) -> Result<(), Error> {
         self.switch_page(State::PageShown, State::PageLoaded, Operation::ShowLoadedPage)
     }
 
@@ -460,18 +463,18 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns [`Error`]`(`[`ErrorKind::Bus`]`, _)` if the underlying bus failed to process a message.
-    ///
-    /// Returns [`Error`]`(`[`ErrorKind::UnexpectedResponse`]`, _)` if the sign did not
-    /// send the expected response according to the protocol. In this case it is recommended
-    /// to re-[`configure`] the sign and start over.
+    /// Returns an error of kind:
+    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
+    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
     ///
     /// ```
     /// # extern crate flipdot;
     /// # extern crate flipdot_testing;
-    /// # use std::error::Error;
+    /// # extern crate failure;
+    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -481,7 +484,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Box<Error>> {
+    /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -499,10 +502,9 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`Error`]: struct.Error.html
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html
-    pub fn shut_down(&self) -> errors::Result<()> {
+    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    pub fn shut_down(&self) -> Result<(), Error> {
         self.send_message_expect_response(Message::Goodbye(self.address), &None)
     }
 
@@ -510,16 +512,15 @@ impl Sign {
     ///
     /// Enforces that only leaf calls borrow the bus to avoid runtime errors,
     /// and conveniently localizes the error chaining on failure.
-    fn send_message(&self, message: Message) -> errors::Result<Option<Message>> {
+    fn send_message(&self, message: Message) -> Result<Option<Message>, Error> {
         let mut bus = self.bus.borrow_mut();
-        bus.process_message(message)
-            .map_err(|e| errors::Error::with_boxed_chain(e, ErrorKind::Bus))
+        Ok(bus.process_message(message).context(ErrorKind::Bus)?)
     }
 
     /// Borrows the bus mutably, sends a message, and verifies that the response is as expected.
     ///
     /// Serves the same purpose as `send_message` when exactly one response is expected.
-    fn send_message_expect_response(&self, message: Message, expected_response: &Option<Message>) -> errors::Result<()> {
+    fn send_message_expect_response(&self, message: Message, expected_response: &Option<Message>) -> Result<(), Error> {
         let response = self.send_message(message)?;
         verify_response(expected_response, &response)
     }
@@ -528,7 +529,7 @@ impl Sign {
     ///
     /// If it already is, nothing to do. Otherwise start or finish a reset as appropriate.
     /// This ensures that the sign is in a known good state before we begin configuring it.
-    fn ensure_unconfigured(&self) -> errors::Result<()> {
+    fn ensure_unconfigured(&self) -> Result<(), Error> {
         let response = self.send_message(Message::Hello(self.address))?;
         match response {
             Some(Message::ReportState(address, State::Unconfigured)) if address == self.address => {}
@@ -577,7 +578,7 @@ impl Sign {
     /// If `success`, we're done. If `failure`, repeat the process a fixed number
     /// of times in case the data was corrupted in transit. Fails after exhausting
     /// the retries or if any other state is reported.
-    fn send_data<'a, I>(&self, data: &I, operation: Operation, success: State, failure: State) -> errors::Result<()>
+    fn send_data<'a, I>(&self, data: &I, operation: Operation, success: State, failure: State) -> Result<(), Error>
     where
         I: Iterator<Item = &'a [u8]> + Clone,
     {
@@ -620,7 +621,7 @@ impl Sign {
     /// Queries the sign's current state. If `target`, we're done. If `trigger`, request `operation`.
     /// Continue looping while the state is `PageLoadInProgress` or `PageShowInProgress`, waiting
     /// to enter `target`. Fails if any other state is reported.
-    fn switch_page(&self, target: State, trigger: State, operation: Operation) -> errors::Result<()> {
+    fn switch_page(&self, target: State, trigger: State, operation: Operation) -> Result<(), Error> {
         loop {
             let response = self.send_message(Message::QueryState(self.address))?;
             match response {
@@ -638,10 +639,13 @@ impl Sign {
                 Some(Message::ReportState(address, State::PageLoadInProgress))
                 | Some(Message::ReportState(address, State::PageShowInProgress)) if address == self.address => {}
 
-                _ => bail!(ErrorKind::UnexpectedResponse(
-                    format!("Some(ReportState({:?}, Page*))", self.address),
-                    format!("{:?}", response)
-                )),
+                _ => {
+                    return Err(
+                        format_err!("Expected Some(ReportState({:?}, Page*)), got {:?}", self.address, response)
+                            .context(ErrorKind::UnexpectedResponse)
+                            .into(),
+                    );
+                }
             };
         }
         Ok(())
@@ -649,12 +653,11 @@ impl Sign {
 }
 
 /// Fails with an `UnexpectedResponse` error if `response` is not equal to `expected`.
-fn verify_response<'a>(expected: &Option<Message<'a>>, response: &Option<Message<'a>>) -> errors::Result<()> {
+fn verify_response<'a>(expected: &Option<Message<'a>>, response: &Option<Message<'a>>) -> Result<(), Error> {
     if response != expected {
-        bail!(ErrorKind::UnexpectedResponse(
-            format!("{:?}", expected),
-            format!("{:?}", response)
-        ));
+        return Err(format_err!("Expected {:?}, got {:?}", expected, response)
+            .context(ErrorKind::UnexpectedResponse)
+            .into());
     }
     Ok(())
 }

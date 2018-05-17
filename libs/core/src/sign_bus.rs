@@ -1,5 +1,6 @@
-use std::error::Error;
 use std::fmt::{self, Debug, Formatter};
+
+use failure;
 
 use Message;
 
@@ -13,10 +14,11 @@ use Message;
 /// Using `SignBus` as a trait object to allow choosing the type of bus at runtime:
 ///
 /// ```
+/// # extern crate failure;
 /// # extern crate serial;
 /// # extern crate flipdot;
 /// # extern crate flipdot_testing;
-/// # use std::error::Error;
+/// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// use flipdot::{Address, Sign, SignBus, SignType};
@@ -24,7 +26,7 @@ use Message;
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
 /// # fn use_serial() -> bool { false }
-/// # fn try_main() -> Result<(), Box<Error>> {
+/// # fn try_main() -> Result<(), Error> {
 /// #
 /// let bus: Rc<RefCell<SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;
@@ -43,14 +45,18 @@ use Message;
 /// Implementing a custom bus:
 ///
 /// ```
-/// # use std::error::Error;
+/// # extern crate failure;
+/// # extern crate flipdot_core;
+/// use failure::Error;
 /// use flipdot_core::{Message, SignBus, State};
 ///
 /// struct ExampleSignBus {}
 ///
+/// # fn main() {
+/// #
 /// impl SignBus for ExampleSignBus {
 ///     fn process_message<'a>(&mut self, message: Message)
-///         -> Result<Option<Message<'a>>, Box<Error + Send>> {
+///         -> Result<Option<Message<'a>>, Error> {
 ///         match message {
 ///             Message::Hello(address) |
 ///             Message::QueryState(address) =>
@@ -59,6 +65,8 @@ use Message;
 ///         }
 ///     }
 /// }
+/// #
+/// # }
 /// ```
 ///
 /// [`Message`]: enum.Message.html
@@ -75,7 +83,7 @@ pub trait SignBus {
     /// See the [trait-level documentation].
     ///
     /// [trait-level documentation]: #examples
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, Box<Error + Send>>;
+    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error>;
 }
 
 // Provide a Debug representation so types that contain trait objects can derive Debug.

@@ -13,10 +13,11 @@
 //! ```no_run
 //! extern crate serial;
 //! extern crate flipdot_serial;
-//! # use std::error::Error;
+//! # extern crate failure;
+//! # use failure::Error;
 //! use std::time::Duration;
 //!
-//! # fn try_main() -> Result<(), Box<Error>> {
+//! # fn try_main() -> Result<(), Error> {
 //! #
 //! let mut port = serial::open("COM3")?;
 //! flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;
@@ -32,8 +33,9 @@
 #![deny(missing_copy_implementations, missing_debug_implementations, trivial_casts, trivial_numeric_casts, unsafe_code)]
 #![warn(missing_docs, unused_extern_crates, unused_import_braces, unused_qualifications, unused_results)]
 
+extern crate failure;
 #[macro_use]
-extern crate error_chain;
+extern crate failure_derive;
 #[macro_use]
 extern crate log;
 extern crate serial_core;
@@ -44,6 +46,6 @@ mod errors;
 mod serial_port;
 mod serial_sign_bus;
 
-pub use self::errors::{Error, ErrorKind, Result, ResultExt};
+pub use self::errors::{Error, ErrorKind};
 pub use self::serial_port::configure_port;
 pub use self::serial_sign_bus::SerialSignBus;
