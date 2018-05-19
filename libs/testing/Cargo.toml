@@ -1,6 +1,6 @@
 [package]
 name = "flipdot-testing"
-version = "0.1.0" # remember to update html_root_url
+version = "0.2.0" # remember to update html_root_url
 authors = ["Adam Lusch <alusch@gmail.com>"]
 description = "Tools for testing and debugging Luminator sign communications"
 license = "MIT"
@@ -16,8 +16,8 @@ failure_derive = "0.1.1"
 log = "0.4.1"
 serial-core = "0.4.0"
 
-flipdot-core = { version = "0.1", path = "../core" }
-flipdot-serial = { version = "0.1", path = "../serial" }
+flipdot-core = { version = "0.2", path = "../core" }
+flipdot-serial = { version = "0.2", path = "../serial" }
 
 [dev-dependencies]
 serial = "0.4.0"
