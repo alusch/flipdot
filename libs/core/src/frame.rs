@@ -575,7 +575,7 @@ impl<'a> Data<'a> {
     /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let bytes = vec![1, 2, 3];
-    /// let data = Data::new(bytes.as_ref())?;
+    /// let data = Data::new(&bytes)?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
     /// #
     /// # Ok(()) }

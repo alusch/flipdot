@@ -104,8 +104,8 @@ macro_attr! {
     /// # fn try_main() -> Result<(), Error> {
     /// #
     /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    /// let message1 = Message::SendData(Offset(0), Data::new(data.as_ref())?);
-    /// let message2 = Message::SendData(Offset(16), Data::new(data.as_ref())?);
+    /// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
+    /// let message2 = Message::SendData(Offset(16), Data::new(&data)?);
     /// // These two messages would send a total of 32 bytes, repeating the sequence twice.
     /// #
     /// # Ok(()) }
