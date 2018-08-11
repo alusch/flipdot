@@ -30,8 +30,20 @@
 //! [`flipdot`]: https://docs.rs/flipdot
 //! [`configure_port`]: fn.configure_port.html
 #![doc(html_root_url = "https://docs.rs/flipdot-serial/0.2.0")]
-#![deny(missing_copy_implementations, missing_debug_implementations, trivial_casts, trivial_numeric_casts, unsafe_code)]
-#![warn(missing_docs, unused_extern_crates, unused_import_braces, unused_qualifications, unused_results)]
+#![deny(
+    missing_copy_implementations,
+    missing_debug_implementations,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code
+)]
+#![warn(
+    missing_docs,
+    unused_extern_crates,
+    unused_import_braces,
+    unused_qualifications,
+    unused_results
+)]
 
 extern crate failure;
 #[macro_use]

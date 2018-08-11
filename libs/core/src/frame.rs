@@ -345,9 +345,9 @@ impl<'a> Frame<'a> {
                 (?:\r\n)?$                          # Optional newline sequence
             ").unwrap(); // Regex is valid so safe to unwrap.
         }
-        let captures = RE
-            .captures(bytes)
-            .ok_or_else(|| format_err!("[{}] is not valid Intel HEX", string_for_error(bytes)).context(ErrorKind::InvalidFrame))?;
+        let captures = RE.captures(bytes).ok_or_else(|| {
+            format_err!("[{}] is not valid Intel HEX", string_for_error(bytes)).context(ErrorKind::InvalidFrame)
+        })?;
 
         // Regex always matches all capture groups so safe to unwrap.
         let data_len = parse_hex::<u8>(captures.name("data_len").unwrap().as_bytes());
@@ -363,7 +363,7 @@ impl<'a> Frame<'a> {
                 data.len(),
                 format!("[{}] has wrong number of data bytes", string_for_error(bytes)),
             ).context(ErrorKind::FrameDataMismatch)
-                .into());
+            .into());
         }
 
         let frame = Frame::new(Address(address), MsgType(message_type), Data::new(data)?);
@@ -376,7 +376,7 @@ impl<'a> Frame<'a> {
                 computed_checksum as usize,
                 format!("[{}] computed checksum didn't match", string_for_error(bytes)),
             ).context(ErrorKind::BadChecksum)
-                .into());
+            .into());
         }
 
         Ok(frame)
