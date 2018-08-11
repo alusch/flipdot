@@ -160,8 +160,8 @@ impl SignType {
     /// let sign_type = SignType::HorizonFront140x16;
     /// assert_eq!((140, 16), sign_type.dimensions());
     /// ```
-    pub fn dimensions(&self) -> (u32, u32) {
-        match *self {
+    pub fn dimensions(self) -> (u32, u32) {
+        match self {
             SignType::Max3000Front112x16 => (112, 16),
             SignType::Max3000Front98x16 => (98, 16),
             SignType::Max3000Side90x7 => (90, 7),
@@ -189,8 +189,8 @@ impl SignType {
     /// let expected = vec![0x04, 0x62, 0x00, 0x04, 0x0A, 0x1E, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     /// assert_eq!(expected, sign_type.to_bytes());
     /// ```
-    pub fn to_bytes(&self) -> &'static [u8] {
-        match *self {
+    pub fn to_bytes(self) -> &'static [u8] {
+        match self {
             SignType::Max3000Front112x16 => &[
                 0x04, 0x47, 0x00, 0x0F, 0x10, 0x1C, 0x1C, 0x1C, 0x1C, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             ],
