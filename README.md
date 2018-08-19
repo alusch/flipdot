@@ -11,6 +11,8 @@ connector, but no guarantees.
 
 Intended only for hobbyist and educational purposes. Not affiliated with Luminator in any way.
 
+[![Windows build status](https://ci.appveyor.com/api/projects/status/github/alusch/flipdot?svg=true)](https://ci.appveyor.com/project/alusch/flipdot)
+
 ## Usage
 
 Here's a full example of connecting to a sign over serial, sending pages, and showing them:
