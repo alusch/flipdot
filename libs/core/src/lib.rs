@@ -7,7 +7,7 @@
 //! at a lower level than the `flipdot` crate, or who want to provide their own [`SignBus`]
 //! implementations for use by `flipdot`.
 //!
-//! Tested with a MAX3000 90 × 7 side sign. Should work with any flip-dot or LED sign that uses the 5-pin circular
+//! Tested with a MAX3000 90 × 7 side sign. Should work with any flip-dot or LED sign that uses the 7-pin circular
 //! connector, but no guarantees.
 //!
 //! Intended only for hobbyist and educational purposes. Not affiliated with Luminator in any way.
