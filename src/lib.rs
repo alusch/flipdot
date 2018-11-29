@@ -90,8 +90,6 @@
 
 #[macro_use]
 extern crate failure;
-#[macro_use]
-extern crate failure_derive;
 
 pub extern crate flipdot_core as core;
 pub extern crate flipdot_serial as serial;
