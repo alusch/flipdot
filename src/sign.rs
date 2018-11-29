@@ -4,9 +4,9 @@ use std::rc::Rc;
 
 use failure::ResultExt;
 
-use core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
+use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
 
-use errors::{Error, ErrorKind};
+use crate::errors::{Error, ErrorKind};
 
 /// A single sign on an associated bus.
 ///

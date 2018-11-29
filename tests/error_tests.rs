@@ -18,7 +18,7 @@ use flipdot::*;
 use flipdot_testing::*;
 
 mod mock_serial_port;
-use mock_serial_port::{MockSerialPort, SerialFailure};
+use crate::mock_serial_port::{MockSerialPort, SerialFailure};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct ErrorReader {}

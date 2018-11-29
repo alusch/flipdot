@@ -102,5 +102,5 @@ mod sign;
 pub use self::errors::{Error, ErrorKind};
 pub use self::sign::Sign;
 
-pub use core::{Address, Page, PageId, SignBus, SignType};
-pub use serial::SerialSignBus;
+pub use crate::core::{Address, Page, PageId, SignBus, SignType};
+pub use crate::serial::SerialSignBus;

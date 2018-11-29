@@ -9,7 +9,7 @@ use flipdot::{Address, PageId, SerialSignBus, Sign, SignType};
 use serial_core::{PortSettings, SerialDevice};
 
 mod mock_serial_port;
-use mock_serial_port::{MockSerialPort, SerialFailure};
+use crate::mock_serial_port::{MockSerialPort, SerialFailure};
 
 #[test]
 fn serial_sign_bus_works() {
