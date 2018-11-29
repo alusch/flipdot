@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate failure;
-extern crate flipdot;
-extern crate flipdot_testing;
-extern crate serial_core;
+
+
+use serial_core;
 
 use std::cell::RefCell;
 use std::fmt::Debug;
@@ -47,7 +47,7 @@ impl ErrorSignBus {
 }
 
 impl SignBus for ErrorSignBus {
-    fn process_message<'a>(&mut self, _: Message) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(&mut self, _: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
         match self.failure {
             BusFailure::Error => Err(format_err!("Dummy sign bus error")),
             BusFailure::WrongMessage => Ok(Some(Message::Goodbye(Address(0)))),
