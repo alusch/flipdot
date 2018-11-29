@@ -60,7 +60,7 @@ use crate::errors::{Error, ErrorKind};
 pub struct Sign {
     address: Address,
     sign_type: SignType,
-    bus: Rc<RefCell<SignBus>>,
+    bus: Rc<RefCell<dyn SignBus>>,
 }
 
 impl Sign {
@@ -91,7 +91,7 @@ impl Sign {
     /// ```
     ///
     /// [`SignBus`]: struct.SignBus.html
-    pub fn new(bus: Rc<RefCell<SignBus>>, address: Address, sign_type: SignType) -> Self {
+    pub fn new(bus: Rc<RefCell<dyn SignBus>>, address: Address, sign_type: SignType) -> Self {
         Sign { address, sign_type, bus }
     }
 
@@ -512,7 +512,7 @@ impl Sign {
     ///
     /// Enforces that only leaf calls borrow the bus to avoid runtime errors,
     /// and conveniently localizes the error chaining on failure.
-    fn send_message(&self, message: Message) -> Result<Option<Message>, Error> {
+    fn send_message(&self, message: Message<'_>) -> Result<Option<Message<'_>>, Error> {
         let mut bus = self.bus.borrow_mut();
         Ok(bus.process_message(message).context(ErrorKind::Bus)?)
     }
@@ -520,7 +520,7 @@ impl Sign {
     /// Borrows the bus mutably, sends a message, and verifies that the response is as expected.
     ///
     /// Serves the same purpose as `send_message` when exactly one response is expected.
-    fn send_message_expect_response(&self, message: Message, expected_response: &Option<Message>) -> Result<(), Error> {
+    fn send_message_expect_response(&self, message: Message<'_>, expected_response: &Option<Message<'_>>) -> Result<(), Error> {
         let response = self.send_message(message)?;
         verify_response(expected_response, &response)
     }

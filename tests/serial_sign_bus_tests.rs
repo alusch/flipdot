@@ -1,5 +1,5 @@
-extern crate flipdot;
-extern crate serial_core;
+
+use serial_core;
 
 use std::cell::RefCell;
 use std::rc::Rc;

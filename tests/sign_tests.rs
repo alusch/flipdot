@@ -1,5 +1,5 @@
-extern crate failure;
-extern crate flipdot;
+use failure;
+use flipdot;
 
 use std::cell::RefCell;
 use std::io;
@@ -30,7 +30,7 @@ struct ScriptedSignBus<I: Iterator<Item = ScriptItem>> {
 }
 
 impl<I: Iterator<Item = ScriptItem>> SignBus for ScriptedSignBus<I> {
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
         let current_row = self.iter.next().expect("Ran out of scripted responses");
         assert_eq!(current_row.expected, message);
         current_row.response

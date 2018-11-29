@@ -97,14 +97,14 @@ impl<'a> VirtualSignBus<'a> {
     /// ```
     ///
     /// [`VirtualSign`]: struct.VirtualSign.html
-    pub fn sign(&self, index: usize) -> &VirtualSign {
+    pub fn sign(&self, index: usize) -> &VirtualSign<'_> {
         &self.signs[index]
     }
 }
 
 impl<'a> SignBus for VirtualSignBus<'a> {
     /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
-    fn process_message<'b>(&mut self, message: Message) -> Result<Option<Message<'b>>, failure::Error> {
+    fn process_message<'b>(&mut self, message: Message<'_>) -> Result<Option<Message<'b>>, failure::Error> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
             let response = sign.process_message(&message);
@@ -223,7 +223,7 @@ impl<'a> VirtualSign<'a> {
     /// let sign = VirtualSign::new(Address(1));
     /// assert!(sign.pages().is_empty());
     /// ```
-    pub fn pages(&self) -> &[Page] {
+    pub fn pages(&self) -> &[Page<'_>] {
         &self.pages
     }
 
@@ -242,7 +242,7 @@ impl<'a> VirtualSign<'a> {
     /// assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
     /// # }
     /// ```
-    pub fn process_message<'b>(&mut self, message: &Message) -> Option<Message<'b>> {
+    pub fn process_message<'b>(&mut self, message: &Message<'_>) -> Option<Message<'b>> {
         match *message {
             Message::Hello(address) | Message::QueryState(address) if address == self.address => self.query_state(),
             Message::RequestOperation(address, Operation::ReceiveConfig) if address == self.address => self.receive_config(),

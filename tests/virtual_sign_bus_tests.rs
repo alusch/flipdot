@@ -1,5 +1,5 @@
-extern crate flipdot;
-extern crate flipdot_testing;
+
+
 
 use std::cell::RefCell;
 use std::rc::Rc;

@@ -317,7 +317,7 @@ impl<'a> Display for Page<'a> {
     ///
     /// Produces a multiline string with one character per pixel and a border.
     /// Should be displayed in a fixed-width font.
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let border = str::repeat("-", self.width as usize);
         writeln!(f, "+{}+", border)?;
         for y in 0..self.height {

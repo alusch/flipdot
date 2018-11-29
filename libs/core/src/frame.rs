@@ -217,7 +217,7 @@ impl<'a> Frame<'a> {
     /// # Ok(()) }
     /// # fn main() { try_main().unwrap(); }
     /// ```
-    pub fn data(&self) -> &Cow<[u8]> {
+    pub fn data(&self) -> &Cow<'_, [u8]> {
         &self.data.0
     }
 
@@ -473,7 +473,7 @@ impl<'a> Display for Frame<'a> {
     /// Formats the frame in a human-readable way.
     ///
     /// Useful for viewing traffic on a bus. All numbers are in hex.
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "Type {:02X} | Addr {:04X}", self.message_type.0, self.address.0)?;
         if self.data.0.len() > 0 {
             write!(f, " | Data ")?;

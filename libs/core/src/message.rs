@@ -211,7 +211,7 @@ impl<'a> Display for Message<'a> {
     /// Provides a human-readable view of the message.
     ///
     /// This is useful, for example, when monitoring the traffic on a bus.
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match *self {
             Message::SendData(offset, ref data) => {
                 write!(f, "SendData [Offset {:04X}] ", offset)?;
@@ -409,7 +409,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
 mod tests {
     use super::*;
 
-    fn verify_roundtrip(frame: Frame, expected_message: Message) {
+    fn verify_roundtrip(frame: Frame<'_>, expected_message: Message<'_>) {
         let orig_frame = frame.clone();
 
         let converted_message = Message::from(frame);

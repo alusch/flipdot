@@ -69,8 +69,8 @@ extern crate lazy_static;
 extern crate macro_attr;
 #[macro_use]
 extern crate newtype_derive;
-extern crate num_traits;
-extern crate regex;
+
+
 
 mod errors;
 mod frame;

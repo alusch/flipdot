@@ -91,8 +91,8 @@
 #[macro_use]
 extern crate failure;
 
-pub extern crate flipdot_core as core;
-pub extern crate flipdot_serial as serial;
+pub use flipdot_core as core;
+pub use flipdot_serial as serial;
 
 mod errors;
 mod sign;

@@ -80,7 +80,7 @@ impl<P: SerialPort> SerialSignBus<P> {
 
 impl<P: SerialPort> SignBus for SerialSignBus<P> {
     /// Handles a bus message by sending it to the serial port and reading a response if necessary.
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
         debug!("Bus message: {}", message);
 
         let response_expected = response_expected(&message);
@@ -110,7 +110,7 @@ impl<P: SerialPort> SignBus for SerialSignBus<P> {
 }
 
 /// Determines whether we need to listen for a response to the given message.
-fn response_expected(message: &Message) -> bool {
+fn response_expected(message: &Message<'_>) -> bool {
     match *message {
         // A sign is only expected to reply to messages that query its state or request
         // that it perform an operation.
@@ -120,7 +120,7 @@ fn response_expected(message: &Message) -> bool {
 }
 
 /// Returns the length of time to delay after sending a message.
-fn delay_after_send(message: &Message) -> Option<Duration> {
+fn delay_after_send(message: &Message<'_>) -> Option<Duration> {
     match *message {
         // When sending data, this delay is necessary to avoid overloading the receiving sign.
         Message::SendData(_, _) => Some(Duration::from_millis(30)),
@@ -129,7 +129,7 @@ fn delay_after_send(message: &Message) -> Option<Duration> {
 }
 
 /// Returns the length of time to delay after receiving a response.
-fn delay_after_receive(message: &Message) -> Option<Duration> {
+fn delay_after_receive(message: &Message<'_>) -> Option<Duration> {
     match *message {
         // When loading or showing a page, we wait for the sign to finish the operation, which can take
         // a second or more depending on how many dots need to flip. This delay prevents us from spamming

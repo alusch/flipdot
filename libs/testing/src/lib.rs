@@ -59,13 +59,13 @@
     unused_results
 )]
 
-extern crate failure;
+use failure;
 #[macro_use]
 extern crate log;
-extern crate serial_core;
 
-extern crate flipdot_core;
-extern crate flipdot_serial;
+
+
+use flipdot_serial;
 
 mod errors;
 mod odk;

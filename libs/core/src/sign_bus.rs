@@ -83,12 +83,12 @@ pub trait SignBus {
     /// See the [trait-level documentation].
     ///
     /// [trait-level documentation]: #examples
-    fn process_message<'a>(&mut self, message: Message) -> Result<Option<Message<'a>>, failure::Error>;
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error>;
 }
 
 // Provide a Debug representation so types that contain trait objects can derive Debug.
-impl Debug for SignBus {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+impl Debug for dyn SignBus {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "<SignBus trait>")
     }
 }

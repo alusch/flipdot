@@ -45,12 +45,12 @@
     unused_results
 )]
 
-extern crate failure;
+use failure;
 #[macro_use]
 extern crate log;
-extern crate serial_core;
+use serial_core;
 
-extern crate flipdot_core;
+
 
 mod errors;
 mod serial_port;
