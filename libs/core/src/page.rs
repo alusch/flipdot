@@ -3,7 +3,7 @@ use std::fmt::{self, Display, Formatter};
 
 use failure::Fail;
 
-use errors::{Error, ErrorKind, WrongValueError};
+use crate::errors::{Error, ErrorKind, WrongValueError};
 
 /// A page of a message for display on a sign.
 ///

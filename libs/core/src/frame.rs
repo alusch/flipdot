@@ -7,7 +7,7 @@ use failure::{Fail, ResultExt};
 use num_traits::Num;
 use regex::bytes::Regex;
 
-use errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
+use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 
 /// A low-level representation of an Intel HEX data frame.
 ///

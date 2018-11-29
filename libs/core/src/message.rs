@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use {Address, Data, Frame, MsgType};
+use crate::{Address, Data, Frame, MsgType};
 
 /// High-level representation of a sign bus communication message.
 ///

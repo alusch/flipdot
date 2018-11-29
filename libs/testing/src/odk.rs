@@ -6,7 +6,7 @@ use serial_core::prelude::*;
 use flipdot_core::{Frame, Message, SignBus};
 use flipdot_serial;
 
-use errors::{Error, ErrorKind};
+use crate::errors::{Error, ErrorKind};
 
 /// Connects to a real ODK over the specified serial port and uses it to drive a `SignBus`.
 ///

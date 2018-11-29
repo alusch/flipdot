@@ -5,9 +5,9 @@ use failure;
 use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus, State};
-use serial_port;
+use crate::serial_port;
 
-use errors::Error;
+use crate::errors::Error;
 
 /// An implementation of `SignBus` that communicates with one or more signs over serial.
 ///

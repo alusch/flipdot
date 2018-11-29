@@ -1,6 +1,6 @@
 use failure::Fail;
 
-use errors::{Error, ErrorKind, WrongValueError};
+use crate::errors::{Error, ErrorKind, WrongValueError};
 
 /// The configuration information for a particular model of sign.
 ///

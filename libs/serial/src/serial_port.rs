@@ -4,7 +4,7 @@ use failure::ResultExt;
 use serial_core as serial;
 use serial_core::prelude::*;
 
-use errors::{Error, ErrorKind};
+use crate::errors::{Error, ErrorKind};
 
 /// Configures the given serial port appropriately for use with Luminator signs.
 ///

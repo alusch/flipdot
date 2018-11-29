@@ -2,7 +2,7 @@ use std::fmt::{self, Debug, Formatter};
 
 use failure;
 
-use Message;
+use crate::Message;
 
 /// Abstraction over a bus containing devices that are able to send and receive [`Message`]s.
 ///
