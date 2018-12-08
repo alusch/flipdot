@@ -19,16 +19,12 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// # Examples
 ///
 /// ```no_run
-/// extern crate serial;
-/// extern crate flipdot_serial;
-/// extern crate flipdot_testing;
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # extern crate failure;
 /// # use failure::Error;
 /// #
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 /// let port = serial::open("/dev/ttyUSB0")?;
@@ -39,7 +35,6 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// }
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`VirtualSign`]: struct.VirtualSign.html
@@ -56,22 +51,17 @@ impl<'a> VirtualSignBus<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate serial;
-    /// # extern crate flipdot_serial;
-    /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # extern crate failure;
     /// # use failure::Error;
     /// #
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
     /// let odk = Odk::new(port, bus)?;
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn new<I>(signs: I) -> Self
     where
@@ -182,14 +172,11 @@ impl<'a> VirtualSign<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot_core;
-    /// # extern crate flipdot_testing;
     /// # use flipdot_core::State;
     /// # use flipdot_testing::{Address, VirtualSign};
-    /// # fn main() {
+    /// #
     /// let sign = VirtualSign::new(Address(3));
     /// assert_eq!(State::Unconfigured, sign.state());
-    /// # }
     /// ```
     pub fn state(&self) -> State {
         self.state
@@ -232,15 +219,12 @@ impl<'a> VirtualSign<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot_core;
-    /// # extern crate flipdot_testing;
     /// # use flipdot_core::{Message, State};
     /// # use flipdot_testing::{Address, VirtualSign};
-    /// # fn main() {
+    /// #
     /// let mut sign = VirtualSign::new(Address(3));
     /// let response = sign.process_message(&Message::QueryState(Address(3)));
     /// assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
-    /// # }
     /// ```
     pub fn process_message<'b>(&mut self, message: &Message<'_>) -> Option<Message<'b>> {
         match *message {

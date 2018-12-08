@@ -18,20 +18,16 @@ use crate::errors::Error;
 /// # Examples
 ///
 /// ```no_run
-/// # extern crate serial;
-/// # extern crate flipdot_serial;
-/// # extern crate failure;
 /// # use failure::Error;
 /// use flipdot_serial::SerialSignBus;
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let port = serial::open("/dev/ttyUSB0")?;
 /// let bus = SerialSignBus::new(port)?;
 /// // Can now connect a Sign to the bus.
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`log`]: https://crates.io/crates/log
@@ -52,18 +48,14 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate serial;
-    /// # extern crate flipdot_serial;
     /// # use flipdot_serial::SerialSignBus;
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let port = serial::open("COM3")?;
     /// let bus = SerialSignBus::new(port)?;
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration

@@ -13,9 +13,6 @@ Intended only for hobbyist and educational purposes. Not affiliated with Luminat
 ## Usage
 
 ```rust
-extern crate serial;
-extern crate flipdot_serial;
-
 use std::time::Duration;
 
 let mut port = serial::open("COM3")?;

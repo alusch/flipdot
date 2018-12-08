@@ -18,20 +18,16 @@ use crate::errors::{Error, ErrorKind};
 /// # Examples
 ///
 /// ```no_run
-/// # extern crate serial;
-/// # extern crate flipdot_serial;
-/// # extern crate failure;
 /// # use failure::Error;
 /// use std::time::Duration;
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let mut port = serial::open("COM3")?;
 /// flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;
 /// // Now ready for communication with a sign (8N1 19200 baud).
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration

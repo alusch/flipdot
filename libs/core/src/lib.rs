@@ -15,15 +15,12 @@
 //! # Examples
 //!
 //! ```no_run
-//! extern crate flipdot_core;
-//! # extern crate flipdot_testing;
-//! # extern crate failure;
 //! # use failure::Error;
 //! use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
 //! # use flipdot_testing::{VirtualSign, VirtualSignBus};
 //!
 //! # fn get_bus() -> Box<SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
-//! # fn try_main() -> Result<(), Error> {
+//! # fn main() -> Result<(), Error> {
 //! #
 //! // Assume we have a helper function to obtain a SignBus.
 //! let mut bus: Box<SignBus> = get_bus();
@@ -40,7 +37,6 @@
 //!
 //! #
 //! # Ok(()) }
-//! # fn main() { try_main().unwrap(); }
 //! ```
 //!
 //! [`flipdot`]: https://docs.rs/flipdot

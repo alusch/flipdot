@@ -19,8 +19,6 @@ Intended only for hobbyist and educational purposes. Not affiliated with Luminat
 Here's an example of directly interacting with a `SignBus` at the `Message` level instead of using `Sign`:
 
 ```rust
-extern crate flipdot_core;
-
 use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
 
 // Assume we have a helper function to obtain a SignBus.

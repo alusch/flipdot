@@ -21,12 +21,10 @@ use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
 /// # use failure::Error;
-/// # extern crate flipdot_core;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
 /// println!("Parsed frame is {}", frame);
@@ -38,7 +36,6 @@ use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 /// assert_eq!(parsed, frame);
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// # Format Details
@@ -77,18 +74,15 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// // Create a frame with message type 1.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`Frame`]: struct.Frame.html
@@ -103,18 +97,15 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// // Create a frame addressed to sign 2.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
     pub struct Address(pub u16);
@@ -126,11 +117,9 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// // some_data is moved into owning_frame.
     /// let some_data = vec![1, 2, 3];
@@ -141,7 +130,6 @@ impl<'a> Frame<'a> {
     /// let borrowing_frame = Frame::new(Address(0xD), MsgType(0xC), Data::new(other_data.as_slice())?);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn new(address: Address, message_type: MsgType, data: Data<'a>) -> Self {
         Frame {
@@ -156,11 +144,9 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// match frame.message_type() {
@@ -169,7 +155,6 @@ impl<'a> Frame<'a> {
     /// }
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn message_type(&self) -> MsgType {
         self.message_type
@@ -180,11 +165,9 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// if frame.address() == Address(3) {
@@ -192,7 +175,6 @@ impl<'a> Frame<'a> {
     /// }
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn address(&self) -> Address {
         self.address
@@ -203,11 +185,9 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![10, 20])?);
     /// if (frame.data().as_ref() == &[10, 20]) {
@@ -215,7 +195,6 @@ impl<'a> Frame<'a> {
     /// }
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn data(&self) -> &Cow<'_, [u8]> {
         &self.data.0
@@ -226,17 +205,14 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![6, 7])?);
     /// let frame2 = Frame::new(Address(2), MsgType(2), frame.into_data());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn into_data(self) -> Data<'a> {
         self.data
@@ -247,18 +223,15 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes();
     /// assert_eq!(b":02000201031FD9", bytes.as_slice());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn to_bytes(&self) -> Vec<u8> {
         const HEX_DIGITS: &[u8] = b"0123456789ABCDEF";
@@ -284,18 +257,15 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes_with_newline();
     /// assert_eq!(b":02000201031FD9\r\n", bytes.as_slice());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn to_bytes_with_newline(&self) -> Vec<u8> {
         let mut output = self.to_bytes();
@@ -316,18 +286,15 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bytes = b":02000201031FD9\r\n";
     /// let frame = Frame::from_bytes(&bytes[..])?;
     /// assert_eq!(Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?), frame);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
@@ -391,19 +358,15 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// extern crate serial;
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// frame.write(&mut port)?;
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
@@ -426,18 +389,14 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// extern crate serial;
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::read(&mut port)?;
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
@@ -522,17 +481,14 @@ fn checksum(bytes: &[u8]) -> u8 {
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
 /// # use failure::Error;
-/// # extern crate flipdot_core;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let data = Data::new(vec![1, 2, 3])?; // Ok since length under 255
 /// let frame = Frame::new(Address(2), MsgType(1), data);
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`Frame`]: struct.Frame.html
@@ -552,34 +508,28 @@ impl<'a> Data<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let data = Data::new(vec![1, 2, 3])?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// Borrowed data can also be used:
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bytes = vec![1, 2, 3];
     /// let data = Data::new(&bytes)?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// This will fail since the passed-in vector is too large:
@@ -607,17 +557,14 @@ impl<'a> Data<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::Data;
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let data = Data::new(vec![])?;
     /// assert!(data.get().is_empty());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`Cow`]: https://doc.rust-lang.org/std/borrow/enum.Cow.html

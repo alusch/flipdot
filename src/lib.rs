@@ -12,17 +12,13 @@
 //! # Examples
 //!
 //! ```no_run
-//! extern crate serial;
-//! extern crate flipdot;
-//!
-//! # extern crate failure;
 //! # use failure::Error;
 //! #
 //! use std::cell::RefCell;
 //! use std::rc::Rc;
 //! use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 //!
-//! # fn try_main() -> Result<(), Error> {
+//! # fn main() -> Result<(), Error> {
 //! #
 //! // Set up bus. Because the bus can be shared among
 //! // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -51,7 +47,6 @@
 //! sign.show_loaded_page()?;
 //! #
 //! # Ok(()) }
-//! # fn main() { try_main().unwrap(); }
 //! ```
 //!
 //! # Sub-crates

@@ -11,14 +11,11 @@ use crate::{Address, Data, Frame, MsgType};
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
 /// # use failure::Error;
-/// # extern crate flipdot_core;
-/// # extern crate flipdot_testing;
 /// use flipdot_core::{Address, Message, SignBus, State};
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 ///
@@ -27,7 +24,6 @@ use crate::{Address, Data, Frame, MsgType};
 /// assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`Frame`]: struct.Frame.html
@@ -96,12 +92,10 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// use flipdot_core::{Data, Message, Offset};
     ///
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     /// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
@@ -109,7 +103,6 @@ macro_attr! {
     /// // These two messages would send a total of 32 bytes, repeating the sequence twice.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`SendData`]: enum.Message.html#variant.SendData
@@ -251,18 +244,15 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let frame = Frame::new(Address(0x12), MsgType(4), Data::new(vec![0x07])?);
     /// let message = Message::from(frame);
     /// assert_eq!(Message::ReportState(Address(0x12), State::ConfigReceived), message);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`Frame`]: struct.Frame.html
@@ -327,18 +317,15 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let message = Message::ReportState(Address(0xFF), State::ConfigReceived);
     /// let frame = Frame::from(message);
     /// assert_eq!(Frame::new(Address(0xFF), MsgType(4), Data::new(vec![0x07])?), frame);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`Message`]: enum.Message.html

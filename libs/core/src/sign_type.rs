@@ -12,12 +12,10 @@ use crate::errors::{Error, ErrorKind, WrongValueError};
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
 /// # use failure::Error;
-/// # extern crate flipdot_core;
 /// use flipdot_core::SignType;
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let sign_type = SignType::Max3000Front112x16;
 /// assert_eq!((112, 16), sign_type.dimensions());
@@ -27,7 +25,6 @@ use crate::errors::{Error, ErrorKind, WrongValueError};
 /// assert_eq!(sign_type, parsed_type);
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// # Format Details
@@ -108,18 +105,15 @@ impl SignType {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::SignType;
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bytes = vec![0x04, 0x62, 0x00, 0x04, 0x0A, 0x1E, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     /// let sign_type = SignType::from_bytes(&bytes)?;
     /// assert_eq!(SignType::Max3000Rear30x10, sign_type);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::WrongConfigLength`]: enum.ErrorKind.html#variant.WrongConfigLength

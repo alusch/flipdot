@@ -14,10 +14,6 @@ use crate::Message;
 /// Using `SignBus` as a trait object to allow choosing the type of bus at runtime:
 ///
 /// ```
-/// # extern crate failure;
-/// # extern crate serial;
-/// # extern crate flipdot;
-/// # extern crate flipdot_testing;
 /// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
@@ -26,7 +22,7 @@ use crate::Message;
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
 /// # fn use_serial() -> bool { false }
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// let bus: Rc<RefCell<SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;
@@ -39,21 +35,16 @@ use crate::Message;
 /// sign.configure()?;
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// Implementing a custom bus:
 ///
 /// ```
-/// # extern crate failure;
-/// # extern crate flipdot_core;
 /// use failure::Error;
 /// use flipdot_core::{Message, SignBus, State};
 ///
 /// struct ExampleSignBus {}
 ///
-/// # fn main() {
-/// #
 /// impl SignBus for ExampleSignBus {
 ///     fn process_message<'a>(&mut self, message: Message)
 ///         -> Result<Option<Message<'a>>, Error> {
@@ -65,8 +56,6 @@ use crate::Message;
 ///         }
 ///     }
 /// }
-/// #
-/// # }
 /// ```
 ///
 /// [`Message`]: enum.Message.html

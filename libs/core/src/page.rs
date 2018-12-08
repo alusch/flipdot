@@ -73,18 +73,15 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// use flipdot_core::{Page, PageId};
     ///
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let page = Page::new(PageId(1), 10, 10);
     /// assert_eq!(PageId(1), page.id());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`Page`]: struct.Page.html
@@ -139,11 +136,9 @@ impl<'a> Page<'a> {
     /// # Examples
     ///
     /// ```
-    /// # extern crate failure;
     /// # use failure::Error;
-    /// # extern crate flipdot_core;
     /// # use flipdot_core::{Page, PageId};
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let data: Vec<u8> = vec![1, 16, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255];
     /// let page = Page::from_bytes(8, 8, data)?;
@@ -156,7 +151,6 @@ impl<'a> Page<'a> {
     /// assert!(bad_page.is_err());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::WrongPageLength`]: enum.ErrorKind.html#variant.WrongPageLength

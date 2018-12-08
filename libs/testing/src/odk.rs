@@ -16,16 +16,12 @@ use crate::errors::{Error, ErrorKind};
 /// # Examples
 ///
 /// ```no_run
-/// extern crate serial;
-/// extern crate flipdot_serial;
-/// extern crate flipdot_testing;
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # extern crate failure;
 /// # use failure::Error;
 /// #
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// // Populate bus with signs from addresses 2 to 126
 /// // (which seems to be the possible range for actual signs).
@@ -41,7 +37,6 @@ use crate::errors::{Error, ErrorKind};
 /// }
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 ///
 /// [`VirtualSignBus`]: struct.VirtualSignBus.html
@@ -62,22 +57,17 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate serial;
-    /// # extern crate flipdot_serial;
-    /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # extern crate failure;
     /// # use failure::Error;
     /// #
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
     /// let odk = Odk::new(port, bus)?;
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// Note: You would typically use the `env_logger` crate and run with
@@ -101,15 +91,11 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # Examples
     ///
     /// ```no_run
-    /// # extern crate serial;
-    /// # extern crate flipdot_serial;
-    /// # extern crate flipdot_testing;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # extern crate failure;
     /// # use failure::Error;
     /// #
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("/dev/ttyUSB0")?;
@@ -119,7 +105,6 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// }
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::Communication`]: enum.ErrorKind.html#variant.Communication

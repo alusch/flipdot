@@ -17,15 +17,12 @@ use crate::errors::{Error, ErrorKind};
 /// # Examples
 ///
 /// ```no_run
-/// # extern crate serial;
-/// # extern crate flipdot;
-/// # extern crate failure;
 /// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 ///
-/// # fn try_main() -> Result<(), Error> {
+/// # fn main() -> Result<(), Error> {
 /// #
 /// // Set up bus. Because the bus can be shared among
 /// // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -54,7 +51,6 @@ use crate::errors::{Error, ErrorKind};
 /// sign.show_loaded_page()?;
 /// #
 /// # Ok(()) }
-/// # fn main() { try_main().unwrap(); }
 /// ```
 #[derive(Debug)]
 pub struct Sign {
@@ -70,9 +66,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -81,13 +74,12 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`SignBus`]: struct.SignBus.html
@@ -100,9 +92,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -111,14 +100,13 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     /// assert_eq!(Address(3), sign.address());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn address(&self) -> Address {
         self.address
@@ -129,9 +117,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -140,14 +125,13 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     /// assert_eq!(SignType::Max3000Side90x7, sign.sign_type());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn sign_type(&self) -> SignType {
         self.sign_type
@@ -158,9 +142,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -169,14 +150,13 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     /// assert_eq!(90, sign.width());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn width(&self) -> u32 {
         self.sign_type.dimensions().0
@@ -187,9 +167,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -198,14 +175,13 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     /// assert_eq!(7, sign.height());
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn height(&self) -> u32 {
         self.sign_type.dimensions().1
@@ -216,9 +192,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -227,7 +200,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -240,7 +213,6 @@ impl Sign {
     /// page.set_pixel(1, 5, true);
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     pub fn create_page<'a>(&self, id: PageId) -> Page<'a> {
         let (x, y) = self.sign_type.dimensions();
@@ -262,9 +234,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -275,7 +244,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -283,7 +252,6 @@ impl Sign {
     /// // Sign is now ready to receive pages.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
@@ -315,9 +283,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -328,7 +293,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -339,7 +304,6 @@ impl Sign {
     /// // Page has now been loaded but not shown.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`configure`]: #method.configure
@@ -370,9 +334,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -383,7 +344,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -397,7 +358,6 @@ impl Sign {
     /// // Page 1 is now shown and page 2 is loaded.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`configure`]: #method.configure
@@ -421,9 +381,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -434,7 +391,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -446,7 +403,6 @@ impl Sign {
     /// // Page is now shown.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`configure`]: #method.configure
@@ -471,9 +427,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # extern crate flipdot;
-    /// # extern crate flipdot_testing;
-    /// # extern crate failure;
     /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
@@ -484,7 +437,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn try_main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -498,7 +451,6 @@ impl Sign {
     /// // Sign is now blanked.
     /// #
     /// # Ok(()) }
-    /// # fn main() { try_main().unwrap(); }
     /// ```
     ///
     /// [`configure`]: #method.configure

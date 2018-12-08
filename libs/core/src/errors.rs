@@ -111,12 +111,9 @@ impl From<Context<ErrorKind>> for Error {
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
-/// # extern crate flipdot_core;
 /// use failure::Fail;
 /// use flipdot_core::{Data, ErrorKind, MaxExceededError};
 ///
-/// # fn main() {
 /// let result = Data::new(vec![0; 256]);
 /// match result {
 ///     Err(ref e) if e.kind() == ErrorKind::DataTooLong => {
@@ -126,7 +123,6 @@ impl From<Context<ErrorKind>> for Error {
 ///     }
 ///     _ => {}
 /// }
-/// # }
 /// ```
 ///
 /// [`Error`]: struct.Error.html
@@ -169,12 +165,9 @@ impl MaxExceededError {
 /// # Examples
 ///
 /// ```
-/// # extern crate failure;
-/// # extern crate flipdot_core;
 /// use failure::Fail;
 /// use flipdot_core::{Frame, ErrorKind, WrongValueError};
 ///
-/// # fn main() {
 /// let result = Frame::from_bytes(b":01007F02FF7E");
 /// match result {
 ///     Err(ref e) if e.kind() == ErrorKind::BadChecksum => {
@@ -184,7 +177,6 @@ impl MaxExceededError {
 ///     }
 ///     _ => {}
 /// }
-/// # }
 /// ```
 ///
 /// [`Error`]: struct.Error.html

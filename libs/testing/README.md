@@ -14,10 +14,6 @@ Intended only for hobbyist and educational purposes. Not affiliated with Luminat
 ## Usage
 
 ```rust
-extern crate serial;
-extern crate flipdot_serial;
-extern crate flipdot_testing;
-
 use flipdot_serial::SerialSignBus;
 use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 

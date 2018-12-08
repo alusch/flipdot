@@ -12,16 +12,12 @@
 //! # Examples
 //!
 //! ```no_run
-//! extern crate serial;
-//! extern crate flipdot_serial;
-//! extern crate flipdot_testing;
 //! use flipdot_serial::SerialSignBus;
 //! use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 //!
-//! # extern crate failure;
 //! # use failure::Error;
 //! #
-//! # fn try_main() -> Result<(), Error> {
+//! # fn main() -> Result<(), Error> {
 //! #
 //! // Populate bus with signs from addresses 2 to 126
 //! // (which seems to be the possible range for actual signs).
@@ -37,7 +33,6 @@
 //! }
 //! #
 //! # Ok(()) }
-//! # fn main() { try_main().unwrap(); }
 //! ```
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
