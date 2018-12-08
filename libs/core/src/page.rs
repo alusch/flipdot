@@ -2,6 +2,8 @@ use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
 
 use failure::Fail;
+use macro_attr::{macro_attr, macro_attr_impl};
+use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
 
 use crate::errors::{Error, ErrorKind, WrongValueError};
 

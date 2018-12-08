@@ -1,7 +1,3 @@
-#[macro_use]
-extern crate failure;
-
-
 use serial_core;
 
 use std::cell::RefCell;
@@ -10,7 +6,7 @@ use std::io::{self, Read};
 use std::iter;
 use std::rc::Rc;
 
-use failure::Fail;
+use failure::{format_err, Fail};
 
 use flipdot::core::*;
 use flipdot::serial::*;

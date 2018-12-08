@@ -2,6 +2,7 @@ use std::thread;
 use std::time::Duration;
 
 use failure;
+use log::debug;
 use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus, State};

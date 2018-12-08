@@ -52,14 +52,6 @@
     unused_results
 )]
 
-use failure;
-#[macro_use]
-extern crate log;
-
-
-
-use flipdot_serial;
-
 mod errors;
 mod odk;
 mod virtual_sign_bus;

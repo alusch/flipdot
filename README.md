@@ -18,9 +18,6 @@ Intended only for hobbyist and educational purposes. Not affiliated with Luminat
 Here's a full example of connecting to a sign over serial, sending pages, and showing them:
 
 ```rust
-extern crate serial;
-extern crate flipdot;
-
 use std::cell::RefCell;
 use std::rc::Rc;
 use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};

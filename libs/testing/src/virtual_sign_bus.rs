@@ -1,6 +1,7 @@
 use std::mem;
 
 use failure;
+use log::{debug, info, warn};
 
 use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBus, SignType, State};
 

@@ -1,4 +1,4 @@
-use failure::Fail;
+use failure::{format_err, Fail};
 
 use crate::errors::{Error, ErrorKind, WrongValueError};
 

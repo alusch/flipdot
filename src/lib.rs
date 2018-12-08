@@ -81,9 +81,6 @@
     unused_results
 )]
 
-#[macro_use]
-extern crate failure;
-
 pub use flipdot_core as core;
 pub use flipdot_serial as serial;
 

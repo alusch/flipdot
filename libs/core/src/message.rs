@@ -1,5 +1,8 @@
 use std::fmt::{self, Display, Formatter};
 
+use macro_attr::{macro_attr, macro_attr_impl};
+use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
+
 use crate::{Address, Data, Frame, MsgType};
 
 /// High-level representation of a sign bus communication message.

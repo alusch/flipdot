@@ -3,7 +3,10 @@ use std::fmt::{self, Display, Formatter};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::str;
 
-use failure::{Fail, ResultExt};
+use failure::{format_err, Fail, ResultExt};
+use lazy_static::lazy_static;
+use macro_attr::{macro_attr, macro_attr_impl};
+use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
 use num_traits::Num;
 use regex::bytes::Regex;
 

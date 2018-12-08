@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::iter;
 use std::rc::Rc;
 
-use failure::ResultExt;
+use failure::{format_err, ResultExt};
 
 use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
 

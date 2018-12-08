@@ -40,13 +40,6 @@
     unused_results
 )]
 
-use failure;
-#[macro_use]
-extern crate log;
-use serial_core;
-
-
-
 mod errors;
 mod serial_port;
 mod serial_sign_bus;
