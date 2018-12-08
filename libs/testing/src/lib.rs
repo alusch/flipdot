@@ -36,7 +36,7 @@
 //! [`flipdot`]: https://docs.rs/flipdot
 //! [`VirtualSignBus`]: struct.VirtualSignBus.html
 //! [`Odk`]: struct.Odk.html
-#![doc(html_root_url = "https://docs.rs/flipdot-testing/0.3.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot-testing/0.4.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,
