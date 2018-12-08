@@ -3,10 +3,9 @@ use std::fmt::{self, Display, Formatter};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::str;
 
+use derive_more::{Display, LowerHex, UpperHex};
 use failure::{format_err, Fail, ResultExt};
 use lazy_static::lazy_static;
-use macro_attr::{macro_attr, macro_attr_impl};
-use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
 use num_traits::Num;
 use regex::bytes::Regex;
 
@@ -68,48 +67,44 @@ pub struct Frame<'a> {
     data: Data<'a>,
 }
 
-macro_attr! {
-    /// A [`Frame`]'s message type.
-    ///
-    /// Carries no implicit meaning, but is interpreted by [`Message`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use flipdot_core::{Address, Data, Frame, MsgType};
-    ///
-    /// # fn main() -> Result<(), failure::Error> {
-    /// #
-    /// // Create a frame with message type 1.
-    /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
-    /// #
-    /// # Ok(()) }
-    /// ```
-    ///
-    /// [`Frame`]: struct.Frame.html
-    /// [`Message`]: enum.Message.html
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
-    pub struct MsgType(pub u8);
-}
+/// A [`Frame`]'s message type.
+///
+/// Carries no implicit meaning, but is interpreted by [`Message`].
+///
+/// # Examples
+///
+/// ```
+/// use flipdot_core::{Address, Data, Frame, MsgType};
+///
+/// # fn main() -> Result<(), failure::Error> {
+/// #
+/// // Create a frame with message type 1.
+/// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
+/// #
+/// # Ok(()) }
+/// ```
+///
+/// [`Frame`]: struct.Frame.html
+/// [`Message`]: enum.Message.html
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
+pub struct MsgType(pub u8);
 
-macro_attr! {
-    /// The address of a sign, used to identify it on the bus.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use flipdot_core::{Address, Data, Frame, MsgType};
-    ///
-    /// # fn main() -> Result<(), failure::Error> {
-    /// #
-    /// // Create a frame addressed to sign 2.
-    /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
-    /// #
-    /// # Ok(()) }
-    /// ```
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
-    pub struct Address(pub u16);
-}
+/// The address of a sign, used to identify it on the bus.
+///
+/// # Examples
+///
+/// ```
+/// use flipdot_core::{Address, Data, Frame, MsgType};
+///
+/// # fn main() -> Result<(), failure::Error> {
+/// #
+/// // Create a frame addressed to sign 2.
+/// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
+/// #
+/// # Ok(()) }
+/// ```
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
+pub struct Address(pub u16);
 
 impl<'a> Frame<'a> {
     /// Constructs a new `Frame` with the specified address, message type, and data.

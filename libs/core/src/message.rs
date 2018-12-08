@@ -1,7 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use macro_attr::{macro_attr, macro_attr_impl};
-use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
+use derive_more::{Display, LowerHex, UpperHex};
 
 use crate::{Address, Data, Frame, MsgType};
 
@@ -88,46 +87,42 @@ pub enum Message<'a> {
     __Nonexhaustive,
 }
 
-macro_attr! {
-    /// The memory offset for data sent via a [`SendData`] message.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use flipdot_core::{Data, Message, Offset};
-    ///
-    /// # fn main() -> Result<(), failure::Error> {
-    /// #
-    /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-    /// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
-    /// let message2 = Message::SendData(Offset(16), Data::new(&data)?);
-    /// // These two messages would send a total of 32 bytes, repeating the sequence twice.
-    /// #
-    /// # Ok(()) }
-    /// ```
-    ///
-    /// [`SendData`]: enum.Message.html#variant.SendData
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
-    pub struct Offset(pub u16);
-}
+/// The memory offset for data sent via a [`SendData`] message.
+///
+/// # Examples
+///
+/// ```
+/// use flipdot_core::{Data, Message, Offset};
+///
+/// # fn main() -> Result<(), failure::Error> {
+/// #
+/// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+/// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
+/// let message2 = Message::SendData(Offset(16), Data::new(&data)?);
+/// // These two messages would send a total of 32 bytes, repeating the sequence twice.
+/// #
+/// # Ok(()) }
+/// ```
+///
+/// [`SendData`]: enum.Message.html#variant.SendData
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
+pub struct Offset(pub u16);
 
-macro_attr! {
-    /// The number of chunks sent in [`SendData`] messages, reported by [`DataChunksSent`].
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use flipdot_core::{ChunkCount, Message};
-    ///
-    /// // Assume we just sent three SendData messages. That should be followed with:
-    /// let message = Message::DataChunksSent(ChunkCount(3));
-    /// ```
-    ///
-    /// [`SendData`]: enum.Message.html#variant.SendData
-    /// [`DataChunksSent`]: enum.Message.html#variant.DataChunksSent
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
-    pub struct ChunkCount(pub u16);
-}
+/// The number of chunks sent in [`SendData`] messages, reported by [`DataChunksSent`].
+///
+/// # Examples
+///
+/// ```
+/// use flipdot_core::{ChunkCount, Message};
+///
+/// // Assume we just sent three SendData messages. That should be followed with:
+/// let message = Message::DataChunksSent(ChunkCount(3));
+/// ```
+///
+/// [`SendData`]: enum.Message.html#variant.SendData
+/// [`DataChunksSent`]: enum.Message.html#variant.DataChunksSent
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
+pub struct ChunkCount(pub u16);
 
 /// Possible states that a sign can be in during operation.
 ///

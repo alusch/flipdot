@@ -1,9 +1,8 @@
 use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
 
+use derive_more::{Display, LowerHex, UpperHex};
 use failure::Fail;
-use macro_attr::{macro_attr, macro_attr_impl};
-use newtype_derive::{newtype_fmt, NewtypeDisplay, NewtypeLowerHex, NewtypeUpperHex};
 
 use crate::errors::{Error, ErrorKind, WrongValueError};
 
@@ -67,28 +66,26 @@ pub struct Page<'a> {
     bytes: Cow<'a, [u8]>,
 }
 
-macro_attr! {
-    /// The page number of a [`Page`].
-    ///
-    /// Used to identify a particular page in a multi-page message.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use flipdot_core::{Page, PageId};
-    ///
-    /// # fn main() -> Result<(), failure::Error> {
-    /// #
-    /// let page = Page::new(PageId(1), 10, 10);
-    /// assert_eq!(PageId(1), page.id());
-    /// #
-    /// # Ok(()) }
-    /// ```
-    ///
-    /// [`Page`]: struct.Page.html
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, NewtypeDisplay!, NewtypeLowerHex!, NewtypeUpperHex!)]
-    pub struct PageId(pub u8);
-}
+/// The page number of a [`Page`].
+///
+/// Used to identify a particular page in a multi-page message.
+///
+/// # Examples
+///
+/// ```
+/// use flipdot_core::{Page, PageId};
+///
+/// # fn main() -> Result<(), failure::Error> {
+/// #
+/// let page = Page::new(PageId(1), 10, 10);
+/// assert_eq!(PageId(1), page.id());
+/// #
+/// # Ok(()) }
+/// ```
+///
+/// [`Page`]: struct.Page.html
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
+pub struct PageId(pub u8);
 
 impl<'a> Page<'a> {
     /// Creates a new `Page` with given ID and dimensions.
