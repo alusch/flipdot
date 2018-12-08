@@ -12,9 +12,9 @@ keywords = ["flip-dot", "Luminator", "bus"]
 categories = ["hardware-support", "development-tools::testing"]
 
 [dependencies]
-failure = "0.1.1"
-failure_derive = "0.1.1"
-log = "0.4.1"
+failure = "0.1.3"
+failure_derive = "0.1.3"
+log = "0.4.6"
 serial-core = "0.4.0"
 
 flipdot-core = { version = "0.3", path = "../core" }
