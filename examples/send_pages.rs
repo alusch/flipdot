@@ -59,7 +59,7 @@ fn main() {
         Ok(_) => process::exit(0),
         Err(ref e) => {
             let headings = iter::once("Error").chain(iter::repeat("Caused by"));
-            for (heading, failure) in headings.zip(e.causes()) {
+            for (heading, failure) in headings.zip(e.iter_chain()) {
                 eprintln!("{}: {}", heading, failure);
             }
             eprintln!("{:?}", e.backtrace());
