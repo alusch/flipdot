@@ -14,7 +14,6 @@ use crate::Message;
 /// Using `SignBus` as a trait object to allow choosing the type of bus at runtime:
 ///
 /// ```
-/// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// use flipdot::{Address, Sign, SignBus, SignType};
@@ -22,7 +21,7 @@ use crate::Message;
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
 /// # fn use_serial() -> bool { false }
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let bus: Rc<RefCell<SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;

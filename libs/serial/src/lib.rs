@@ -11,10 +11,9 @@
 //! # Examples
 //!
 //! ```no_run
-//! # use failure::Error;
 //! use std::time::Duration;
 //!
-//! # fn main() -> Result<(), Error> {
+//! # fn main() -> Result<(), failure::Error> {
 //! #
 //! let mut port = serial::open("COM3")?;
 //! flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;

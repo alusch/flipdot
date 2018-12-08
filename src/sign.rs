@@ -17,12 +17,11 @@ use crate::errors::{Error, ErrorKind};
 /// # Examples
 ///
 /// ```no_run
-/// # use failure::Error;
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
 /// use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 ///
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// // Set up bus. Because the bus can be shared among
 /// // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -66,7 +65,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -74,7 +72,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -92,7 +90,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -100,7 +97,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -117,7 +114,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -125,7 +121,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -142,7 +138,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -150,7 +145,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -167,7 +162,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -175,7 +169,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -192,7 +186,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -200,7 +193,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -234,7 +227,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -244,7 +236,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -283,7 +275,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -293,7 +284,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -334,7 +325,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -344,7 +334,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -381,7 +371,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -391,7 +380,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -427,7 +416,6 @@ impl Sign {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
     /// # use flipdot::{Address, PageId, Sign, SignType};
@@ -437,7 +425,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);

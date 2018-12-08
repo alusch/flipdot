@@ -12,10 +12,9 @@ use crate::errors::{Error, ErrorKind, WrongValueError};
 /// # Examples
 ///
 /// ```
-/// # use failure::Error;
 /// use flipdot_core::SignType;
 ///
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let sign_type = SignType::Max3000Front112x16;
 /// assert_eq!((112, 16), sign_type.dimensions());
@@ -105,9 +104,8 @@ impl SignType {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::SignType;
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bytes = vec![0x04, 0x62, 0x00, 0x04, 0x0A, 0x1E, 0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     /// let sign_type = SignType::from_bytes(&bytes)?;

@@ -21,10 +21,9 @@ use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 /// # Examples
 ///
 /// ```
-/// # use failure::Error;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
 /// println!("Parsed frame is {}", frame);
@@ -74,10 +73,9 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// // Create a frame with message type 1.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
@@ -97,10 +95,9 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// use flipdot_core::{Address, Data, Frame, MsgType};
     ///
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// // Create a frame addressed to sign 2.
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
@@ -117,9 +114,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// // some_data is moved into owning_frame.
     /// let some_data = vec![1, 2, 3];
@@ -144,9 +140,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// match frame.message_type() {
@@ -165,9 +160,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
     /// if frame.address() == Address(3) {
@@ -185,9 +179,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![10, 20])?);
     /// if (frame.data().as_ref() == &[10, 20]) {
@@ -205,9 +198,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![6, 7])?);
     /// let frame2 = Frame::new(Address(2), MsgType(2), frame.into_data());
@@ -223,9 +215,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes();
@@ -257,9 +248,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
     /// let bytes = frame.to_bytes_with_newline();
@@ -286,9 +276,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bytes = b":02000201031FD9\r\n";
     /// let frame = Frame::from_bytes(&bytes[..])?;
@@ -358,9 +347,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
@@ -389,9 +377,8 @@ impl<'a> Frame<'a> {
     /// # Examples
     ///
     /// ```no_run
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::read(&mut port)?;
@@ -481,9 +468,8 @@ fn checksum(bytes: &[u8]) -> u8 {
 /// # Examples
 ///
 /// ```
-/// # use failure::Error;
 /// use flipdot_core::{Address, Data, Frame, MsgType};
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let data = Data::new(vec![1, 2, 3])?; // Ok since length under 255
 /// let frame = Frame::new(Address(2), MsgType(1), data);
@@ -508,9 +494,8 @@ impl<'a> Data<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// use flipdot_core::Data;
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let data = Data::new(vec![1, 2, 3])?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
@@ -521,9 +506,8 @@ impl<'a> Data<'a> {
     /// Borrowed data can also be used:
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::Data;
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bytes = vec![1, 2, 3];
     /// let data = Data::new(&bytes)?;
@@ -557,9 +541,8 @@ impl<'a> Data<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::Data;
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let data = Data::new(vec![])?;
     /// assert!(data.get().is_empty());

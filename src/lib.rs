@@ -12,13 +12,11 @@
 //! # Examples
 //!
 //! ```no_run
-//! # use failure::Error;
-//! #
 //! use std::cell::RefCell;
 //! use std::rc::Rc;
 //! use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 //!
-//! # fn main() -> Result<(), Error> {
+//! # fn main() -> Result<(), failure::Error> {
 //! #
 //! // Set up bus. Because the bus can be shared among
 //! // multiple signs, it must be wrapped in an Rc<RefCell>.

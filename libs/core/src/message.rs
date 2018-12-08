@@ -11,11 +11,10 @@ use crate::{Address, Data, Frame, MsgType};
 /// # Examples
 ///
 /// ```
-/// # use failure::Error;
 /// use flipdot_core::{Address, Message, SignBus, State};
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 ///
@@ -92,10 +91,9 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// use flipdot_core::{Data, Message, Offset};
     ///
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
     /// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
@@ -244,9 +242,8 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let frame = Frame::new(Address(0x12), MsgType(4), Data::new(vec![0x07])?);
     /// let message = Message::from(frame);
@@ -317,9 +314,8 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let message = Message::ReportState(Address(0xFF), State::ConfigReceived);
     /// let frame = Frame::from(message);

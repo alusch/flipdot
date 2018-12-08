@@ -19,9 +19,7 @@ use crate::errors::{Error, ErrorKind};
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # use failure::Error;
-/// #
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// // Populate bus with signs from addresses 2 to 126
 /// // (which seems to be the possible range for actual signs).
@@ -59,9 +57,8 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// ```no_run
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use failure::Error;
     /// #
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
@@ -93,9 +90,8 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// ```no_run
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use failure::Error;
     /// #
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("/dev/ttyUSB0")?;

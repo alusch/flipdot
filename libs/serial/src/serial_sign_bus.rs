@@ -18,10 +18,9 @@ use crate::errors::Error;
 /// # Examples
 ///
 /// ```no_run
-/// # use failure::Error;
 /// use flipdot_serial::SerialSignBus;
 ///
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let port = serial::open("/dev/ttyUSB0")?;
 /// let bus = SerialSignBus::new(port)?;
@@ -49,8 +48,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     ///
     /// ```no_run
     /// # use flipdot_serial::SerialSignBus;
-    /// # use failure::Error;
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let port = serial::open("COM3")?;
     /// let bus = SerialSignBus::new(port)?;

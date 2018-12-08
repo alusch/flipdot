@@ -73,10 +73,9 @@ macro_attr! {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// use flipdot_core::{Page, PageId};
     ///
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let page = Page::new(PageId(1), 10, 10);
     /// assert_eq!(PageId(1), page.id());
@@ -136,9 +135,8 @@ impl<'a> Page<'a> {
     /// # Examples
     ///
     /// ```
-    /// # use failure::Error;
     /// # use flipdot_core::{Page, PageId};
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let data: Vec<u8> = vec![1, 16, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255];
     /// let page = Page::from_bytes(8, 8, data)?;

@@ -22,9 +22,7 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # use failure::Error;
-/// #
-/// # fn main() -> Result<(), Error> {
+/// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 /// let port = serial::open("/dev/ttyUSB0")?;
@@ -53,9 +51,8 @@ impl<'a> VirtualSignBus<'a> {
     /// ```no_run
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
-    /// # use failure::Error;
     /// #
-    /// # fn main() -> Result<(), Error> {
+    /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
