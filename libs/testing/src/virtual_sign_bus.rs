@@ -85,14 +85,14 @@ impl<'a> VirtualSignBus<'a> {
     /// ```
     ///
     /// [`VirtualSign`]: struct.VirtualSign.html
-    pub fn sign(&self, index: usize) -> &VirtualSign<'_> {
+    pub fn sign(&self, index: usize) -> &VirtualSign<'a> {
         &self.signs[index]
     }
 }
 
-impl<'a> SignBus for VirtualSignBus<'a> {
+impl SignBus for VirtualSignBus<'_> {
     /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
-    fn process_message<'b>(&mut self, message: Message<'_>) -> Result<Option<Message<'b>>, failure::Error> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
             let response = sign.process_message(&message);
@@ -128,7 +128,7 @@ pub struct VirtualSign<'a> {
     sign_type: Option<SignType>,
 }
 
-impl<'a> VirtualSign<'a> {
+impl VirtualSign<'_> {
     /// Creates a new `VirtualSign` with the specified address.
     ///
     /// # Examples
@@ -224,7 +224,7 @@ impl<'a> VirtualSign<'a> {
     /// let response = sign.process_message(&Message::QueryState(Address(3)));
     /// assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
     /// ```
-    pub fn process_message<'b>(&mut self, message: &Message<'_>) -> Option<Message<'b>> {
+    pub fn process_message<'a>(&mut self, message: &Message<'_>) -> Option<Message<'a>> {
         match *message {
             Message::Hello(address) | Message::QueryState(address) if address == self.address => self.query_state(),
             Message::RequestOperation(address, Operation::ReceiveConfig) if address == self.address => self.receive_config(),
@@ -242,7 +242,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `QueryState` or `Hello` messages
-    fn query_state<'b>(&mut self) -> Option<Message<'b>> {
+    fn query_state<'a>(&mut self) -> Option<Message<'a>> {
         let state = self.state;
 
         // We don't actually need to do anything to load or show a page,
@@ -257,7 +257,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `RequestOperation` messages for `ReceiveConfig`.
-    fn receive_config<'b>(&mut self) -> Option<Message<'b>> {
+    fn receive_config<'a>(&mut self) -> Option<Message<'a>> {
         match self.state {
             State::Unconfigured | State::ConfigFailed => {
                 self.state = State::ConfigInProgress;
@@ -268,7 +268,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `SendData` messages.
-    fn send_data<'b>(&mut self, offset: Offset, data: &[u8]) -> Option<Message<'b>> {
+    fn send_data<'a>(&mut self, offset: Offset, data: &[u8]) -> Option<Message<'a>> {
         if self.state == State::ConfigInProgress && offset == Offset(0) && data.len() == 16 {
             let (kind, width, height) = match data[0] {
                 0x04 => ("Max3000", data[5..9].iter().sum(), data[4]),
@@ -301,7 +301,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `DataChunksSent` messages.
-    fn data_chunks_sent<'b>(&mut self, chunks: ChunkCount) -> Option<Message<'b>> {
+    fn data_chunks_sent<'a>(&mut self, chunks: ChunkCount) -> Option<Message<'a>> {
         if ChunkCount(self.data_chunks) == chunks {
             match self.state {
                 State::ConfigInProgress => self.state = State::ConfigReceived,
@@ -321,7 +321,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `RequestOperation` messages for `ReceivePixels`.
-    fn receive_pixels<'b>(&mut self) -> Option<Message<'b>> {
+    fn receive_pixels<'a>(&mut self) -> Option<Message<'a>> {
         match self.state {
             State::ConfigReceived
             | State::PixelsFailed
@@ -338,7 +338,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `PixelsComplete` messages.
-    fn pixels_complete<'b>(&mut self) -> Option<Message<'b>> {
+    fn pixels_complete<'a>(&mut self) -> Option<Message<'a>> {
         if self.state == State::PixelsReceived {
             self.state = State::PageLoaded;
             for page in &self.pages {
@@ -356,7 +356,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `RequestOperation` messages for `ShowLoadedPage`.
-    fn show_loaded_page<'b>(&mut self) -> Option<Message<'b>> {
+    fn show_loaded_page<'a>(&mut self) -> Option<Message<'a>> {
         if self.state == State::PageLoaded {
             self.state = State::PageShowInProgress;
             Some(Message::AckOperation(self.address, Operation::ShowLoadedPage))
@@ -366,7 +366,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `RequestOperation` messages for `LoadNextPage`.
-    fn load_next_page<'b>(&mut self) -> Option<Message<'b>> {
+    fn load_next_page<'a>(&mut self) -> Option<Message<'a>> {
         if self.state == State::PageShown {
             self.state = State::PageLoadInProgress;
             Some(Message::AckOperation(self.address, Operation::LoadNextPage))
@@ -376,13 +376,13 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `RequestOperation` messages for `StartReset`.
-    fn start_reset<'b>(&mut self) -> Option<Message<'b>> {
+    fn start_reset<'a>(&mut self) -> Option<Message<'a>> {
         self.state = State::ReadyToReset;
         Some(Message::AckOperation(self.address, Operation::StartReset))
     }
 
     /// Handles `RequestOperation` messages for `FinishReset`.
-    fn finish_reset<'b>(&mut self) -> Option<Message<'b>> {
+    fn finish_reset<'a>(&mut self) -> Option<Message<'a>> {
         if self.state == State::ReadyToReset {
             self.reset();
             Some(Message::AckOperation(self.address, Operation::FinishReset))
@@ -392,7 +392,7 @@ impl<'a> VirtualSign<'a> {
     }
 
     /// Handles `Goodbye` messages.
-    fn goodbye<'b>(&mut self) -> Option<Message<'b>> {
+    fn goodbye<'a>(&mut self) -> Option<Message<'a>> {
         self.reset();
         None
     }

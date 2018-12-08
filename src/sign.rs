@@ -594,7 +594,7 @@ impl Sign {
 }
 
 /// Fails with an `UnexpectedResponse` error if `response` is not equal to `expected`.
-fn verify_response<'a>(expected: &Option<Message<'a>>, response: &Option<Message<'a>>) -> Result<(), Error> {
+fn verify_response(expected: &Option<Message<'_>>, response: &Option<Message<'_>>) -> Result<(), Error> {
     if response != expected {
         return Err(format_err!("Expected {:?}, got {:?}", expected, response)
             .context(ErrorKind::UnexpectedResponse)

@@ -307,7 +307,7 @@ impl<'a> Page<'a> {
     }
 }
 
-impl<'a> Display for Page<'a> {
+impl Display for Page<'_> {
     /// Formats the page for display using ASCII art.
     ///
     /// Produces a multiline string with one character per pixel and a border.

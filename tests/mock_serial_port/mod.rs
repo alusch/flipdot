@@ -1,5 +1,3 @@
-use serial_core;
-
 use std::io::{self, Cursor, Read, Write};
 use std::time::Duration;
 

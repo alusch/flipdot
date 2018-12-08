@@ -192,7 +192,7 @@ impl<'a> Frame<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    pub fn data(&self) -> &Cow<'_, [u8]> {
+    pub fn data(&self) -> &Cow<'a, [u8]> {
         &self.data.0
     }
 
@@ -420,7 +420,7 @@ impl<'a> Frame<'a> {
     }
 }
 
-impl<'a> Display for Frame<'a> {
+impl Display for Frame<'_> {
     /// Formats the frame in a human-readable way.
     ///
     /// Useful for viewing traffic on a bus. All numbers are in hex.
@@ -566,8 +566,8 @@ impl<'a> Data<'a> {
 // over integers yet, so use a macro to implement for common array lengths.
 macro_rules! impl_from_array_ref_with_length {
     ($length:expr) => {
-        impl<'a> From<&'static [u8; $length]> for Data<'a> {
-            fn from(value: &'static [u8; $length]) -> Data<'a> {
+        impl From<&'static [u8; $length]> for Data<'_> {
+            fn from(value: &'static [u8; $length]) -> Data<'_> {
                 Data::new(&value[..]).unwrap()
             }
         }

@@ -201,7 +201,7 @@ pub enum Operation {
     __Nonexhaustive,
 }
 
-impl<'a> Display for Message<'a> {
+impl Display for Message<'_> {
     /// Provides a human-readable view of the message.
     ///
     /// This is useful, for example, when monitoring the traffic on a bus.
