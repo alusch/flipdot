@@ -38,7 +38,10 @@ pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<
         settings.set_stop_bits(serial::Stop1);
         settings.set_flow_control(serial::FlowNone);
         Ok(())
-    }).context(ErrorKind::Configuration)?;
+    })
+    .context(ErrorKind::Configuration)?;
+
     port.set_timeout(timeout).context(ErrorKind::Configuration)?;
+
     Ok(())
 }

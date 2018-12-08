@@ -1,4 +1,3 @@
-
 use serial_core;
 
 use std::cell::RefCell;

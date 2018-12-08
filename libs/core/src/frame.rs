@@ -321,7 +321,8 @@ impl<'a> Frame<'a> {
                 data_len as usize,
                 data.len(),
                 format!("[{}] has wrong number of data bytes", string_for_error(bytes)),
-            ).context(ErrorKind::FrameDataMismatch)
+            )
+            .context(ErrorKind::FrameDataMismatch)
             .into());
         }
 
@@ -334,7 +335,8 @@ impl<'a> Frame<'a> {
                 provided_checksum as usize,
                 computed_checksum as usize,
                 format!("[{}] computed checksum didn't match", string_for_error(bytes)),
-            ).context(ErrorKind::BadChecksum)
+            )
+            .context(ErrorKind::BadChecksum)
             .into());
         }
 
@@ -597,7 +599,8 @@ mod tests {
     fn roundtrip_complex_frame() {
         let data = Data::new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
-        ]).unwrap();
+        ])
+        .unwrap();
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes();
@@ -611,7 +614,8 @@ mod tests {
     fn roundtrip_complex_frame_newline() {
         let data = Data::new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
-        ]).unwrap();
+        ])
+        .unwrap();
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes_with_newline();

@@ -73,13 +73,15 @@ fn format_errors() {
     let mut odk = Odk::new(
         MockSerialPort::new(vec![], SerialFailure::Read),
         ErrorSignBus::new(BusFailure::Error),
-    ).unwrap();
+    )
+    .unwrap();
     print_error("ODK read error", odk.process_message());
 
     let mut odk = Odk::new(
         MockSerialPort::new(b":01007F02FF7F\r\n".to_vec(), SerialFailure::None),
         ErrorSignBus::new(BusFailure::Error),
-    ).unwrap();
+    )
+    .unwrap();
     print_error("ODK bus error", odk.process_message());
 
     // Flipdot

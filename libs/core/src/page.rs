@@ -167,7 +167,8 @@ impl<'a> Page<'a> {
                 expected_bytes,
                 page.bytes.len(),
                 format!("Wrong number of data bytes for {}x{} page", width, height),
-            ).context(ErrorKind::WrongPageLength)
+            )
+            .context(ErrorKind::WrongPageLength)
             .into());
         }
 
