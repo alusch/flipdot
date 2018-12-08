@@ -4,7 +4,6 @@ use failure::ResultExt;
 use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus};
-use flipdot_serial;
 
 use crate::errors::{Error, ErrorKind};
 

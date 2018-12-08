@@ -1,7 +1,6 @@
 use std::thread;
 use std::time::Duration;
 
-use failure;
 use log::debug;
 use serial_core::prelude::*;
 
