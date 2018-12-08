@@ -98,7 +98,7 @@ fn print_error<V: Debug, E: Fail>(title: &'static str, result: Result<V, E>) {
     println!("** {} **", title);
     let e = result.unwrap_err();
     let headings = iter::once("Error").chain(iter::repeat("Caused by"));
-    for (heading, failure) in headings.zip((&e as &Fail).iter_chain()) {
+    for (heading, failure) in headings.zip((&e as &dyn Fail).iter_chain()) {
         println!("{}: {}", heading, failure);
     }
     println!();
