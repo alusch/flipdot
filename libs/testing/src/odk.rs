@@ -27,7 +27,7 @@ use crate::errors::{Error, ErrorKind};
 ///
 /// // Hook up ODK to virtual bus.
 /// let port = serial::open("/dev/ttyUSB0")?;
-/// let mut odk = Odk::new(port, bus)?;
+/// let mut odk = Odk::try_new(port, bus)?;
 /// loop {
 ///     // ODK communications are forwarded to/from the virtual bus.
 ///     odk.process_message()?;
@@ -61,7 +61,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
-    /// let odk = Odk::new(port, bus)?;
+    /// let odk = Odk::try_new(port, bus)?;
     /// #
     /// # Ok(()) }
     /// ```
@@ -70,7 +70,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// `RUST_LOG=debug` to watch the bus messages go by.
     ///
     /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
-    pub fn new(mut port: P, bus: B) -> Result<Self, Error> {
+    pub fn try_new(mut port: P, bus: B) -> Result<Self, Error> {
         flipdot_serial::configure_port(&mut port, Duration::from_secs(10)).context(ErrorKind::Configuration)?;
         Ok(Odk { port, bus })
     }
@@ -94,7 +94,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("/dev/ttyUSB0")?;
-    /// let mut odk = Odk::new(port, bus)?;
+    /// let mut odk = Odk::try_new(port, bus)?;
     /// loop {
     ///     odk.process_message()?;
     /// }

@@ -97,8 +97,8 @@ pub enum Message<'a> {
 /// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-/// let message1 = Message::SendData(Offset(0), Data::new(&data)?);
-/// let message2 = Message::SendData(Offset(16), Data::new(&data)?);
+/// let message1 = Message::SendData(Offset(0), Data::try_new(&data)?);
+/// let message2 = Message::SendData(Offset(16), Data::try_new(&data)?);
 /// // These two messages would send a total of 32 bytes, repeating the sequence twice.
 /// #
 /// # Ok(()) }
@@ -243,7 +243,7 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(0x12), MsgType(4), Data::new(vec![0x07])?);
+    /// let frame = Frame::new(Address(0x12), MsgType(4), Data::try_new(vec![0x07])?);
     /// let message = Message::from(frame);
     /// assert_eq!(Message::ReportState(Address(0x12), State::ConfigReceived), message);
     /// #
@@ -317,7 +317,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     /// #
     /// let message = Message::ReportState(Address(0xFF), State::ConfigReceived);
     /// let frame = Frame::from(message);
-    /// assert_eq!(Frame::new(Address(0xFF), MsgType(4), Data::new(vec![0x07])?), frame);
+    /// assert_eq!(Frame::new(Address(0xFF), MsgType(4), Data::try_new(vec![0x07])?), frame);
     /// #
     /// # Ok(()) }
     /// ```
@@ -383,7 +383,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
 ///
 /// [`Data`]: struct.Data.html
 // fn Data::from(data: &'static [u8]) -> Data {
-//     Data::new(data).unwrap()
+//     Data::try_new(data).unwrap()
 // }
 
 #[cfg(test)]

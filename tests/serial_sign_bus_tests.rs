@@ -22,7 +22,7 @@ fn serial_sign_bus_works() {
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PageShown)).to_bytes_with_newline());
 
     let port = MockSerialPort::new(buf, SerialFailure::None);
-    let bus = SerialSignBus::new(port).unwrap();
+    let bus = SerialSignBus::try_new(port).unwrap();
 
     // Ensure serial port was configured correctly.
     let expected = PortSettings {

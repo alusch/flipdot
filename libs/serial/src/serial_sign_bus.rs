@@ -23,7 +23,7 @@ use crate::serial_port;
 /// # fn main() -> Result<(), failure::Error> {
 /// #
 /// let port = serial::open("/dev/ttyUSB0")?;
-/// let bus = SerialSignBus::new(port)?;
+/// let bus = SerialSignBus::try_new(port)?;
 /// // Can now connect a Sign to the bus.
 /// #
 /// # Ok(()) }
@@ -51,13 +51,13 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let port = serial::open("COM3")?;
-    /// let bus = SerialSignBus::new(port)?;
+    /// let bus = SerialSignBus::try_new(port)?;
     /// #
     /// # Ok(()) }
     /// ```
     ///
     /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
-    pub fn new(mut port: P) -> Result<Self, Error> {
+    pub fn try_new(mut port: P) -> Result<Self, Error> {
         serial_port::configure_port(&mut port, Duration::from_secs(5))?;
         Ok(SerialSignBus { port })
     }

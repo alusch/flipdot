@@ -24,7 +24,7 @@ let bus = VirtualSignBus::new(signs);
 
 // Hook up ODK to virtual bus.
 let port = serial::open("COM3")?;
-let mut odk = Odk::new(port, bus)?;
+let mut odk = Odk::try_new(port, bus)?;
 loop {
     // ODK communications are forwarded to/from the virtual bus.
     odk.process_message()?;

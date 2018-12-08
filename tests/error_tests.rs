@@ -52,7 +52,7 @@ impl SignBus for ErrorSignBus {
 #[test]
 fn format_errors() {
     // Core
-    print_error("Too much data", Data::new(vec![0; 256]));
+    print_error("Too much data", Data::try_new(vec![0; 256]));
     print_error("I/O error", Frame::read(&mut ErrorReader {}));
     print_error("Bad frame data", Frame::from_bytes(b":01"));
     print_error("Wrong frame data size", Frame::from_bytes(b":01007F027E"));
@@ -64,18 +64,18 @@ fn format_errors() {
     // Serial
     print_error(
         "Serial config failure",
-        SerialSignBus::new(MockSerialPort::new(vec![], SerialFailure::WriteSettings)),
+        SerialSignBus::try_new(MockSerialPort::new(vec![], SerialFailure::WriteSettings)),
     );
 
     // Testing
-    let mut odk = Odk::new(
+    let mut odk = Odk::try_new(
         MockSerialPort::new(vec![], SerialFailure::Read),
         ErrorSignBus::new(BusFailure::Error),
     )
     .unwrap();
     print_error("ODK read error", odk.process_message());
 
-    let mut odk = Odk::new(
+    let mut odk = Odk::try_new(
         MockSerialPort::new(b":01007F02FF7F\r\n".to_vec(), SerialFailure::None),
         ErrorSignBus::new(BusFailure::Error),
     )

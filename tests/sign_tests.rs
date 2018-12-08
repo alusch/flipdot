@@ -64,7 +64,7 @@ fn happy_path() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -80,27 +80,27 @@ fn happy_path() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceivePixels))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(&DATA[0..16]).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(&DATA[0..16]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(16), Data::new(&DATA[16..32]).unwrap()),
+            expected: Message::SendData(Offset(16), Data::try_new(&DATA[16..32]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(32), Data::new(&DATA[32..48]).unwrap()),
+            expected: Message::SendData(Offset(32), Data::try_new(&DATA[32..48]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(48), Data::new(&DATA[48..64]).unwrap()),
+            expected: Message::SendData(Offset(48), Data::try_new(&DATA[48..64]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(64), Data::new(&DATA[64..80]).unwrap()),
+            expected: Message::SendData(Offset(64), Data::try_new(&DATA[64..80]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(80), Data::new(&DATA[80..96]).unwrap()),
+            expected: Message::SendData(Offset(80), Data::try_new(&DATA[80..96]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -159,7 +159,7 @@ fn config_retry() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -175,7 +175,7 @@ fn config_retry() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -209,7 +209,7 @@ fn config_retry_unexpected_state_fails() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -225,7 +225,7 @@ fn config_retry_unexpected_state_fails() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -260,7 +260,7 @@ fn config_retry_gives_up() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -276,7 +276,7 @@ fn config_retry_gives_up() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -292,7 +292,7 @@ fn config_retry_gives_up() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -323,27 +323,27 @@ fn pixels_retry() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceivePixels))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(&DATA[0..16]).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(&DATA[0..16]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(16), Data::new(&DATA[16..32]).unwrap()),
+            expected: Message::SendData(Offset(16), Data::try_new(&DATA[16..32]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(32), Data::new(&DATA[32..48]).unwrap()),
+            expected: Message::SendData(Offset(32), Data::try_new(&DATA[32..48]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(48), Data::new(&DATA[48..64]).unwrap()),
+            expected: Message::SendData(Offset(48), Data::try_new(&DATA[48..64]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(64), Data::new(&DATA[64..80]).unwrap()),
+            expected: Message::SendData(Offset(64), Data::try_new(&DATA[64..80]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(80), Data::new(&DATA[80..96]).unwrap()),
+            expected: Message::SendData(Offset(80), Data::try_new(&DATA[80..96]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -359,27 +359,27 @@ fn pixels_retry() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceivePixels))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(&DATA[0..16]).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(&DATA[0..16]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(16), Data::new(&DATA[16..32]).unwrap()),
+            expected: Message::SendData(Offset(16), Data::try_new(&DATA[16..32]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(32), Data::new(&DATA[32..48]).unwrap()),
+            expected: Message::SendData(Offset(32), Data::try_new(&DATA[32..48]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(48), Data::new(&DATA[48..64]).unwrap()),
+            expected: Message::SendData(Offset(48), Data::try_new(&DATA[48..64]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(64), Data::new(&DATA[64..80]).unwrap()),
+            expected: Message::SendData(Offset(64), Data::try_new(&DATA[64..80]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(80), Data::new(&DATA[80..96]).unwrap()),
+            expected: Message::SendData(Offset(80), Data::try_new(&DATA[80..96]).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -550,7 +550,7 @@ fn config_needs_reset() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -592,7 +592,7 @@ fn config_ready_to_reset() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {
@@ -626,7 +626,7 @@ fn unexpected_response_error() {
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
         },
         ScriptItem {
-            expected: Message::SendData(Offset(0), Data::new(CONFIG).unwrap()),
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
             response: Ok(None),
         },
         ScriptItem {

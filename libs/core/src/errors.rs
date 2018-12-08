@@ -114,7 +114,7 @@ impl From<Context<ErrorKind>> for Error {
 /// use failure::Fail;
 /// use flipdot_core::{Data, ErrorKind, MaxExceededError};
 ///
-/// let result = Data::new(vec![0; 256]);
+/// let result = Data::try_new(vec![0; 256]);
 /// match result {
 ///     Err(ref e) if e.kind() == ErrorKind::DataTooLong => {
 ///         if let Some(cause) = e.cause().and_then(|c| c.downcast_ref::<MaxExceededError>()) {

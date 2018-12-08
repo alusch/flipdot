@@ -23,7 +23,7 @@ use crate::Message;
 /// #
 /// let bus: Rc<RefCell<SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;
-///     Rc::new(RefCell::new(SerialSignBus::new(port)?))
+///     Rc::new(RefCell::new(SerialSignBus::try_new(port)?))
 /// } else {
 ///     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
 /// };

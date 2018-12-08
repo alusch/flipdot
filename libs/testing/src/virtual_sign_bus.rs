@@ -26,7 +26,7 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// #
 /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 /// let port = serial::open("/dev/ttyUSB0")?;
-/// let mut odk = Odk::new(port, bus)?;
+/// let mut odk = Odk::try_new(port, bus)?;
 /// loop {
 ///     // VirtualSignBus processes the messsages from the real ODK over serial.
 ///     odk.process_message()?;
@@ -56,7 +56,7 @@ impl<'a> VirtualSignBus<'a> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
-    /// let odk = Odk::new(port, bus)?;
+    /// let odk = Odk::try_new(port, bus)?;
     /// #
     /// # Ok(()) }
     /// ```
@@ -460,7 +460,7 @@ mod tests {
 
         let response = sign.process_message(&Message::SendData(
             Offset(0x00),
-            Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
+            Data::try_new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
         ));
         assert_eq!(None, response);
 
@@ -488,7 +488,7 @@ mod tests {
             let response = sign.process_message(&Message::QueryState(Address(3)));
             assert_eq!(Some(Message::ReportState(Address(3), State::PixelsInProgress)), response);
 
-            let response = sign.process_message(&Message::SendData(Offset((i * 16) as u16), Data::new(chunk).unwrap()));
+            let response = sign.process_message(&Message::SendData(Offset((i * 16) as u16), Data::try_new(chunk).unwrap()));
             assert_eq!(None, response);
 
             chunks_sent += 1;
@@ -542,7 +542,7 @@ mod tests {
             let response = sign.process_message(&Message::QueryState(Address(3)));
             assert_eq!(Some(Message::ReportState(Address(3), State::PixelsInProgress)), response);
 
-            let response = sign.process_message(&Message::SendData(Offset((i * 16) as u16), Data::new(chunk).unwrap()));
+            let response = sign.process_message(&Message::SendData(Offset((i * 16) as u16), Data::try_new(chunk).unwrap()));
             assert_eq!(None, response);
 
             chunks_sent += 1;
@@ -593,7 +593,7 @@ mod tests {
 
         let response = sign.process_message(&Message::SendData(
             Offset(0x00),
-            Data::new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
+            Data::try_new(SignType::Max3000Side90x7.to_bytes()).unwrap(),
         ));
         assert_eq!(None, response);
 
@@ -662,7 +662,7 @@ mod tests {
         let data = vec![
             0x04, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ];
-        let response = sign.process_message(&Message::SendData(Offset(0x00), Data::new(data).unwrap()));
+        let response = sign.process_message(&Message::SendData(Offset(0x00), Data::try_new(data).unwrap()));
         assert_eq!(None, response);
 
         let response = sign.process_message(&Message::DataChunksSent(ChunkCount(1)));
@@ -692,7 +692,7 @@ mod tests {
         let data = vec![
             0x0F, 0x99, 0x00, 0x0F, 0x09, 0x1C, 0x1C, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         ];
-        let response = sign.process_message(&Message::SendData(Offset(0x00), Data::new(data).unwrap()));
+        let response = sign.process_message(&Message::SendData(Offset(0x00), Data::try_new(data).unwrap()));
         assert_eq!(None, response);
 
         let response = sign.process_message(&Message::DataChunksSent(ChunkCount(1)));

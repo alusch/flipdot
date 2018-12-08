@@ -26,7 +26,7 @@ use crate::errors::{Error, ErrorKind};
 /// // Set up bus. Because the bus can be shared among
 /// // multiple signs, it must be wrapped in an Rc<RefCell>.
 /// let port = serial::open("/dev/ttyUSB0")?;
-/// let bus = SerialSignBus::new(port)?;
+/// let bus = SerialSignBus::try_new(port)?;
 /// let bus = Rc::new(RefCell::new(bus));
 ///
 /// // Create a sign with the appropriate address and type.
@@ -535,7 +535,7 @@ impl Sign {
                 for (i, chunk) in item.chunks(16).enumerate() {
                     // Safe to unwrap the Data creation as the chunk will obviously always be less than 255 bytes.
                     self.send_message_expect_response(
-                        Message::SendData(Offset((i * 16) as u16), Data::new(chunk).unwrap()),
+                        Message::SendData(Offset((i * 16) as u16), Data::try_new(chunk).unwrap()),
                         &None,
                     )?;
                     chunks_sent += 1;

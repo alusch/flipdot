@@ -25,7 +25,7 @@ use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 // Set up bus. Because the bus can be shared among
 // multiple signs, it must be wrapped in an Rc<RefCell>.
 let port = serial::open("/dev/ttyUSB0")?;
-let bus = SerialSignBus::new(port)?;
+let bus = SerialSignBus::try_new(port)?;
 let bus = Rc::new(RefCell::new(bus));
 
 // Create a sign with the appropriate address and type.

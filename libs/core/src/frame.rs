@@ -27,7 +27,7 @@ use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 ///
 /// # fn main() -> Result<(), failure::Error> {
 /// #
-/// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
+/// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
 /// println!("Parsed frame is {}", frame);
 ///
 /// let bytes = frame.to_bytes();
@@ -79,7 +79,7 @@ pub struct Frame<'a> {
 /// # fn main() -> Result<(), failure::Error> {
 /// #
 /// // Create a frame with message type 1.
-/// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
+/// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![1, 2])?);
 /// #
 /// # Ok(()) }
 /// ```
@@ -99,7 +99,7 @@ pub struct MsgType(pub u8);
 /// # fn main() -> Result<(), failure::Error> {
 /// #
 /// // Create a frame addressed to sign 2.
-/// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![1, 2])?);
+/// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![1, 2])?);
 /// #
 /// # Ok(()) }
 /// ```
@@ -117,11 +117,11 @@ impl<'a> Frame<'a> {
     /// #
     /// // some_data is moved into owning_frame.
     /// let some_data = vec![1, 2, 3];
-    /// let owning_frame = Frame::new(Address(0xB), MsgType(0xA), Data::new(some_data)?);
+    /// let owning_frame = Frame::new(Address(0xB), MsgType(0xA), Data::try_new(some_data)?);
     ///
     /// // other_data is borrowed.
     /// let other_data = vec![1, 2, 3];
-    /// let borrowing_frame = Frame::new(Address(0xD), MsgType(0xC), Data::new(other_data.as_slice())?);
+    /// let borrowing_frame = Frame::new(Address(0xD), MsgType(0xC), Data::try_new(other_data.as_slice())?);
     /// #
     /// # Ok(()) }
     /// ```
@@ -141,7 +141,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
+    /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![])?);
     /// match frame.message_type() {
     ///    MsgType(1) => println!("Message 1"),
     ///    _ => println!("Something else"),
@@ -161,7 +161,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![])?);
+    /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![])?);
     /// if frame.address() == Address(3) {
     ///     println!("This frame is addressed to me!");
     /// }
@@ -180,7 +180,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![10, 20])?);
+    /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![10, 20])?);
     /// if (frame.data().as_ref() == &[10, 20]) {
     ///     println!("Found the expected data!");
     /// }
@@ -199,7 +199,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(1), MsgType(1), Data::new(vec![6, 7])?);
+    /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![6, 7])?);
     /// let frame2 = Frame::new(Address(2), MsgType(2), frame.into_data());
     /// #
     /// # Ok(()) }
@@ -216,7 +216,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
+    /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
     /// let bytes = frame.to_bytes();
     /// assert_eq!(b":02000201031FD9", bytes.as_slice());
     /// #
@@ -249,7 +249,7 @@ impl<'a> Frame<'a> {
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
+    /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
     /// let bytes = frame.to_bytes_with_newline();
     /// assert_eq!(b":02000201031FD9\r\n", bytes.as_slice());
     /// #
@@ -279,7 +279,7 @@ impl<'a> Frame<'a> {
     /// #
     /// let bytes = b":02000201031FD9\r\n";
     /// let frame = Frame::from_bytes(&bytes[..])?;
-    /// assert_eq!(Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?), frame);
+    /// assert_eq!(Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?), frame);
     /// #
     /// # Ok(()) }
     /// ```
@@ -321,7 +321,7 @@ impl<'a> Frame<'a> {
             .into());
         }
 
-        let frame = Frame::new(Address(address), MsgType(message_type), Data::new(data)?);
+        let frame = Frame::new(Address(address), MsgType(message_type), Data::try_new(data)?);
         let payload = frame.payload();
         let computed_checksum = checksum(&payload);
 
@@ -351,7 +351,7 @@ impl<'a> Frame<'a> {
     /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let mut port = serial::open("COM3")?;
-    /// let frame = Frame::new(Address(2), MsgType(1), Data::new(vec![3, 31])?);
+    /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
     /// frame.write(&mut port)?;
     /// #
     /// # Ok(()) }
@@ -471,7 +471,7 @@ fn checksum(bytes: &[u8]) -> u8 {
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 /// # fn main() -> Result<(), failure::Error> {
 /// #
-/// let data = Data::new(vec![1, 2, 3])?; // Ok since length under 255
+/// let data = Data::try_new(vec![1, 2, 3])?; // Ok since length under 255
 /// let frame = Frame::new(Address(2), MsgType(1), data);
 /// #
 /// # Ok(()) }
@@ -497,7 +497,7 @@ impl<'a> Data<'a> {
     /// use flipdot_core::Data;
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let data = Data::new(vec![1, 2, 3])?;
+    /// let data = Data::try_new(vec![1, 2, 3])?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
     /// #
     /// # Ok(()) }
@@ -510,7 +510,7 @@ impl<'a> Data<'a> {
     /// # fn main() -> Result<(), failure::Error> {
     /// #
     /// let bytes = vec![1, 2, 3];
-    /// let data = Data::new(&bytes)?;
+    /// let data = Data::try_new(&bytes)?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
     /// #
     /// # Ok(()) }
@@ -520,13 +520,13 @@ impl<'a> Data<'a> {
     ///
     /// ```
     /// # use flipdot_core::Data;
-    /// let result = Data::new(vec![0; 1000]);
+    /// let result = Data::try_new(vec![0; 1000]);
     /// assert!(result.is_err());
     /// ```
     ///
     /// [`Frame`]: struct.Frame.html
     /// [`ErrorKind::DataTooLong`]: enum.ErrorKind.html#variant.DataTooLong
-    pub fn new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, Error> {
+    pub fn try_new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, Error> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {
             return Err(MaxExceededError::new(0xFF, data.len(), "Too many data bytes")
@@ -544,7 +544,7 @@ impl<'a> Data<'a> {
     /// # use flipdot_core::Data;
     /// # fn main() -> Result<(), failure::Error> {
     /// #
-    /// let data = Data::new(vec![])?;
+    /// let data = Data::try_new(vec![])?;
     /// assert!(data.get().is_empty());
     /// #
     /// # Ok(()) }
@@ -563,7 +563,7 @@ macro_rules! impl_from_array_ref_with_length {
     ($length:expr) => {
         impl From<&'static [u8; $length]> for Data<'_> {
             fn from(value: &'static [u8; $length]) -> Data<'_> {
-                Data::new(&value[..]).unwrap()
+                Data::try_new(&value[..]).unwrap()
             }
         }
     };
@@ -592,7 +592,7 @@ mod tests {
 
     #[test]
     fn roundtrip_complex_frame() {
-        let data = Data::new(vec![
+        let data = Data::try_new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
         ])
         .unwrap();
@@ -607,7 +607,7 @@ mod tests {
 
     #[test]
     fn roundtrip_complex_frame_newline() {
-        let data = Data::new(vec![
+        let data = Data::try_new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
         ])
         .unwrap();
@@ -633,7 +633,7 @@ mod tests {
 
     #[test]
     fn data_length_over_255_rejected() {
-        let error = Data::new(vec![0; 256]).unwrap_err();
+        let error = Data::try_new(vec![0; 256]).unwrap_err();
         assert_eq!(error.kind(), ErrorKind::DataTooLong);
         let cause = error.cause().and_then(|e| e.downcast_ref::<MaxExceededError>()).unwrap();
         assert_eq!(255, cause.max);
