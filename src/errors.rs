@@ -10,6 +10,7 @@ pub struct Error {
 
 /// The specific kind of error that occurred.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// The sign bus failed to process a message.
     #[fail(display = "Sign bus failed to process message")]
@@ -18,12 +19,6 @@ pub enum ErrorKind {
     /// Sign did not respond properly according to the protocol.
     #[fail(display = "Sign did not respond properly according to the protocol")]
     UnexpectedResponse,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    #[fail(display = "")]
-    __Nonexhaustive,
 }
 
 impl Error {

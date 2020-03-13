@@ -29,6 +29,7 @@ use crate::{Address, Data, Frame, MsgType};
 ///
 /// [`Frame`]: struct.Frame.html
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum Message<'a> {
     /// Send a chunk of data, with the first member indicating the offset.
     ///
@@ -80,11 +81,6 @@ pub enum Message<'a> {
     ///
     /// [`Frame`]: struct.Frame.html
     Unknown(Frame<'a>),
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 /// The memory offset for data sent via a [`SendData`] message.
@@ -133,6 +129,7 @@ pub struct ChunkCount(pub u16);
 /// [`Hello`]: enum.Message.html#variant.Hello
 /// [`QueryState`]: enum.Message.html#variant.QueryState
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum State {
     /// The initial state upon power on or after a reset.
     /// No configuration or pixel data stored.
@@ -159,11 +156,6 @@ pub enum State {
     PageShowInProgress,
     /// Sign is ready to reset back to the `Unconfigured` state.
     ReadyToReset,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 /// Operations that can be requested of a sign, which trigger actions and/or state changes.
@@ -172,6 +164,7 @@ pub enum State {
 ///
 /// [`RequestOperation`]: enum.Message.html#variant.RequestOperation
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum Operation {
     /// Receive the 16-byte configuration data.
     ReceiveConfig,
@@ -189,11 +182,6 @@ pub enum Operation {
     ///
     /// [`Unconfigured`]: enum.State.html#variant.Unconfigured
     FinishReset,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl Display for Message<'_> {
@@ -223,8 +211,6 @@ impl Display for Message<'_> {
             Message::Goodbye(address) => write!(f, "[Addr {:04X}] <-- Goodbye", address)?,
 
             Message::Unknown(ref frame) => write!(f, "Unknown {}", frame)?,
-
-            Message::__Nonexhaustive => unreachable!(),
         }
 
         Ok(())
@@ -363,11 +349,6 @@ impl<'a> From<Message<'a>> for Frame<'a> {
             Message::PixelsComplete(address) => Frame::new(address, MsgType(6), Data::from(&[0x00])),
 
             Message::Unknown(frame) => frame,
-
-            Message::__Nonexhaustive
-            | Message::ReportState(_, State::__Nonexhaustive)
-            | Message::RequestOperation(_, Operation::__Nonexhaustive)
-            | Message::AckOperation(_, Operation::__Nonexhaustive) => unreachable!(),
         }
     }
 }

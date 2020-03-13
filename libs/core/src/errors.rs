@@ -10,6 +10,7 @@ pub struct Error {
 
 /// The specific kind of error that occurred.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// [`Data`] length exceeded the maximum of 255 bytes.
     ///
@@ -58,12 +59,6 @@ pub enum ErrorKind {
     /// [`Page`]: struct.Page.html
     #[fail(display = "Data length didn't match the width/height of the page")]
     WrongPageLength,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    #[fail(display = "")]
-    __Nonexhaustive,
 }
 
 impl Error {

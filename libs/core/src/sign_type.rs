@@ -62,6 +62,7 @@ use crate::errors::{Error, ErrorKind, WrongValueError};
 /// `W = A1 × B1 + A2 × B2`. Byte 12 is unknown (generally zero but `0x04` for the 40 × 12 dash sign).
 /// The remaining bytes appear unused and are always zero.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum SignType {
     /// Max3000 flip-dot sign, front, 112 × 16 pixels
     Max3000Front112x16,
@@ -85,11 +86,6 @@ pub enum SignType {
     HorizonRear48x16,
     /// Horizon LED sign, dash, 40 × 12 pixels
     HorizonDash40x12,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    __Nonexhaustive,
 }
 
 impl SignType {
@@ -166,8 +162,6 @@ impl SignType {
             SignType::HorizonSide96x8 => (96, 8),
             SignType::HorizonRear48x16 => (48, 16),
             SignType::HorizonDash40x12 => (40, 12),
-
-            SignType::__Nonexhaustive => unreachable!(),
         }
     }
 
@@ -217,8 +211,6 @@ impl SignType {
             SignType::HorizonDash40x12 => &[
                 0x08, 0xB9, 0x00, 0x06, 0x8C, 0x0C, 0x00, 0x28, 0x01, 0x00, 0x28, 0x00, 0x04, 0x00, 0x00, 0x00,
             ],
-
-            SignType::__Nonexhaustive => unreachable!(),
         }
     }
 }

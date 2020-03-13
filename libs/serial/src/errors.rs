@@ -10,16 +10,11 @@ pub struct Error {
 
 /// The specific kind of error that occurred.
 #[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// Failed to configure serial port.
     #[fail(display = "Failed to configure serial port")]
     Configuration,
-
-    // Don't actually use this; it's just here to prevent exhaustive matching
-    // so we can extend this enum in the future without a breaking change.
-    #[doc(hidden)]
-    #[fail(display = "")]
-    __Nonexhaustive,
 }
 
 impl Error {
