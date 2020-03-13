@@ -399,7 +399,7 @@ impl VirtualSign<'_> {
     /// Convert the currently-buffered pixel data into a `Page` and add it to our page vector.
     fn flush_pixels(&mut self) {
         if !self.pending_data.is_empty() {
-            let data = mem::replace(&mut self.pending_data, Default::default());
+            let data = mem::take(&mut self.pending_data);
             if self.width > 0 && self.height > 0 {
                 let page = Page::from_bytes(self.width, self.height, data).expect("Error loading page");
                 self.pages.push(page);
