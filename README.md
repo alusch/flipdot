@@ -1,5 +1,7 @@
 # flipdot
 
+![Build status](https://github.com/alusch/flipdot/workflows/build/badge.svg)
+
 A Rust library for interacting with Luminator flip-dot and LED signs over RS-485.
 
 Provides a way to connect to a sign, define messages spanning one or more pages, send those pages to the sign,
@@ -10,8 +12,6 @@ Tested with a MAX3000 90 × 7 side sign. Should work with any flip-dot or LED si
 connector, but no guarantees.
 
 Intended only for hobbyist and educational purposes. Not affiliated with Luminator in any way.
-
-[![Windows build status](https://ci.appveyor.com/api/projects/status/github/alusch/flipdot?svg=true)](https://ci.appveyor.com/project/alusch/flipdot)
 
 ## Usage
 
