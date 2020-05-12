@@ -70,10 +70,7 @@ impl<P: SerialPort> SerialSignBus<P> {
 
 impl<P: SerialPort> SignBus for SerialSignBus<P> {
     /// Handles a bus message by sending it to the serial port and reading a response if necessary.
-    fn process_message<'a>(
-        &mut self,
-        message: Message<'_>,
-    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         debug!("Bus message: {}", message);
 
         let response_expected = response_expected(&message);

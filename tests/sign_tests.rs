@@ -4,7 +4,7 @@ use std::io;
 use std::rc::Rc;
 
 use flipdot::core::{ChunkCount, Data, Message, Offset, Operation, State};
-use flipdot::{Address, Page, PageId, Sign, SignError, SignBus, SignType};
+use flipdot::{Address, Page, PageId, Sign, SignBus, SignError, SignType};
 
 const CONFIG: &[u8] = &[
     0x04, 0x20, 0x00, 0x06, 0x07, 0x1E, 0x1E, 0x1E, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -28,10 +28,7 @@ struct ScriptedSignBus<I: Iterator<Item = ScriptItem>> {
 }
 
 impl<I: Iterator<Item = ScriptItem>> SignBus for ScriptedSignBus<I> {
-    fn process_message<'a>(
-        &mut self,
-        message: Message<'_>,
-    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         let current_row = self.iter.next().expect("Ran out of scripted responses");
         assert_eq!(current_row.expected, message);
         current_row.response

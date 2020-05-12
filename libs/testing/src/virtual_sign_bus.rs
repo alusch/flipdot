@@ -92,10 +92,7 @@ impl<'a> VirtualSignBus<'a> {
 
 impl SignBus for VirtualSignBus<'_> {
     /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
-    fn process_message<'a>(
-        &mut self,
-        message: Message<'_>,
-    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
             let response = sign.process_message(&message);

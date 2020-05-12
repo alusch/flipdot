@@ -69,10 +69,7 @@ pub trait SignBus {
     /// See the [trait-level documentation].
     ///
     /// [trait-level documentation]: #examples
-    fn process_message<'a>(
-        &mut self,
-        message: Message<'_>,
-    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>>;
+    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>>;
 }
 
 // Provide a Debug representation so types that contain trait objects can derive Debug.
