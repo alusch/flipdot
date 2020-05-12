@@ -2,9 +2,36 @@ use std::borrow::Cow;
 use std::fmt::{self, Display, Formatter};
 
 use derive_more::{Display, LowerHex, UpperHex};
-use failure::Fail;
+use thiserror::Error;
 
-use crate::errors::{Error, ErrorKind, WrongValueError};
+/// Errors relating to [`Page`]s.
+#[derive(Copy, Clone, Debug, Error)]
+#[non_exhaustive]
+pub enum PageError {
+    /// Data length didn't match the width/height of the [`Page`].
+    ///
+    /// [`Page`]: struct.Page.html
+    #[error(
+        "Wrong number of data bytes for a {}x{} page: Expected {}, got {}",
+        width,
+        height,
+        expected,
+        actual
+    )]
+    WrongPageLength {
+        /// The page width.
+        width: u32,
+
+        /// The page height.
+        height: u32,
+
+        /// The expected length of the page data.
+        expected: usize,
+
+        /// The actual length of the page data that was provided.
+        actual: usize,
+    },
+}
 
 /// A page of a message for display on a sign.
 ///
@@ -75,7 +102,7 @@ pub struct Page<'a> {
 /// ```
 /// use flipdot_core::{Page, PageId};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let page = Page::new(PageId(1), 10, 10);
 /// assert_eq!(PageId(1), page.id());
@@ -135,7 +162,7 @@ impl<'a> Page<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Page, PageId};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let data: Vec<u8> = vec![1, 16, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 255, 255, 255, 255];
     /// let page = Page::from_bytes(8, 8, data)?;
@@ -151,7 +178,7 @@ impl<'a> Page<'a> {
     /// ```
     ///
     /// [`ErrorKind::WrongPageLength`]: enum.ErrorKind.html#variant.WrongPageLength
-    pub fn from_bytes<T: Into<Cow<'a, [u8]>>>(width: u32, height: u32, bytes: T) -> Result<Self, Error> {
+    pub fn from_bytes<T: Into<Cow<'a, [u8]>>>(width: u32, height: u32, bytes: T) -> Result<Self, PageError> {
         let page = Page {
             width,
             height,
@@ -160,13 +187,12 @@ impl<'a> Page<'a> {
 
         let expected_bytes = Self::total_bytes(width, height);
         if page.bytes.len() != expected_bytes {
-            return Err(WrongValueError::new(
-                expected_bytes,
-                page.bytes.len(),
-                format!("Wrong number of data bytes for {}x{} page", width, height),
-            )
-            .context(ErrorKind::WrongPageLength)
-            .into());
+            return Err(PageError::WrongPageLength {
+                width,
+                height,
+                expected: expected_bytes,
+                actual: page.bytes.len(),
+            });
         }
 
         Ok(page)
@@ -420,10 +446,7 @@ mod tests {
     #[test]
     fn wrong_size_rejected() {
         let error = Page::from_bytes(90, 7, vec![0x01, 0x01, 0x03]).unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::WrongPageLength);
-        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
-        assert_eq!(96, cause.expected);
-        assert_eq!(3, cause.actual);
+        assert!(matches!(error, PageError::WrongPageLength { expected: 96, actual: 3, .. }));
     }
 
     #[test]

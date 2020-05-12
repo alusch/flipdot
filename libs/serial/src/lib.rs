@@ -13,7 +13,7 @@
 //! ```no_run
 //! use std::time::Duration;
 //!
-//! # fn main() -> Result<(), failure::Error> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! #
 //! let mut port = serial::open("COM3")?;
 //! flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;
@@ -40,10 +40,8 @@
     unused_results
 )]
 
-mod errors;
 mod serial_port;
 mod serial_sign_bus;
 
-pub use self::errors::{Error, ErrorKind};
 pub use self::serial_port::configure_port;
 pub use self::serial_sign_bus::SerialSignBus;

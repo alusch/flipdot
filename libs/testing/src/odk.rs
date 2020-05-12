@@ -1,11 +1,32 @@
 use std::time::Duration;
 
-use failure::ResultExt;
 use serial_core::prelude::*;
+use thiserror::Error;
 
 use flipdot_core::{Frame, Message, SignBus};
 
-use crate::errors::{Error, ErrorKind};
+/// Errors related to [`Odk`]s.
+///
+/// [`Odk`]: struct.Odk.html
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum OdkError {
+    /// The sign bus failed to process a message.
+    #[error("Sign bus failed to process message")]
+    Bus {
+        /// The underlying bus error.
+        #[from]
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
+
+    /// Failure reading/writing data.
+    #[error("ODK communication error")]
+    Communication {
+        /// The underlying communication error.
+        #[from]
+        source: flipdot_core::FrameError,
+    },
+}
 
 /// Connects to a real ODK over the specified serial port and uses it to drive a `SignBus`.
 ///
@@ -18,7 +39,7 @@ use crate::errors::{Error, ErrorKind};
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// // Populate bus with signs from addresses 2 to 126
 /// // (which seems to be the possible range for actual signs).
@@ -57,7 +78,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
@@ -70,8 +91,8 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// `RUST_LOG=debug` to watch the bus messages go by.
     ///
     /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
-    pub fn try_new(mut port: P, bus: B) -> Result<Self, Error> {
-        flipdot_serial::configure_port(&mut port, Duration::from_secs(10)).context(ErrorKind::Configuration)?;
+    pub fn try_new(mut port: P, bus: B) -> Result<Self, serial_core::Error> {
+        flipdot_serial::configure_port(&mut port, Duration::from_secs(10))?;
         Ok(Odk { port, bus })
     }
 
@@ -90,7 +111,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("/dev/ttyUSB0")?;
@@ -104,16 +125,16 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// [`ErrorKind::Communication`]: enum.ErrorKind.html#variant.Communication
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    pub fn process_message(&mut self) -> Result<(), Error> {
+    pub fn process_message(&mut self) -> Result<(), OdkError> {
         let response = {
-            let frame = Frame::read(&mut self.port).context(ErrorKind::Communication)?;
+            let frame = Frame::read(&mut self.port)?;
             let message = Message::from(frame);
-            self.bus.process_message(message).context(ErrorKind::Bus)?
+            self.bus.process_message(message)?
         };
 
         if let Some(message) = response {
             let frame = Frame::from(message);
-            frame.write(&mut self.port).context(ErrorKind::Communication)?;
+            frame.write(&mut self.port)?;
         }
 
         Ok(())

@@ -1,9 +1,10 @@
 use std::cell::RefCell;
+use std::error::Error;
 use std::io;
 use std::rc::Rc;
 
 use flipdot::core::{ChunkCount, Data, Message, Offset, Operation, State};
-use flipdot::{Address, Page, PageId, Sign, SignBus, SignType};
+use flipdot::{Address, Page, PageId, Sign, SignError, SignBus, SignType};
 
 const CONFIG: &[u8] = &[
     0x04, 0x20, 0x00, 0x06, 0x07, 0x1E, 0x1E, 0x1E, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -27,7 +28,10 @@ struct ScriptedSignBus<I: Iterator<Item = ScriptItem>> {
 }
 
 impl<I: Iterator<Item = ScriptItem>> SignBus for ScriptedSignBus<I> {
-    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(
+        &mut self,
+        message: Message<'_>,
+    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         let current_row = self.iter.next().expect("Ran out of scripted responses");
         assert_eq!(current_row.expected, message);
         current_row.response
@@ -49,7 +53,7 @@ impl<I: Iterator<Item = ScriptItem>> ScriptedSignBus<I> {
 #[derive(Debug)]
 struct ScriptItem {
     pub expected: Message<'static>,
-    pub response: Result<Option<Message<'static>>, failure::Error>,
+    pub response: Result<Option<Message<'static>>, Box<dyn Error + Send + Sync>>,
 }
 
 #[test]
@@ -243,7 +247,7 @@ fn config_retry_unexpected_state_fails() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let error = sign.configure().unwrap_err();
-    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
+    assert!(matches!(error, SignError::UnexpectedResponse { .. }));
 
     bus.borrow_mut().done();
 }
@@ -310,7 +314,7 @@ fn config_retry_gives_up() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let error = sign.configure().unwrap_err();
-    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
+    assert!(matches!(error, SignError::UnexpectedResponse { .. }));
 
     bus.borrow_mut().done();
 }
@@ -644,7 +648,7 @@ fn unexpected_response_error() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let error = sign.configure().unwrap_err();
-    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
+    assert!(matches!(error, SignError::UnexpectedResponse { .. }));
 
     bus.borrow_mut().done();
 }
@@ -661,7 +665,7 @@ fn flip_page_unexpected_response_error() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let error = sign.show_loaded_page().unwrap_err();
-    assert_eq!(error.kind(), flipdot::ErrorKind::UnexpectedResponse);
+    assert!(matches!(error, SignError::UnexpectedResponse { .. }));
 
     bus.borrow_mut().done();
 }
@@ -678,7 +682,8 @@ fn error_propagates() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let error = sign.configure().unwrap_err();
-    assert_eq!(error.kind(), flipdot::ErrorKind::Bus);
+    assert!(matches!(error, SignError::Bus { .. }));
+    assert!(error.source().unwrap().is::<io::Error>());
 
     bus.borrow_mut().done();
 }

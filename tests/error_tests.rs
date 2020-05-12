@@ -1,10 +1,9 @@
 use std::cell::RefCell;
+use std::error::Error;
 use std::fmt::Debug;
 use std::io::{self, Read};
 use std::iter;
 use std::rc::Rc;
-
-use failure::{format_err, Fail};
 
 use flipdot::core::*;
 use flipdot::serial::*;
@@ -41,9 +40,9 @@ impl ErrorSignBus {
 }
 
 impl SignBus for ErrorSignBus {
-    fn process_message<'a>(&mut self, _: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(&mut self, _: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         match self.failure {
-            BusFailure::Error => Err(format_err!("Dummy sign bus error")),
+            BusFailure::Error => Err(format!("Dummy sign bus error"))?,
             BusFailure::WrongMessage => Ok(Some(Message::Goodbye(Address(0)))),
         }
     }
@@ -92,11 +91,19 @@ fn format_errors() {
     print_error("Sign wrong message", sign.configure());
 }
 
-fn print_error<V: Debug, E: Fail>(title: &'static str, result: Result<V, E>) {
+fn print_error<V: Debug, E: Error>(title: &'static str, result: Result<V, E>) {
     println!("** {} **", title);
+
     let e = result.unwrap_err();
+    let mut current = Some(&e as &dyn Error);
+    let errors = iter::from_fn(|| {
+        let ret = current;
+        current = current.and_then(|err| err.source());
+        ret
+    });
+
     let headings = iter::once("Error").chain(iter::repeat("Caused by"));
-    for (heading, failure) in headings.zip((&e as &dyn Fail).iter_chain()) {
+    for (heading, failure) in headings.zip(errors) {
         println!("{}: {}", heading, failure);
     }
     println!();

@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::thread;
 use std::time::Duration;
 
@@ -6,7 +7,6 @@ use serial_core::prelude::*;
 
 use flipdot_core::{Frame, Message, SignBus, State};
 
-use crate::errors::Error;
 use crate::serial_port;
 
 /// An implementation of `SignBus` that communicates with one or more signs over serial.
@@ -20,7 +20,7 @@ use crate::serial_port;
 /// ```no_run
 /// use flipdot_serial::SerialSignBus;
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let port = serial::open("/dev/ttyUSB0")?;
 /// let bus = SerialSignBus::try_new(port)?;
@@ -48,7 +48,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     ///
     /// ```no_run
     /// # use flipdot_serial::SerialSignBus;
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let port = serial::open("COM3")?;
     /// let bus = SerialSignBus::try_new(port)?;
@@ -57,7 +57,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// ```
     ///
     /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
-    pub fn try_new(mut port: P) -> Result<Self, Error> {
+    pub fn try_new(mut port: P) -> Result<Self, serial_core::Error> {
         serial_port::configure_port(&mut port, Duration::from_secs(5))?;
         Ok(SerialSignBus { port })
     }
@@ -70,7 +70,10 @@ impl<P: SerialPort> SerialSignBus<P> {
 
 impl<P: SerialPort> SignBus for SerialSignBus<P> {
     /// Handles a bus message by sending it to the serial port and reading a response if necessary.
-    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(
+        &mut self,
+        message: Message<'_>,
+    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         debug!("Bus message: {}", message);
 
         let response_expected = response_expected(&message);

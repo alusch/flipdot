@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::mem;
 
 use log::{debug, info, warn};
@@ -22,7 +23,7 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 /// let port = serial::open("/dev/ttyUSB0")?;
@@ -52,7 +53,7 @@ impl<'a> VirtualSignBus<'a> {
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
     /// let port = serial::open("COM3")?;
@@ -91,7 +92,10 @@ impl<'a> VirtualSignBus<'a> {
 
 impl SignBus for VirtualSignBus<'_> {
     /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
-    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error> {
+    fn process_message<'a>(
+        &mut self,
+        message: Message<'_>,
+    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
             let response = sign.process_message(&message);

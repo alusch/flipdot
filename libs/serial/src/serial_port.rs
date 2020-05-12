@@ -1,10 +1,7 @@
 use std::time::Duration;
 
-use failure::ResultExt;
 use serial_core as serial;
 use serial_core::prelude::*;
-
-use crate::errors::{Error, ErrorKind};
 
 /// Configures the given serial port appropriately for use with Luminator signs.
 ///
@@ -20,7 +17,7 @@ use crate::errors::{Error, ErrorKind};
 /// ```no_run
 /// use std::time::Duration;
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let mut port = serial::open("COM3")?;
 /// flipdot_serial::configure_port(&mut port, Duration::from_secs(5))?;
@@ -30,7 +27,7 @@ use crate::errors::{Error, ErrorKind};
 /// ```
 ///
 /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
-pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<(), Error> {
+pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<(), serial_core::Error> {
     port.reconfigure(&|settings| {
         settings.set_baud_rate(serial::Baud19200)?;
         settings.set_char_size(serial::Bits8);
@@ -38,10 +35,9 @@ pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<
         settings.set_stop_bits(serial::Stop1);
         settings.set_flow_control(serial::FlowNone);
         Ok(())
-    })
-    .context(ErrorKind::Configuration)?;
+    })?;
 
-    port.set_timeout(timeout).context(ErrorKind::Configuration)?;
+    port.set_timeout(timeout)?;
 
     Ok(())
 }

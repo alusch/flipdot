@@ -2,11 +2,38 @@ use std::cell::RefCell;
 use std::iter;
 use std::rc::Rc;
 
-use failure::{format_err, ResultExt};
+use thiserror::Error;
 
 use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
 
-use crate::errors::{Error, ErrorKind};
+/// Errors related to [`Sign`]s.
+///
+/// [`Sign`]: struct.Sign.html
+#[derive(Debug, Error)]
+#[non_exhaustive]
+pub enum SignError {
+    /// The sign bus failed to process a message.
+    #[error("Sign bus failed to process message")]
+    Bus {
+        /// The underlying bus error.
+        #[from]
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
+
+    /// Sign did not respond properly according to the protocol.
+    #[error(
+        "Sign did not respond properly according to the protocol: Expected {}, got {}",
+        expected,
+        actual
+    )]
+    UnexpectedResponse {
+        /// The expected response according to the protocol.
+        expected: String,
+
+        /// The actual response received.
+        actual: String,
+    },
+}
 
 /// A single sign on an associated bus.
 ///
@@ -21,7 +48,7 @@ use crate::errors::{Error, ErrorKind};
 /// use std::rc::Rc;
 /// use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// // Set up bus. Because the bus can be shared among
 /// // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -72,7 +99,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -97,7 +124,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -121,7 +148,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -145,7 +172,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -169,7 +196,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -193,7 +220,7 @@ impl Sign {
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> { Rc::new(RefCell::new(VirtualSignBus::new(vec![]))) }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -236,7 +263,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -248,7 +275,7 @@ impl Sign {
     ///
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
-    pub fn configure(&self) -> Result<(), Error> {
+    pub fn configure(&self) -> Result<(), SignError> {
         self.ensure_unconfigured()?;
 
         let config = self.sign_type.to_bytes();
@@ -284,7 +311,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -300,7 +327,7 @@ impl Sign {
     /// [`configure`]: #method.configure
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
-    pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), Error>
+    pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), SignError>
     where
         I: IntoIterator<Item = &'a Page<'a>>,
         <I as IntoIterator>::IntoIter: Clone,
@@ -334,7 +361,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -353,7 +380,7 @@ impl Sign {
     /// [`configure`]: #method.configure
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
-    pub fn load_next_page(&self) -> Result<(), Error> {
+    pub fn load_next_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageLoaded, State::PageShown, Operation::LoadNextPage)
     }
 
@@ -380,7 +407,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -397,7 +424,7 @@ impl Sign {
     /// [`configure`]: #method.configure
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
-    pub fn show_loaded_page(&self) -> Result<(), Error> {
+    pub fn show_loaded_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageShown, State::PageLoaded, Operation::ShowLoadedPage)
     }
 
@@ -425,7 +452,7 @@ impl Sign {
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
     /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
     /// # }
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bus = get_bus();
     /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
@@ -444,7 +471,7 @@ impl Sign {
     /// [`configure`]: #method.configure
     /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
     /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
-    pub fn shut_down(&self) -> Result<(), Error> {
+    pub fn shut_down(&self) -> Result<(), SignError> {
         self.send_message_expect_response(Message::Goodbye(self.address), &None)
     }
 
@@ -452,15 +479,19 @@ impl Sign {
     ///
     /// Enforces that only leaf calls borrow the bus to avoid runtime errors,
     /// and conveniently localizes the error chaining on failure.
-    fn send_message(&self, message: Message<'_>) -> Result<Option<Message<'_>>, Error> {
+    fn send_message(&self, message: Message<'_>) -> Result<Option<Message<'_>>, SignError> {
         let mut bus = self.bus.borrow_mut();
-        Ok(bus.process_message(message).context(ErrorKind::Bus)?)
+        Ok(bus.process_message(message)?)
     }
 
     /// Borrows the bus mutably, sends a message, and verifies that the response is as expected.
     ///
     /// Serves the same purpose as `send_message` when exactly one response is expected.
-    fn send_message_expect_response(&self, message: Message<'_>, expected_response: &Option<Message<'_>>) -> Result<(), Error> {
+    fn send_message_expect_response(
+        &self,
+        message: Message<'_>,
+        expected_response: &Option<Message<'_>>,
+    ) -> Result<(), SignError> {
         let response = self.send_message(message)?;
         verify_response(expected_response, &response)
     }
@@ -469,7 +500,7 @@ impl Sign {
     ///
     /// If it already is, nothing to do. Otherwise start or finish a reset as appropriate.
     /// This ensures that the sign is in a known good state before we begin configuring it.
-    fn ensure_unconfigured(&self) -> Result<(), Error> {
+    fn ensure_unconfigured(&self) -> Result<(), SignError> {
         let response = self.send_message(Message::Hello(self.address))?;
         match response {
             Some(Message::ReportState(address, State::Unconfigured)) if address == self.address => {}
@@ -518,7 +549,7 @@ impl Sign {
     /// If `success`, we're done. If `failure`, repeat the process a fixed number
     /// of times in case the data was corrupted in transit. Fails after exhausting
     /// the retries or if any other state is reported.
-    fn send_data<'a, I>(&self, data: &I, operation: Operation, success: State, failure: State) -> Result<(), Error>
+    fn send_data<'a, I>(&self, data: &I, operation: Operation, success: State, failure: State) -> Result<(), SignError>
     where
         I: Iterator<Item = &'a [u8]> + Clone,
     {
@@ -561,7 +592,7 @@ impl Sign {
     /// Queries the sign's current state. If `target`, we're done. If `trigger`, request `operation`.
     /// Continue looping while the state is `PageLoadInProgress` or `PageShowInProgress`, waiting
     /// to enter `target`. Fails if any other state is reported.
-    fn switch_page(&self, target: State, trigger: State, operation: Operation) -> Result<(), Error> {
+    fn switch_page(&self, target: State, trigger: State, operation: Operation) -> Result<(), SignError> {
         loop {
             let response = self.send_message(Message::QueryState(self.address))?;
             match response {
@@ -581,11 +612,10 @@ impl Sign {
                     if address == self.address => {}
 
                 _ => {
-                    return Err(
-                        format_err!("Expected Some(ReportState({:?}, Page*)), got {:?}", self.address, response)
-                            .context(ErrorKind::UnexpectedResponse)
-                            .into(),
-                    );
+                    return Err(SignError::UnexpectedResponse {
+                        expected: format!("Some(ReportState({:?}, Page*))", self.address),
+                        actual: format!("{:?}", response),
+                    })
                 }
             };
         }
@@ -594,11 +624,13 @@ impl Sign {
 }
 
 /// Fails with an `UnexpectedResponse` error if `response` is not equal to `expected`.
-fn verify_response(expected: &Option<Message<'_>>, response: &Option<Message<'_>>) -> Result<(), Error> {
-    if response != expected {
-        return Err(format_err!("Expected {:?}, got {:?}", expected, response)
-            .context(ErrorKind::UnexpectedResponse)
-            .into());
+fn verify_response(expected: &Option<Message<'_>>, response: &Option<Message<'_>>) -> Result<(), SignError> {
+    if response == expected {
+        Ok(())
+    } else {
+        Err(SignError::UnexpectedResponse {
+            expected: format!("{:?}", expected),
+            actual: format!("{:?}", response),
+        })
     }
-    Ok(())
 }

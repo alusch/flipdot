@@ -16,7 +16,7 @@ use crate::{Address, Data, Frame, MsgType};
 /// use flipdot_core::{Address, Message, SignBus, State};
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 /// #
 /// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
 ///
@@ -90,7 +90,7 @@ pub enum Message<'a> {
 /// ```
 /// use flipdot_core::{Data, Message, Offset};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 /// let message1 = Message::SendData(Offset(0), Data::try_new(&data)?);
@@ -227,7 +227,7 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(0x12), MsgType(4), Data::try_new(vec![0x07])?);
     /// let message = Message::from(frame);
@@ -299,7 +299,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, Message, MsgType, State};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let message = Message::ReportState(Address(0xFF), State::ConfigReceived);
     /// let frame = Frame::from(message);

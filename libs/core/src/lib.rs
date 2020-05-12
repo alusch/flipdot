@@ -19,7 +19,7 @@
 //! # use flipdot_testing::{VirtualSign, VirtualSignBus};
 //!
 //! # fn get_bus() -> Box<SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
-//! # fn main() -> Result<(), failure::Error> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 //! #
 //! // Assume we have a helper function to obtain a SignBus.
 //! let mut bus: Box<SignBus> = get_bus();
@@ -56,16 +56,14 @@
     unused_results
 )]
 
-mod errors;
 mod frame;
 mod message;
 mod page;
 mod sign_bus;
 mod sign_type;
 
-pub use self::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
-pub use self::frame::{Address, Data, Frame, MsgType};
+pub use self::frame::{Address, Data, Frame, FrameError, MsgType};
 pub use self::message::{ChunkCount, Message, Offset, Operation, State};
-pub use self::page::{Page, PageId};
+pub use self::page::{Page, PageError, PageId};
 pub use self::sign_bus::SignBus;
-pub use self::sign_type::SignType;
+pub use self::sign_type::{SignType, SignTypeError};

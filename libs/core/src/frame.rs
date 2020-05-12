@@ -4,12 +4,88 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::str;
 
 use derive_more::{Display, LowerHex, UpperHex};
-use failure::{format_err, Fail, ResultExt};
 use lazy_static::lazy_static;
 use num_traits::Num;
 use regex::bytes::Regex;
+use thiserror::Error;
 
-use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
+/// Errors related to reading/writing [`Frame`]s of data.
+///
+/// [`Frame`]: struct.Frame.html
+#[derive(Error, Debug)]
+#[non_exhaustive]
+pub enum FrameError {
+    /// [`Data`] length exceeded the maximum of 255 bytes.
+    ///
+    /// [`Data`]: struct.Data.html
+    #[error("Maximum data length is {} bytes, got {}", max, actual)]
+    DataTooLong {
+        /// The maximum data length.
+        max: u8,
+
+        /// The actual length of the data that was provided.
+        actual: usize,
+    },
+
+    /// Failed reading/writing a [`Frame`] of data.
+    ///
+    /// [`Frame`]: struct.Frame.html
+    #[error("Failed reading/writing a frame of data")]
+    Io {
+        /// The underlying I/O error.
+        #[from]
+        source: std::io::Error,
+    },
+
+    /// Failed to parse data into a [`Frame`].
+    ///
+    /// [`Frame`]: struct.Frame.html
+    #[error("Failed to parse invalid Intel HEX [{}] into a Frame", string_for_error(data))]
+    InvalidFrame {
+        /// The invalid frame data.
+        data: Vec<u8>,
+    },
+
+    /// [`Frame`] data didn't match declared length.
+    ///
+    /// [`Frame`]: struct.Frame.html
+    #[error(
+        "Frame data [{}] didn't match declared length: Expected {}, got {}",
+        string_for_error(data),
+        expected,
+        actual
+    )]
+    FrameDataMismatch {
+        /// The invalid frame data.
+        data: Vec<u8>,
+
+        /// The expected data length.
+        expected: usize,
+
+        /// The actual value of the data that was provided.
+        actual: usize,
+    },
+
+    /// [`Frame`] checksum didn't match declared checksum.
+    ///
+    /// [`Frame`]: struct.Frame.html
+    #[error(
+        "Frame checksum for [{}] didn't match declared checksum: Expected 0x{:X}, got 0x{:X}",
+        string_for_error(data),
+        expected,
+        actual
+    )]
+    BadChecksum {
+        /// The invalid frame data.
+        data: Vec<u8>,
+
+        /// The expected checksum.
+        expected: u8,
+
+        /// The actual checksum of the data.
+        actual: u8,
+    },
+}
 
 /// A low-level representation of an Intel HEX data frame.
 ///
@@ -25,7 +101,7 @@ use crate::errors::{Error, ErrorKind, MaxExceededError, WrongValueError};
 /// ```
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
 /// println!("Parsed frame is {}", frame);
@@ -76,7 +152,7 @@ pub struct Frame<'a> {
 /// ```
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// // Create a frame with message type 1.
 /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![1, 2])?);
@@ -96,7 +172,7 @@ pub struct MsgType(pub u8);
 /// ```
 /// use flipdot_core::{Address, Data, Frame, MsgType};
 ///
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// // Create a frame addressed to sign 2.
 /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![1, 2])?);
@@ -113,7 +189,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// // some_data is moved into owning_frame.
     /// let some_data = vec![1, 2, 3];
@@ -139,7 +215,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![])?);
     /// match frame.message_type() {
@@ -159,7 +235,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![])?);
     /// if frame.address() == Address(3) {
@@ -178,7 +254,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![10, 20])?);
     /// if (frame.data().as_ref() == &[10, 20]) {
@@ -197,7 +273,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(1), MsgType(1), Data::try_new(vec![6, 7])?);
     /// let frame2 = Frame::new(Address(2), MsgType(2), frame.into_data());
@@ -214,7 +290,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
     /// let bytes = frame.to_bytes();
@@ -247,7 +323,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
     /// let bytes = frame.to_bytes_with_newline();
@@ -275,7 +351,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bytes = b":02000201031FD9\r\n";
     /// let frame = Frame::from_bytes(&bytes[..])?;
@@ -287,7 +363,7 @@ impl<'a> Frame<'a> {
     /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
     /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
     /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, FrameError> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"(?x)
                 ^:                                  # Colon marks beginning of frame
@@ -299,9 +375,9 @@ impl<'a> Frame<'a> {
                 (?:\r\n)?$                          # Optional newline sequence
             ").unwrap(); // Regex is valid so safe to unwrap.
         }
-        let captures = RE.captures(bytes).ok_or_else(|| {
-            format_err!("[{}] is not valid Intel HEX", string_for_error(bytes)).context(ErrorKind::InvalidFrame)
-        })?;
+        let captures = RE
+            .captures(bytes)
+            .ok_or_else(|| FrameError::InvalidFrame { data: bytes.into() })?;
 
         // Regex always matches all capture groups so safe to unwrap.
         let data_len = parse_hex::<u8>(captures.name("data_len").unwrap().as_bytes());
@@ -312,27 +388,22 @@ impl<'a> Frame<'a> {
 
         let data = data_bytes.chunks(2).map(parse_hex::<u8>).collect::<Vec<_>>();
         if data.len() != data_len as usize {
-            return Err(WrongValueError::new(
-                data_len as usize,
-                data.len(),
-                format!("[{}] has wrong number of data bytes", string_for_error(bytes)),
-            )
-            .context(ErrorKind::FrameDataMismatch)
-            .into());
+            return Err(FrameError::FrameDataMismatch {
+                data: bytes.into(),
+                expected: data_len as usize,
+                actual: data.len(),
+            });
         }
 
         let frame = Frame::new(Address(address), MsgType(message_type), Data::try_new(data)?);
         let payload = frame.payload();
         let computed_checksum = checksum(&payload);
-
         if computed_checksum != provided_checksum {
-            return Err(WrongValueError::new(
-                provided_checksum as usize,
-                computed_checksum as usize,
-                format!("[{}] computed checksum didn't match", string_for_error(bytes)),
-            )
-            .context(ErrorKind::BadChecksum)
-            .into());
+            return Err(FrameError::BadChecksum {
+                data: bytes.into(),
+                expected: provided_checksum,
+                actual: computed_checksum,
+            });
         }
 
         Ok(frame)
@@ -348,7 +419,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```no_run
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::new(Address(2), MsgType(1), Data::try_new(vec![3, 31])?);
@@ -358,8 +429,8 @@ impl<'a> Frame<'a> {
     /// ```
     ///
     /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
-    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), Error> {
-        writer.write_all(&self.to_bytes_with_newline()).context(ErrorKind::Io)?;
+    pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), FrameError> {
+        writer.write_all(&self.to_bytes_with_newline())?;
         Ok(())
     }
 
@@ -378,7 +449,7 @@ impl<'a> Frame<'a> {
     ///
     /// ```no_run
     /// # use flipdot_core::{Address, Data, Frame, MsgType};
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let mut port = serial::open("COM3")?;
     /// let frame = Frame::read(&mut port)?;
@@ -390,11 +461,11 @@ impl<'a> Frame<'a> {
     /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
     /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
     /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
-    pub fn read<R: Read>(mut reader: &mut R) -> Result<Self, Error> {
+    pub fn read<R: Read>(mut reader: &mut R) -> Result<Self, FrameError> {
         // One-byte buffer seems to work best with such small payloads
         let mut buf_reader = BufReader::with_capacity(1, &mut reader);
         let mut data = Vec::<u8>::new();
-        let _ = buf_reader.read_until(b'\n', &mut data).context(ErrorKind::Io)?;
+        let _ = buf_reader.read_until(b'\n', &mut data)?;
         let frame = Frame::from_bytes(&data)?;
         Ok(frame)
     }
@@ -469,7 +540,7 @@ fn checksum(bytes: &[u8]) -> u8 {
 ///
 /// ```
 /// use flipdot_core::{Address, Data, Frame, MsgType};
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let data = Data::try_new(vec![1, 2, 3])?; // Ok since length under 255
 /// let frame = Frame::new(Address(2), MsgType(1), data);
@@ -495,7 +566,7 @@ impl<'a> Data<'a> {
     ///
     /// ```
     /// use flipdot_core::Data;
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let data = Data::try_new(vec![1, 2, 3])?;
     /// assert_eq!(vec![1, 2, 3], data.get().as_ref());
@@ -507,7 +578,7 @@ impl<'a> Data<'a> {
     ///
     /// ```
     /// # use flipdot_core::Data;
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let bytes = vec![1, 2, 3];
     /// let data = Data::try_new(&bytes)?;
@@ -526,12 +597,13 @@ impl<'a> Data<'a> {
     ///
     /// [`Frame`]: struct.Frame.html
     /// [`ErrorKind::DataTooLong`]: enum.ErrorKind.html#variant.DataTooLong
-    pub fn try_new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, Error> {
+    pub fn try_new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, FrameError> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {
-            return Err(MaxExceededError::new(0xFF, data.len(), "Too many data bytes")
-                .context(ErrorKind::DataTooLong)
-                .into());
+            return Err(FrameError::DataTooLong {
+                max: 0xFF,
+                actual: data.len(),
+            });
         }
         Ok(Data(data))
     }
@@ -542,7 +614,7 @@ impl<'a> Data<'a> {
     ///
     /// ```
     /// # use flipdot_core::Data;
-    /// # fn main() -> Result<(), failure::Error> {
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
     /// let data = Data::try_new(vec![])?;
     /// assert!(data.get().is_empty());
@@ -634,10 +706,7 @@ mod tests {
     #[test]
     fn data_length_over_255_rejected() {
         let error = Data::try_new(vec![0; 256]).unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::DataTooLong);
-        let cause = error.cause().and_then(|e| e.downcast_ref::<MaxExceededError>()).unwrap();
-        assert_eq!(255, cause.max);
-        assert_eq!(256, cause.actual);
+        assert!(matches!(error, FrameError::DataTooLong { max: 255, actual: 256, .. }));
     }
 
     #[test]
@@ -649,64 +718,55 @@ mod tests {
     #[test]
     fn bad_checksum_detected() {
         let error = Frame::from_bytes(b":01007F02FF7E").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::BadChecksum);
-        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
-        assert_eq!(0x7E, cause.expected);
-        assert_eq!(0x7F, cause.actual);
+        assert!(matches!(error, FrameError::BadChecksum { expected: 0x7E, actual: 0x7F, .. }));
     }
 
     #[test]
     fn extra_data_detected() {
         let error = Frame::from_bytes(b":00007F02007F").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::FrameDataMismatch);
-        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
-        assert_eq!(0, cause.expected);
-        assert_eq!(1, cause.actual);
+        assert!(matches!(error, FrameError::FrameDataMismatch { expected: 0, actual: 1, .. }));
     }
 
     #[test]
     fn missing_data_detected() {
         let error = Frame::from_bytes(b":01007F027E").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::FrameDataMismatch);
-        let cause = error.cause().and_then(|e| e.downcast_ref::<WrongValueError>()).unwrap();
-        assert_eq!(1, cause.expected);
-        assert_eq!(0, cause.actual);
+        assert!(matches!(error, FrameError::FrameDataMismatch { expected: 1, actual: 0, .. }));
     }
 
     #[test]
     fn invalid_format_detected() {
         let error = Frame::from_bytes(b":01").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]
     fn garbage_detected() {
         let error = Frame::from_bytes(b"asdgdfg").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]
     fn bad_char_detected() {
         let error = Frame::from_bytes(b":01007F020z7E").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]
     fn missing_char_detected() {
         let error = Frame::from_bytes(b":01007F0207E").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]
     fn leading_chars_detected() {
         let error = Frame::from_bytes(b"abc:01007F02FF7Fa").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]
     fn trailing_chars_detected() {
         let error = Frame::from_bytes(b":01007F02FF7Fabc").unwrap_err();
-        assert_eq!(error.kind(), ErrorKind::InvalidFrame);
+        assert!(matches!(error, FrameError::InvalidFrame { .. }));
     }
 
     #[test]

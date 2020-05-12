@@ -16,7 +16,7 @@
 //! use std::rc::Rc;
 //! use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
 //!
-//! # fn main() -> Result<(), failure::Error> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! #
 //! // Set up bus. Because the bus can be shared among
 //! // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -84,11 +84,9 @@
 pub use flipdot_core as core;
 pub use flipdot_serial as serial;
 
-mod errors;
 mod sign;
 
-pub use self::errors::{Error, ErrorKind};
-pub use self::sign::Sign;
+pub use self::sign::{Sign, SignError};
 
 pub use crate::core::{Address, Page, PageId, SignBus, SignType};
 pub use crate::serial::SerialSignBus;

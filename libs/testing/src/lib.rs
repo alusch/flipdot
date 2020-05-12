@@ -15,7 +15,7 @@
 //! use flipdot_serial::SerialSignBus;
 //! use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 //!
-//! # fn main() -> Result<(), failure::Error> {
+//! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! #
 //! // Populate bus with signs from addresses 2 to 126
 //! // (which seems to be the possible range for actual signs).
@@ -52,12 +52,10 @@
     unused_results
 )]
 
-mod errors;
 mod odk;
 mod virtual_sign_bus;
 
-pub use self::errors::{Error, ErrorKind};
-pub use self::odk::Odk;
+pub use self::odk::{Odk, OdkError};
 pub use self::virtual_sign_bus::{VirtualSign, VirtualSignBus};
 
 pub use flipdot_core::Address;

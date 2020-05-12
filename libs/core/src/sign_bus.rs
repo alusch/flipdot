@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::fmt::{self, Debug, Formatter};
 
 use crate::Message;
@@ -19,7 +20,7 @@ use crate::Message;
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
 /// # fn use_serial() -> bool { false }
-/// # fn main() -> Result<(), failure::Error> {
+/// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
 /// let bus: Rc<RefCell<SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;
@@ -37,14 +38,13 @@ use crate::Message;
 /// Implementing a custom bus:
 ///
 /// ```
-/// use failure::Error;
 /// use flipdot_core::{Message, SignBus, State};
 ///
 /// struct ExampleSignBus {}
 ///
 /// impl SignBus for ExampleSignBus {
 ///     fn process_message<'a>(&mut self, message: Message)
-///         -> Result<Option<Message<'a>>, Error> {
+///         -> Result<Option<Message<'a>>, Box<dyn std::error::Error + Send + Sync>> {
 ///         match message {
 ///             Message::Hello(address) |
 ///             Message::QueryState(address) =>
@@ -69,7 +69,10 @@ pub trait SignBus {
     /// See the [trait-level documentation].
     ///
     /// [trait-level documentation]: #examples
-    fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, failure::Error>;
+    fn process_message<'a>(
+        &mut self,
+        message: Message<'_>,
+    ) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>>;
 }
 
 // Provide a Debug representation so types that contain trait objects can derive Debug.

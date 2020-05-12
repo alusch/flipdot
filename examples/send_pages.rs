@@ -1,14 +1,11 @@
 use std::cell::RefCell;
-use std::iter;
-use std::process;
+use std::error::Error;
 use std::rc::Rc;
-
-use failure::Error;
 
 use flipdot::{Address, PageId, Sign, SignType};
 use flipdot_testing::{VirtualSign, VirtualSignBus};
 
-fn run() -> Result<(), Error> {
+fn main() -> Result<(), Box<dyn Error>> {
     // Create a virtual sign bus for testing purposes.
     // To control a real sign you would use SerialSignBus instead.
     let virtual_signs = vec![VirtualSign::new(Address(3))];
@@ -48,18 +45,4 @@ fn run() -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-fn main() {
-    match run() {
-        Ok(_) => process::exit(0),
-        Err(ref e) => {
-            let headings = iter::once("Error").chain(iter::repeat("Caused by"));
-            for (heading, failure) in headings.zip(e.iter_chain()) {
-                eprintln!("{}: {}", heading, failure);
-            }
-            eprintln!("{:?}", e.backtrace());
-            process::exit(1);
-        }
-    }
 }
