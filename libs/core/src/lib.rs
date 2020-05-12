@@ -40,7 +40,7 @@
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
 //! [`SignBus`]: trait.SignBus.html
-#![doc(html_root_url = "https://docs.rs/flipdot-core/0.5.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot-core/0.6.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,

@@ -24,7 +24,7 @@
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
 //! [`configure_port`]: fn.configure_port.html
-#![doc(html_root_url = "https://docs.rs/flipdot-serial/0.5.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot-serial/0.6.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,

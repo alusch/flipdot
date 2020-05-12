@@ -65,7 +65,7 @@
 //! [`flipdot-testing`]: https://docs.rs/flipdot-testing
 //! [`SignBus`]: trait.SignBus.html
 //! [`SerialSignBus`]: struct.SerialSignBus.html
-#![doc(html_root_url = "https://docs.rs/flipdot/0.5.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot/0.6.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,

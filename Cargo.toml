@@ -1,6 +1,6 @@
 [package]
 name = "flipdot"
-version = "0.5.0" # remember to update html_root_url
+version = "0.6.0" # remember to update html_root_url
 authors = ["Adam Lusch <alusch@gmail.com>"]
 description = "A library for interacting with Luminator flip-dot and LED signs over RS-485"
 license = "MIT"
@@ -14,8 +14,8 @@ edition = "2018"
 [dependencies]
 thiserror = "1.0.16"
 
-flipdot-core = { version = "0.5", path = "libs/core" }
-flipdot-serial = { version = "0.5", path = "libs/serial" }
+flipdot-core = { version = "0.6", path = "libs/core" }
+flipdot-serial = { version = "0.6", path = "libs/serial" }
 
 [dev-dependencies]
 env_logger = "0.7.1"
@@ -23,6 +23,6 @@ log = "0.4.8"
 serial = "0.4.0"
 serial-core = "0.4.0"
 
-flipdot-testing = { version = "0.5", path = "libs/testing" }
+flipdot-testing = { version = "0.6", path = "libs/testing" }
 
 [workspace]
