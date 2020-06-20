@@ -9,8 +9,7 @@ use serial_core::prelude::*;
 ///
 /// # Errors
 ///
-/// Returns an error of kind [`ErrorKind::Configuration`] if the underlying serial port
-/// reports an error.
+/// Returns the underlying `serial_core::Error` if configuration fails.
 ///
 /// # Examples
 ///
@@ -25,8 +24,6 @@ use serial_core::prelude::*;
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
 pub fn configure_port<P: SerialPort>(port: &mut P, timeout: Duration) -> Result<(), serial_core::Error> {
     port.reconfigure(&|settings| {
         settings.set_baud_rate(serial::Baud19200)?;

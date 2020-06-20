@@ -342,10 +342,10 @@ impl<'a> Frame<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::InvalidFrame`] if the data does not conform to the Intel HEX format.
-    /// * [`ErrorKind::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
-    /// * [`ErrorKind::BadChecksum`] if the computed checksum on the data does not match the specified one.
+    /// Returns:
+    /// * [`FrameError::InvalidFrame`] if the data does not conform to the Intel HEX format.
+    /// * [`FrameError::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
+    /// * [`FrameError::BadChecksum`] if the computed checksum on the data does not match the specified one.
     ///
     /// # Examples
     ///
@@ -360,9 +360,9 @@ impl<'a> Frame<'a> {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
-    /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
-    /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
+    /// [`FrameError::InvalidFrame`]: enum.FrameError.html#variant.InvalidFrame
+    /// [`FrameError::FrameDataMismatch`]: enum.FrameError.html#variant.FrameDataMismatch
+    /// [`FrameError::BadChecksum`]: enum.FrameError.html#variant.BadChecksum
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, FrameError> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"(?x)
@@ -413,7 +413,7 @@ impl<'a> Frame<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind [`ErrorKind::Io`] if the write fails.
+    /// Returns [`FrameError::Io`] if the write fails.
     ///
     /// # Examples
     ///
@@ -428,7 +428,7 @@ impl<'a> Frame<'a> {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
+    /// [`FrameError::Io`]: enum.FrameError.html#variant.Io
     pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), FrameError> {
         writer.write_all(&self.to_bytes_with_newline())?;
         Ok(())
@@ -439,11 +439,11 @@ impl<'a> Frame<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Io`] if the read fails.
-    /// * [`ErrorKind::InvalidFrame`] if the data does not conform to the Intel HEX format.
-    /// * [`ErrorKind::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
-    /// * [`ErrorKind::BadChecksum`] if the computed checksum on the data does not match the specified one.
+    /// Returns:
+    /// * [`FrameError::Io`] if the read fails.
+    /// * [`FrameError::InvalidFrame`] if the data does not conform to the Intel HEX format.
+    /// * [`FrameError::FrameDataMismatch`] if the actual number of data bytes does not match the specified amount.
+    /// * [`FrameError::BadChecksum`] if the computed checksum on the data does not match the specified one.
     ///
     /// # Examples
     ///
@@ -457,10 +457,10 @@ impl<'a> Frame<'a> {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::Io`]: enum.ErrorKind.html#variant.Io
-    /// [`ErrorKind::InvalidFrame`]: enum.ErrorKind.html#variant.InvalidFrame
-    /// [`ErrorKind::FrameDataMismatch`]: enum.ErrorKind.html#variant.FrameDataMismatch
-    /// [`ErrorKind::BadChecksum`]: enum.ErrorKind.html#variant.BadChecksum
+    /// [`FrameError::Io`]: enum.FrameError.html#variant.Io
+    /// [`FrameError::InvalidFrame`]: enum.FrameError.html#variant.InvalidFrame
+    /// [`FrameError::FrameDataMismatch`]: enum.FrameError.html#variant.FrameDataMismatch
+    /// [`FrameError::BadChecksum`]: enum.FrameError.html#variant.BadChecksum
     pub fn read<R: Read>(mut reader: &mut R) -> Result<Self, FrameError> {
         // One-byte buffer seems to work best with such small payloads
         let mut buf_reader = BufReader::with_capacity(1, &mut reader);
@@ -560,7 +560,7 @@ impl<'a> Data<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind [`ErrorKind::DataTooLong`] if the data length is greater than 255 (`0xFF`).
+    /// Returns [`FrameError::DataTooLong`] if the data length is greater than 255 (`0xFF`).
     ///
     /// # Examples
     ///
@@ -596,7 +596,7 @@ impl<'a> Data<'a> {
     /// ```
     ///
     /// [`Frame`]: struct.Frame.html
-    /// [`ErrorKind::DataTooLong`]: enum.ErrorKind.html#variant.DataTooLong
+    /// [`FrameError::DataTooLong`]: enum.FrameError.html#variant.DataTooLong
     pub fn try_new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, FrameError> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {

@@ -246,9 +246,9 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
-    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
     ///   to the protocol. In this case it is recommended to re-`configure` the sign and start over.
     ///
     /// # Examples
@@ -273,8 +273,8 @@ impl Sign {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
+    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn configure(&self) -> Result<(), SignError> {
         self.ensure_unconfigured()?;
 
@@ -294,9 +294,9 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
-    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
     ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
@@ -325,8 +325,8 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
+    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), SignError>
     where
         I: IntoIterator<Item = &'a Page<'a>>,
@@ -344,9 +344,9 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
-    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
     ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
@@ -378,8 +378,8 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
+    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn load_next_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageLoaded, State::PageShown, Operation::LoadNextPage)
     }
@@ -390,9 +390,9 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
-    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
     ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
@@ -422,8 +422,8 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
+    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn show_loaded_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageShown, State::PageLoaded, Operation::ShowLoadedPage)
     }
@@ -435,9 +435,9 @@ impl Sign {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Bus`] if the underlying bus failed to process a message.
-    /// * [`ErrorKind::UnexpectedResponse`] if the sign did not send the expected response according
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
     ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
     ///
     /// # Examples
@@ -469,8 +469,8 @@ impl Sign {
     /// ```
     ///
     /// [`configure`]: #method.configure
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
-    /// [`ErrorKind::UnexpectedResponse`]: enum.ErrorKind.html#variant.UnexpectedResponse
+    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
+    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn shut_down(&self) -> Result<(), SignError> {
         self.send_message_expect_response(Message::Goodbye(self.address), &None)
     }

@@ -5,6 +5,8 @@ use derive_more::{Display, LowerHex, UpperHex};
 use thiserror::Error;
 
 /// Errors relating to [`Page`]s.
+///
+/// [`Page`]: struct.Page.html
 #[derive(Copy, Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum PageError {
@@ -155,7 +157,7 @@ impl<'a> Page<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind [`ErrorKind::WrongPageLength`] if the data length does not match
+    /// Returns [`PageError::WrongPageLength`] if the data length does not match
     /// the specified dimensions.
     ///
     /// # Examples
@@ -177,7 +179,7 @@ impl<'a> Page<'a> {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::WrongPageLength`]: enum.ErrorKind.html#variant.WrongPageLength
+    /// [`PageError::WrongPageLength`]: enum.PageError.html#variant.WrongPageLength
     pub fn from_bytes<T: Into<Cow<'a, [u8]>>>(width: u32, height: u32, bytes: T) -> Result<Self, PageError> {
         let page = Page {
             width,

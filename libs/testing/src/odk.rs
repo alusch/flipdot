@@ -69,8 +69,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind [`ErrorKind::Configuration`] if the serial port
-    /// cannot be configured.
+    /// Returns the underlying `serial_core::Error` if the serial port cannot be configured.
     ///
     /// # Examples
     ///
@@ -89,8 +88,6 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// Note: You would typically use the `env_logger` crate and run with
     /// `RUST_LOG=debug` to watch the bus messages go by.
-    ///
-    /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
     pub fn try_new(mut port: P, bus: B) -> Result<Self, serial_core::Error> {
         flipdot_serial::configure_port(&mut port, Duration::from_secs(10))?;
         Ok(Odk { port, bus })
@@ -101,9 +98,9 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind:
-    /// * [`ErrorKind::Communication`] if there was an error reading or writing the data.
-    /// * [`ErrorKind::Bus`] if the bus failed to process the message.
+    /// Returns:
+    /// * [`OdkError::Communication`] if there was an error reading or writing the data.
+    /// * [`OdkError::Bus`] if the bus failed to process the message.
     ///
     /// # Examples
     ///
@@ -123,8 +120,8 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # Ok(()) }
     /// ```
     ///
-    /// [`ErrorKind::Communication`]: enum.ErrorKind.html#variant.Communication
-    /// [`ErrorKind::Bus`]: enum.ErrorKind.html#variant.Bus
+    /// [`OdkError::Communication`]: enum.OdkError.html#variant.Communication
+    /// [`OdkError::Bus`]: enum.OdkError.html#variant.Bus
     pub fn process_message(&mut self) -> Result<(), OdkError> {
         let response = {
             let frame = Frame::read(&mut self.port)?;

@@ -41,8 +41,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     ///
     /// # Errors
     ///
-    /// Returns an error of kind [`ErrorKind::Configuration`] if the serial port
-    /// cannot be configured.
+    /// Returns the underlying `serial_core::Error` if the serial port cannot be configured.
     ///
     /// # Examples
     ///
@@ -55,8 +54,6 @@ impl<P: SerialPort> SerialSignBus<P> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`ErrorKind::Configuration`]: enum.ErrorKind.html#variant.Configuration
     pub fn try_new(mut port: P) -> Result<Self, serial_core::Error> {
         serial_port::configure_port(&mut port, Duration::from_secs(5))?;
         Ok(SerialSignBus { port })
