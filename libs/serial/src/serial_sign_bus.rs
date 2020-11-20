@@ -9,7 +9,7 @@ use flipdot_core::{Frame, Message, SignBus, State};
 
 use crate::serial_port;
 
-/// An implementation of `SignBus` that communicates with one or more signs over serial.
+/// An implementation of [`SignBus`] that communicates with one or more signs over serial.
 ///
 /// Messages and responses are logged using the [`log`] crate for debugging purposes. Consuming binaries
 /// typically use the [`env_logger`] crate and can be run with the `RUST_LOG=debug` environment variable
@@ -41,7 +41,7 @@ impl<P: SerialPort> SerialSignBus<P> {
     ///
     /// # Errors
     ///
-    /// Returns the underlying `serial_core::Error` if the serial port cannot be configured.
+    /// Returns the underlying [`serial_core::Error`] if the serial port cannot be configured.
     ///
     /// # Examples
     ///

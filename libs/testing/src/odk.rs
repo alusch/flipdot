@@ -6,8 +6,6 @@ use thiserror::Error;
 use flipdot_core::{Frame, Message, SignBus};
 
 /// Errors related to [`Odk`]s.
-///
-/// [`Odk`]: struct.Odk.html
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum OdkError {
@@ -28,9 +26,9 @@ pub enum OdkError {
     },
 }
 
-/// Connects to a real ODK over the specified serial port and uses it to drive a `SignBus`.
+/// Connects to a real ODK over the specified serial port and uses it to drive a [`SignBus`].
 ///
-/// Typically this will be used to drive a [`VirtualSignBus`] in order to study the bus traffic
+/// Typically this will be used to drive a [`VirtualSignBus`](crate::VirtualSignBus) in order to study the bus traffic
 /// or inspect the pages of pixel data sent by the ODK.
 ///
 /// # Examples
@@ -56,8 +54,6 @@ pub enum OdkError {
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`VirtualSignBus`]: struct.VirtualSignBus.html
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Odk<P: SerialPort, B: SignBus> {
     port: P,
@@ -69,7 +65,7 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     ///
     /// # Errors
     ///
-    /// Returns the underlying `serial_core::Error` if the serial port cannot be configured.
+    /// Returns the underlying [`serial_core::Error`] if the serial port cannot be configured.
     ///
     /// # Examples
     ///
@@ -119,9 +115,6 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`OdkError::Communication`]: enum.OdkError.html#variant.Communication
-    /// [`OdkError::Bus`]: enum.OdkError.html#variant.Bus
     pub fn process_message(&mut self) -> Result<(), OdkError> {
         let response = {
             let frame = Frame::read(&mut self.port)?;

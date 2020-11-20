@@ -5,7 +5,7 @@
 //!
 //! This crate isn't directly related to controlling a real sign, but provides some helpful diagnostic tools.
 //! [`VirtualSignBus`] is a general-purpose mock implementation of one or more signs attached to the bus,
-//! and [`Odk`] allows connecting a real ODK over serial to a `SignBus`.
+//! and [`Odk`] allows connecting a real ODK over serial to a [`SignBus`](flipdot_core::SignBus).
 //!
 //! Intended only for hobbyist and educational purposes. Not affiliated with Luminator in any way.
 //!
@@ -34,8 +34,6 @@
 //! ```
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
-//! [`VirtualSignBus`]: struct.VirtualSignBus.html
-//! [`Odk`]: struct.Odk.html
 #![doc(html_root_url = "https://docs.rs/flipdot-testing/0.6.0")]
 #![deny(
     missing_copy_implementations,

@@ -52,19 +52,16 @@
 //! In addition to the high-level API of [`Sign`], several lower-level components are provided
 //! that can be combined for more specialized use-cases.
 //!
-//! - [`flipdot-core`] \(re-exported as `core`\) contains the basic types describing the protocol, and is useful
+//! - [`flipdot-core`] \(re-exported as [`core`]\) contains the basic types describing the protocol, and is useful
 //!   if you want to implement a custom [`SignBus`] or otherwise operate at the level of the raw protocol.
-//! - [`flipdot-serial`] \(re-exported as `serial`\) contains functions for configuring the serial port,
+//! - [`flipdot-serial`] \(re-exported as [`serial`]\) contains functions for configuring the serial port,
 //!   as well as the implementation of [`SerialSignBus`].
 //! - [`flipdot-testing`] contains tools not directly related to communicating with signs,
 //!   but useful for testing and debugging.
 //!
-//! [`Sign`]: struct.Sign.html
 //! [`flipdot-core`]: https://docs.rs/flipdot-core
 //! [`flipdot-serial`]: https://docs.rs/flipdot-serial
 //! [`flipdot-testing`]: https://docs.rs/flipdot-testing
-//! [`SignBus`]: trait.SignBus.html
-//! [`SerialSignBus`]: struct.SerialSignBus.html
 #![doc(html_root_url = "https://docs.rs/flipdot/0.6.0")]
 #![deny(
     missing_copy_implementations,

@@ -5,14 +5,10 @@ use derive_more::{Display, LowerHex, UpperHex};
 use thiserror::Error;
 
 /// Errors relating to [`Page`]s.
-///
-/// [`Page`]: struct.Page.html
 #[derive(Copy, Clone, Debug, Error)]
 #[non_exhaustive]
 pub enum PageError {
     /// Data length didn't match the width/height of the [`Page`].
-    ///
-    /// [`Page`]: struct.Page.html
     #[error(
         "Wrong number of data bytes for a {}x{} page: Expected {}, got {}",
         width,
@@ -53,7 +49,7 @@ pub enum PageError {
 /// column and one bit per pixel. The least significant bit is oriented toward the top of the display.
 /// The `ID` field is a "page number" used to identify individual pages in multi-page messages.
 /// The other bytes in the header are unknown, but from inspection of real ODKs seem to be most
-/// commonly `0x10 0x00 0x00`, which is what `Page::new` currently uses.
+/// commonly `0x10 0x00 0x00`, which is what [`Page::new`] currently uses.
 ///
 /// ```text
 ///                   ┌─┬ ┄ ┬─┐
@@ -111,8 +107,6 @@ pub struct Page<'a> {
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`Page`]: struct.Page.html
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
 pub struct PageId(pub u8);
 
@@ -149,7 +143,7 @@ impl<'a> Page<'a> {
 
     /// Creates a new `Page` with given dimensions from the underlying byte representation.
     ///
-    /// The data must be convertible to `Cow`, which allows us to create efficient views of
+    /// The data must be convertible to [`Cow`], which allows us to create efficient views of
     /// `Page`s over existing data without making copies.
     ///
     /// It is the caller's responsibility to ensure that the header and padding bytes are
@@ -178,8 +172,6 @@ impl<'a> Page<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`PageError::WrongPageLength`]: enum.PageError.html#variant.WrongPageLength
     pub fn from_bytes<T: Into<Cow<'a, [u8]>>>(width: u32, height: u32, bytes: T) -> Result<Self, PageError> {
         let page = Page {
             width,

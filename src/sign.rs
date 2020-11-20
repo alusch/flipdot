@@ -7,8 +7,6 @@ use thiserror::Error;
 use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
 
 /// Errors related to [`Sign`]s.
-///
-/// [`Sign`]: struct.Sign.html
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum SignError {
@@ -106,8 +104,6 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`SignBus`]: struct.SignBus.html
     pub fn new(bus: Rc<RefCell<dyn SignBus>>, address: Address, sign_type: SignType) -> Self {
         Sign { address, sign_type, bus }
     }
@@ -249,7 +245,7 @@ impl Sign {
     /// Returns:
     /// * [`SignError::Bus`] if the underlying bus failed to process a message.
     /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
-    ///   to the protocol. In this case it is recommended to re-`configure` the sign and start over.
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
     ///
     /// # Examples
     ///
@@ -272,9 +268,6 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
-    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn configure(&self) -> Result<(), SignError> {
         self.ensure_unconfigured()?;
 
@@ -289,7 +282,7 @@ impl Sign {
 
     /// Sends one or more pages of pixel data to the sign.
     ///
-    /// Can be called at any time after [`configure`]. Replaces any pages that had been previously sent.
+    /// Can be called at any time after [`configure`](Self::configure). Replaces any pages that had been previously sent.
     /// Upon return, the first page will be loaded and ready to be shown.
     ///
     /// # Errors
@@ -297,7 +290,7 @@ impl Sign {
     /// Returns:
     /// * [`SignError::Bus`] if the underlying bus failed to process a message.
     /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
-    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
     ///
     /// # Examples
     ///
@@ -323,10 +316,6 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`configure`]: #method.configure
-    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
-    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), SignError>
     where
         I: IntoIterator<Item = &'a Page<'a>>,
@@ -347,7 +336,7 @@ impl Sign {
     /// Returns:
     /// * [`SignError::Bus`] if the underlying bus failed to process a message.
     /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
-    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
     ///
     /// # Examples
     ///
@@ -376,24 +365,20 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`configure`]: #method.configure
-    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
-    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn load_next_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageLoaded, State::PageShown, Operation::LoadNextPage)
     }
 
     /// Shows the currently loaded page on the display.
     ///
-    /// Once a page has been loaded (either via `send_pages` or `load_next_page`), this method will make it visible.
+    /// Once a page has been loaded (either via [`send_pages`](Self::send_pages) or [`load_next_page`](Self::load_next_page)), this method will make it visible.
     ///
     /// # Errors
     ///
     /// Returns:
     /// * [`SignError::Bus`] if the underlying bus failed to process a message.
     /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
-    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
     ///
     /// # Examples
     ///
@@ -420,10 +405,6 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`configure`]: #method.configure
-    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
-    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn show_loaded_page(&self) -> Result<(), SignError> {
         self.switch_page(State::PageShown, State::PageLoaded, Operation::ShowLoadedPage)
     }
@@ -438,7 +419,7 @@ impl Sign {
     /// Returns:
     /// * [`SignError::Bus`] if the underlying bus failed to process a message.
     /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
-    ///   to the protocol. In this case it is recommended to re-[`configure`] the sign and start over.
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
     ///
     /// # Examples
     ///
@@ -467,10 +448,6 @@ impl Sign {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`configure`]: #method.configure
-    /// [`SignError::Bus`]: enum.SignError.html#variant.Bus
-    /// [`SignError::UnexpectedResponse`]: enum.SignError.html#variant.UnexpectedResponse
     pub fn shut_down(&self) -> Result<(), SignError> {
         self.send_message_expect_response(Message::Goodbye(self.address), &None)
     }

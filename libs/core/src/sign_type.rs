@@ -1,14 +1,10 @@
 use thiserror::Error;
 
 /// Errors related to [`SignType`]s.
-///
-/// [`SignType`]: enum.SignType.html
 #[derive(Debug, Error)]
 #[non_exhaustive]
 pub enum SignTypeError {
     /// [`SignType`] configuration data was not 16 bytes long.
-    ///
-    /// [`SignType`]: enum.SignType.html
     #[error("Wrong sign configuration data length: Expected {}, got {}", expected, actual)]
     WrongConfigLength {
         /// The expected configuration data length.
@@ -19,8 +15,6 @@ pub enum SignTypeError {
     },
 
     /// Configuration data didn't match any known [`SignType`].
-    ///
-    /// [`SignType`]: enum.SignType.html
     #[error("Configuration data didn't match any known sign: {:?}", bytes)]
     UnknownConfig {
         /// The provided configuration data.
@@ -135,9 +129,6 @@ impl SignType {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`SignTypeError::WrongConfigLength`]: enum.SignTypeError.html#variant.WrongConfigLength
-    /// [`SignTypeError::UnknownConfig`]: enum.SignTypeError.html#variant.UnknownConfig
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, SignTypeError> {
         if bytes.len() != 16 {
             return Err(SignTypeError::WrongConfigLength {

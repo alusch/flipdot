@@ -55,7 +55,6 @@ use crate::Message;
 /// }
 /// ```
 ///
-/// [`Message`]: enum.Message.html
 /// [`flipdot`]: https://docs.rs/flipdot
 /// [`flipdot-testing`]: https://docs.rs/flipdot_testing
 pub trait SignBus {

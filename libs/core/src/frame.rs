@@ -10,14 +10,10 @@ use regex::bytes::Regex;
 use thiserror::Error;
 
 /// Errors related to reading/writing [`Frame`]s of data.
-///
-/// [`Frame`]: struct.Frame.html
 #[derive(Error, Debug)]
 #[non_exhaustive]
 pub enum FrameError {
     /// [`Data`] length exceeded the maximum of 255 bytes.
-    ///
-    /// [`Data`]: struct.Data.html
     #[error("Maximum data length is {} bytes, got {}", max, actual)]
     DataTooLong {
         /// The maximum data length.
@@ -28,8 +24,6 @@ pub enum FrameError {
     },
 
     /// Failed reading/writing a [`Frame`] of data.
-    ///
-    /// [`Frame`]: struct.Frame.html
     #[error("Failed reading/writing a frame of data")]
     Io {
         /// The underlying I/O error.
@@ -38,8 +32,6 @@ pub enum FrameError {
     },
 
     /// Failed to parse data into a [`Frame`].
-    ///
-    /// [`Frame`]: struct.Frame.html
     #[error("Failed to parse invalid Intel HEX [{}] into a Frame", string_for_error(data))]
     InvalidFrame {
         /// The invalid frame data.
@@ -47,8 +39,6 @@ pub enum FrameError {
     },
 
     /// [`Frame`] data didn't match declared length.
-    ///
-    /// [`Frame`]: struct.Frame.html
     #[error(
         "Frame data [{}] didn't match declared length: Expected {}, got {}",
         string_for_error(data),
@@ -67,8 +57,6 @@ pub enum FrameError {
     },
 
     /// [`Frame`] checksum didn't match declared checksum.
-    ///
-    /// [`Frame`]: struct.Frame.html
     #[error(
         "Frame checksum for [{}] didn't match declared checksum: Expected 0x{:X}, got 0x{:X}",
         string_for_error(data),
@@ -92,7 +80,7 @@ pub enum FrameError {
 /// The Luminator protocol uses the [Intel HEX] format but not its semantics.
 /// This struct handles parsing the raw bytes into a form we can reason about,
 /// dealing with checksums, and so forth. It makes no attempt to ascribe meaning
-/// to the address, message type, and data (that's [`Message`]'s job).
+/// to the address, message type, and data (that's [`Message`](crate::Message)'s job).
 ///
 /// Both owned and borrowed data are supported.
 ///
@@ -134,7 +122,6 @@ pub enum FrameError {
 /// The checksum is a [longitudinal redundancy check] calculated on all numeric fields.
 ///
 /// [Intel HEX]: https://en.wikipedia.org/wiki/Intel_HEX
-/// [`Message`]: enum.Message.html
 /// [longitudinal redundancy check]: https://en.wikipedia.org/wiki/Longitudinal_redundancy_check
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Frame<'a> {
@@ -145,7 +132,7 @@ pub struct Frame<'a> {
 
 /// A [`Frame`]'s message type.
 ///
-/// Carries no implicit meaning, but is interpreted by [`Message`].
+/// Carries no implicit meaning, but is interpreted by [`Message`](crate::Message).
 ///
 /// # Examples
 ///
@@ -159,9 +146,6 @@ pub struct Frame<'a> {
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`Frame`]: struct.Frame.html
-/// [`Message`]: enum.Message.html
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
 pub struct MsgType(pub u8);
 
@@ -359,10 +343,6 @@ impl<'a> Frame<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`FrameError::InvalidFrame`]: enum.FrameError.html#variant.InvalidFrame
-    /// [`FrameError::FrameDataMismatch`]: enum.FrameError.html#variant.FrameDataMismatch
-    /// [`FrameError::BadChecksum`]: enum.FrameError.html#variant.BadChecksum
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, FrameError> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"(?x)
@@ -427,8 +407,6 @@ impl<'a> Frame<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`FrameError::Io`]: enum.FrameError.html#variant.Io
     pub fn write<W: Write>(&self, writer: &mut W) -> Result<(), FrameError> {
         writer.write_all(&self.to_bytes_with_newline())?;
         Ok(())
@@ -456,11 +434,6 @@ impl<'a> Frame<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`FrameError::Io`]: enum.FrameError.html#variant.Io
-    /// [`FrameError::InvalidFrame`]: enum.FrameError.html#variant.InvalidFrame
-    /// [`FrameError::FrameDataMismatch`]: enum.FrameError.html#variant.FrameDataMismatch
-    /// [`FrameError::BadChecksum`]: enum.FrameError.html#variant.BadChecksum
     pub fn read<R: Read>(mut reader: &mut R) -> Result<Self, FrameError> {
         // One-byte buffer seems to work best with such small payloads
         let mut buf_reader = BufReader::with_capacity(1, &mut reader);
@@ -547,8 +520,6 @@ fn checksum(bytes: &[u8]) -> u8 {
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`Frame`]: struct.Frame.html
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Data<'a>(Cow<'a, [u8]>);
 
@@ -594,9 +565,6 @@ impl<'a> Data<'a> {
     /// let result = Data::try_new(vec![0; 1000]);
     /// assert!(result.is_err());
     /// ```
-    ///
-    /// [`Frame`]: struct.Frame.html
-    /// [`FrameError::DataTooLong`]: enum.FrameError.html#variant.DataTooLong
     pub fn try_new<T: Into<Cow<'a, [u8]>>>(data: T) -> Result<Self, FrameError> {
         let data: Cow<'a, [u8]> = data.into();
         if data.len() > 0xFF {
@@ -621,8 +589,6 @@ impl<'a> Data<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`Cow`]: https://doc.rust-lang.org/std/borrow/enum.Cow.html
     pub fn get(&self) -> &Cow<'a, [u8]> {
         &self.0
     }

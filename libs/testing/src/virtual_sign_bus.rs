@@ -36,7 +36,6 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// # Ok(()) }
 /// ```
 ///
-/// [`VirtualSign`]: struct.VirtualSign.html
 /// [`log`]: https://crates.io/crates/log
 /// [`env_logger`]: https://crates.io/crates/env_logger
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -70,7 +69,7 @@ impl<'a> VirtualSignBus<'a> {
         }
     }
 
-    /// Returns a reference to the [`VirtualSign`] at a specific index matching the original order passed to `new`.
+    /// Returns a reference to the [`VirtualSign`] at a specific index matching the original order passed to [`new`](Self::new).
     ///
     /// Useful when writing tests in order to verify properties of an individual sign.
     ///
@@ -83,15 +82,13 @@ impl<'a> VirtualSignBus<'a> {
     /// let second_sign = bus.sign(1);
     /// assert_eq!(Address(16), second_sign.address());
     /// ```
-    ///
-    /// [`VirtualSign`]: struct.VirtualSign.html
     pub fn sign(&self, index: usize) -> &VirtualSign<'a> {
         &self.signs[index]
     }
 }
 
 impl SignBus for VirtualSignBus<'_> {
-    /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a `Some` response).
+    /// Handles a bus message by trying each sign in turn to see if it can handle it (i.e. returns a [`Some`] response).
     fn process_message<'a>(&mut self, message: Message<'_>) -> Result<Option<Message<'a>>, Box<dyn Error + Send + Sync>> {
         debug!("Bus message: {}", message);
         for sign in &mut self.signs {
@@ -114,8 +111,6 @@ impl SignBus for VirtualSignBus<'_> {
 /// # Examples
 ///
 /// See [`VirtualSignBus`].
-///
-/// [`VirtualSignBus`]: struct.VirtualSignBus.html
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VirtualSign<'a> {
     address: Address,
@@ -182,8 +177,8 @@ impl VirtualSign<'_> {
 
     /// Returns the sign's configured type.
     ///
-    /// This is initially `None` and will only be set if the sign has received a configuration message over the bus.
-    /// Note that even if it has, this may still be `None` if the configuration did not match any known types
+    /// This is initially [`None`] and will only be set if the sign has received a configuration message over the bus.
+    /// Note that even if it has, this may still be [`None`] if the configuration did not match any known types
     /// (e.g. potentially when driving from a real ODK).
     ///
     /// # Examples
@@ -197,7 +192,7 @@ impl VirtualSign<'_> {
         self.sign_type
     }
 
-    /// Returns the sign's current `Page`s as a slice.
+    /// Returns the sign's current [`Page`]s as a slice.
     ///
     /// May be empty if no pages have yet been sent to this sign or it has been reset.
     ///

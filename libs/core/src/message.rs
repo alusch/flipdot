@@ -26,8 +26,6 @@ use crate::{Address, Data, Frame, MsgType};
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`Frame`]: struct.Frame.html
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Message<'a> {
@@ -78,12 +76,10 @@ pub enum Message<'a> {
     Goodbye(Address),
 
     /// Wraps a [`Frame`] that does not correspond to any known message.
-    ///
-    /// [`Frame`]: struct.Frame.html
     Unknown(Frame<'a>),
 }
 
-/// The memory offset for data sent via a [`SendData`] message.
+/// The memory offset for data sent via a [`SendData`](Message::SendData) message.
 ///
 /// # Examples
 ///
@@ -99,12 +95,10 @@ pub enum Message<'a> {
 /// #
 /// # Ok(()) }
 /// ```
-///
-/// [`SendData`]: enum.Message.html#variant.SendData
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
 pub struct Offset(pub u16);
 
-/// The number of chunks sent in [`SendData`] messages, reported by [`DataChunksSent`].
+/// The number of chunks sent in [`SendData`](Message::SendData) messages, reported by [`DataChunksSent`](Message::DataChunksSent).
 ///
 /// # Examples
 ///
@@ -114,20 +108,13 @@ pub struct Offset(pub u16);
 /// // Assume we just sent three SendData messages. That should be followed with:
 /// let message = Message::DataChunksSent(ChunkCount(3));
 /// ```
-///
-/// [`SendData`]: enum.Message.html#variant.SendData
-/// [`DataChunksSent`]: enum.Message.html#variant.DataChunksSent
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
 pub struct ChunkCount(pub u16);
 
 /// Possible states that a sign can be in during operation.
 ///
-/// These are reported by the sign in a [`ReportState`] message
-/// in response to [`Hello`] or [`QueryState`].
-///
-/// [`ReportState`]: enum.Message.html#variant.ReportState
-/// [`Hello`]: enum.Message.html#variant.Hello
-/// [`QueryState`]: enum.Message.html#variant.QueryState
+/// These are reported by the sign in a [`ReportState`](Message::ReportState) message
+/// in response to [`Hello`](Message::Hello) or [`QueryState`](Message::QueryState).
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum State {
@@ -160,9 +147,7 @@ pub enum State {
 
 /// Operations that can be requested of a sign, which trigger actions and/or state changes.
 ///
-/// These are requested by the ODK via a [`RequestOperation`] message.
-///
-/// [`RequestOperation`]: enum.Message.html#variant.RequestOperation
+/// These are requested by the ODK via a [`RequestOperation`](Message::RequestOperation) message.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum Operation {
@@ -174,13 +159,9 @@ pub enum Operation {
     ShowLoadedPage,
     /// Load the next stored page into memory in preparation to show.
     LoadNextPage,
-    /// Begin the process of resetting back to the [`Unconfigured`] state.
-    ///
-    /// [`Unconfigured`]: enum.State.html#variant.Unconfigured
+    /// Begin the process of resetting back to the [`Unconfigured`](State::Unconfigured) state.
     StartReset,
-    /// Finish the process of resetting back to the [`Unconfigured`] state.
-    ///
-    /// [`Unconfigured`]: enum.State.html#variant.Unconfigured
+    /// Finish the process of resetting back to the [`Unconfigured`](State::Unconfigured) state.
     FinishReset,
 }
 
@@ -235,8 +216,6 @@ impl<'a> From<Frame<'a>> for Message<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`Frame`]: struct.Frame.html
     fn from(frame: Frame<'a>) -> Self {
         match frame.data().len() {
             0 => match frame.message_type() {
@@ -292,7 +271,7 @@ impl<'a> From<Frame<'a>> for Message<'a> {
 impl<'a> From<Message<'a>> for Frame<'a> {
     /// Converts a [`Message`] into a `Frame`.
     ///
-    /// This cannot fail as all `Message`s can be represented as `Frame`s.
+    /// This cannot fail as all [`Message`]s can be represented as `Frame`s.
     /// The input [`Message`] is consumed to allow efficiently reusing its data where possible.
     ///
     /// # Examples
@@ -307,8 +286,6 @@ impl<'a> From<Message<'a>> for Frame<'a> {
     /// #
     /// # Ok(()) }
     /// ```
-    ///
-    /// [`Message`]: enum.Message.html
     fn from(message: Message<'a>) -> Self {
         match message {
             Message::SendData(Offset(offset), data) => Frame::new(Address(offset), MsgType(0), data),
@@ -352,20 +329,6 @@ impl<'a> From<Message<'a>> for Frame<'a> {
         }
     }
 }
-
-/// Creates a new [`Data`] wrapper around a static slice of `u8`.
-///
-/// Provides a convenient shorthand for creating small pieces of data
-/// that obviously won't reach the length limit and thus can safely be unwrapped.
-///
-/// # Panics
-///
-/// Panics if the length of the data is greater than 255.
-///
-/// [`Data`]: struct.Data.html
-// fn Data::from(data: &'static [u8]) -> Data {
-//     Data::try_new(data).unwrap()
-// }
 
 #[cfg(test)]
 mod tests {

@@ -9,7 +9,7 @@ use serial_core::prelude::*;
 ///
 /// # Errors
 ///
-/// Returns the underlying `serial_core::Error` if configuration fails.
+/// Returns the underlying [`serial_core::Error`] if configuration fails.
 ///
 /// # Examples
 ///
