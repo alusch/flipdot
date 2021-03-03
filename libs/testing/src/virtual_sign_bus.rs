@@ -221,7 +221,7 @@ impl VirtualSign<'_> {
     /// ```
     pub fn process_message<'a>(&mut self, message: &Message<'_>) -> Option<Message<'a>> {
         match *message {
-            Message::Hello(address) | Message::QueryState(address) if address == self.address => self.query_state(),
+            Message::Hello(address) | Message::QueryState(address) if address == self.address => Some(self.query_state()),
             Message::RequestOperation(address, Operation::ReceiveConfig) if address == self.address => self.receive_config(),
             Message::SendData(offset, ref data) => self.send_data(offset, data.get()),
             Message::DataChunksSent(chunks) => self.data_chunks_sent(chunks),
@@ -229,7 +229,7 @@ impl VirtualSign<'_> {
             Message::PixelsComplete(address) if address == self.address => self.pixels_complete(),
             Message::RequestOperation(address, Operation::ShowLoadedPage) if address == self.address => self.show_loaded_page(),
             Message::RequestOperation(address, Operation::LoadNextPage) if address == self.address => self.load_next_page(),
-            Message::RequestOperation(address, Operation::StartReset) if address == self.address => self.start_reset(),
+            Message::RequestOperation(address, Operation::StartReset) if address == self.address => Some(self.start_reset()),
             Message::RequestOperation(address, Operation::FinishReset) if address == self.address => self.finish_reset(),
             Message::Goodbye(address) if address == self.address => self.goodbye(),
             _ => None,
@@ -237,7 +237,7 @@ impl VirtualSign<'_> {
     }
 
     /// Handles `QueryState` or `Hello` messages
-    fn query_state<'a>(&mut self) -> Option<Message<'a>> {
+    fn query_state<'a>(&mut self) -> Message<'a> {
         let state = self.state;
 
         // We don't actually need to do anything to load or show a page,
@@ -248,7 +248,7 @@ impl VirtualSign<'_> {
             _ => {}
         };
 
-        Some(Message::ReportState(self.address, state))
+        Message::ReportState(self.address, state)
     }
 
     /// Handles `RequestOperation` messages for `ReceiveConfig`.
@@ -371,9 +371,9 @@ impl VirtualSign<'_> {
     }
 
     /// Handles `RequestOperation` messages for `StartReset`.
-    fn start_reset<'a>(&mut self) -> Option<Message<'a>> {
+    fn start_reset<'a>(&mut self) -> Message<'a> {
         self.state = State::ReadyToReset;
-        Some(Message::AckOperation(self.address, Operation::StartReset))
+        Message::AckOperation(self.address, Operation::StartReset)
     }
 
     /// Handles `RequestOperation` messages for `FinishReset`.
