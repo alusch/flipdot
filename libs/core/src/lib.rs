@@ -18,11 +18,11 @@
 //! use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
 //! # use flipdot_testing::{VirtualSign, VirtualSignBus};
 //!
-//! # fn get_bus() -> Box<SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
+//! # fn get_bus() -> Box<dyn SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
 //! # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 //! #
 //! // Assume we have a helper function to obtain a SignBus.
-//! let mut bus: Box<SignBus> = get_bus();
+//! let mut bus: Box<dyn SignBus> = get_bus();
 //!
 //! // Discover the sign and verify that is has not yet been configured.
 //! let message = Message::Hello(Address(3));

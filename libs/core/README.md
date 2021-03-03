@@ -22,7 +22,7 @@ Here's an example of directly interacting with a `SignBus` at the `Message` leve
 use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
 
 // Assume we have a helper function to obtain a SignBus.
-let mut bus: Box<SignBus> = get_bus();
+let mut bus: Box<dyn SignBus> = get_bus();
 
 // Discover the sign and verify that is has not yet been configured.
 let message = Message::Hello(Address(3));
