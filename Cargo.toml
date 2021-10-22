@@ -9,7 +9,7 @@ repository = "https://github.com/alusch/flipdot"
 readme = "README.md"
 keywords = ["flip-dot", "Luminator", "bus", "sign", "RS-485"]
 categories = ["hardware-support"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 thiserror = "1.0.16"

@@ -22,7 +22,7 @@ use crate::Message;
 /// # fn use_serial() -> bool { false }
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
-/// let bus: Rc<RefCell<SignBus>> = if use_serial() {
+/// let bus: Rc<RefCell<dyn SignBus>> = if use_serial() {
 ///     let port = serial::open("/dev/ttyUSB0")?;
 ///     Rc::new(RefCell::new(SerialSignBus::try_new(port)?))
 /// } else {

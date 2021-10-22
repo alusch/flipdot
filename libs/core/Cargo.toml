@@ -9,7 +9,7 @@ repository = "https://github.com/alusch/flipdot"
 readme = "README.md"
 keywords = ["flip-dot", "Luminator", "bus"]
 categories = ["hardware-support"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 derive_more = "0.99.5"
