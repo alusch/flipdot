@@ -100,7 +100,10 @@ impl<P: SerialPort> SignBus for SerialSignBus<P> {
 fn response_expected(message: &Message<'_>) -> bool {
     // A sign is only expected to reply to messages that query its state or request
     // that it perform an operation.
-    matches!(*message, Message::Hello(_) | Message::QueryState(_) | Message::RequestOperation(_, _))
+    matches!(
+        *message,
+        Message::Hello(_) | Message::QueryState(_) | Message::RequestOperation(_, _)
+    )
 }
 
 /// Returns the length of time to delay after sending a message.

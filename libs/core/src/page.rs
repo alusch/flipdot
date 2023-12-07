@@ -440,7 +440,14 @@ mod tests {
     #[test]
     fn wrong_size_rejected() {
         let error = Page::from_bytes(90, 7, vec![0x01, 0x01, 0x03]).unwrap_err();
-        assert!(matches!(error, PageError::WrongPageLength { expected: 96, actual: 3, .. }));
+        assert!(matches!(
+            error,
+            PageError::WrongPageLength {
+                expected: 96,
+                actual: 3,
+                ..
+            }
+        ));
     }
 
     #[test]

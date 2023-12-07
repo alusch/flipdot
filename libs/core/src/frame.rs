@@ -672,7 +672,14 @@ mod tests {
     #[test]
     fn data_length_over_255_rejected() {
         let error = Data::try_new(vec![0; 256]).unwrap_err();
-        assert!(matches!(error, FrameError::DataTooLong { max: 255, actual: 256, .. }));
+        assert!(matches!(
+            error,
+            FrameError::DataTooLong {
+                max: 255,
+                actual: 256,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -684,19 +691,40 @@ mod tests {
     #[test]
     fn bad_checksum_detected() {
         let error = Frame::from_bytes(b":01007F02FF7E").unwrap_err();
-        assert!(matches!(error, FrameError::BadChecksum { expected: 0x7E, actual: 0x7F, .. }));
+        assert!(matches!(
+            error,
+            FrameError::BadChecksum {
+                expected: 0x7E,
+                actual: 0x7F,
+                ..
+            }
+        ));
     }
 
     #[test]
     fn extra_data_detected() {
         let error = Frame::from_bytes(b":00007F02007F").unwrap_err();
-        assert!(matches!(error, FrameError::FrameDataMismatch { expected: 0, actual: 1, .. }));
+        assert!(matches!(
+            error,
+            FrameError::FrameDataMismatch {
+                expected: 0,
+                actual: 1,
+                ..
+            }
+        ));
     }
 
     #[test]
     fn missing_data_detected() {
         let error = Frame::from_bytes(b":01007F027E").unwrap_err();
-        assert!(matches!(error, FrameError::FrameDataMismatch { expected: 1, actual: 0, .. }));
+        assert!(matches!(
+            error,
+            FrameError::FrameDataMismatch {
+                expected: 1,
+                actual: 0,
+                ..
+            }
+        ));
     }
 
     #[test]

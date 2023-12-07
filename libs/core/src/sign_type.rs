@@ -370,7 +370,14 @@ mod tests {
     fn not_enough_data() {
         let data = vec![0x04];
         let error = SignType::from_bytes(&data).unwrap_err();
-        assert!(matches!(error, SignTypeError::WrongConfigLength { expected: 16, actual: 1, .. }));
+        assert!(matches!(
+            error,
+            SignTypeError::WrongConfigLength {
+                expected: 16,
+                actual: 1,
+                ..
+            }
+        ));
     }
 
     #[test]
@@ -379,6 +386,13 @@ mod tests {
             0x08, 0xB9, 0x00, 0x06, 0x8C, 0x0C, 0x00, 0x28, 0x01, 0x00, 0x28, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00,
         ];
         let error = SignType::from_bytes(&data).unwrap_err();
-        assert!(matches!(error, SignTypeError::WrongConfigLength { expected: 16, actual: 17, .. }));
+        assert!(matches!(
+            error,
+            SignTypeError::WrongConfigLength {
+                expected: 16,
+                actual: 17,
+                ..
+            }
+        ));
     }
 }
