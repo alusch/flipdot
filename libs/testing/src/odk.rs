@@ -34,6 +34,7 @@ pub enum OdkError {
 /// # Examples
 ///
 /// ```no_run
+/// use flipdot_core::PageFlipStyle;
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
@@ -41,7 +42,7 @@ pub enum OdkError {
 /// #
 /// // Populate bus with signs from addresses 2 to 126
 /// // (which seems to be the possible range for actual signs).
-/// let signs = (2..127).map(Address).map(VirtualSign::new);
+/// let signs = (2..127).map(Address).map(|addr| { VirtualSign::new(addr, PageFlipStyle::Manual) });
 /// let bus = VirtualSignBus::new(signs);
 ///
 /// // Hook up ODK to virtual bus.
@@ -70,12 +71,13 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # Examples
     ///
     /// ```no_run
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
-    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
+    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)]);
     /// let port = serial::open("COM3")?;
     /// let odk = Odk::try_new(port, bus)?;
     /// #
@@ -101,12 +103,13 @@ impl<P: SerialPort, B: SignBus> Odk<P, B> {
     /// # Examples
     ///
     /// ```no_run
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
-    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
+    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)]);
     /// let port = serial::open("/dev/ttyUSB0")?;
     /// let mut odk = Odk::try_new(port, bus)?;
     /// loop {

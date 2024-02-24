@@ -110,6 +110,16 @@ pub struct Page<'a> {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Display, LowerHex, UpperHex)]
 pub struct PageId(pub u8);
 
+/// Whether the sign or controller (ODK) is in charge of flipping pages.
+#[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
+pub enum PageFlipStyle {
+    /// The sign will flip pages itself.
+    Automatic,
+
+    /// The controller will notify the sign when to load/show pages.
+    Manual,
+}
+
 impl<'a> Page<'a> {
     /// Creates a new `Page` with given ID and dimensions.
     ///

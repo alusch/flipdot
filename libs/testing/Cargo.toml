@@ -21,3 +21,4 @@ flipdot-serial = { version = "0.6.0", path = "../serial" }
 
 [dev-dependencies]
 serial = "0.4.0"
+test-case = "3.3.1"

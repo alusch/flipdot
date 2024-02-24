@@ -12,6 +12,7 @@
 //! # Examples
 //!
 //! ```no_run
+//! use flipdot_core::PageFlipStyle;
 //! use flipdot_serial::SerialSignBus;
 //! use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 //!
@@ -19,7 +20,7 @@
 //! #
 //! // Populate bus with signs from addresses 2 to 126
 //! // (which seems to be the possible range for actual signs).
-//! let signs = (2..127).map(Address).map(VirtualSign::new);
+//! let signs = (2..127).map(Address).map(|addr| { VirtualSign::new(addr, PageFlipStyle::Manual) });
 //! let bus = VirtualSignBus::new(signs);
 //!
 //! // Hook up ODK to virtual bus.

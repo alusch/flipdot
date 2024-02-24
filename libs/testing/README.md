@@ -14,7 +14,6 @@ Intended only for hobbyist and educational purposes. Not affiliated with Luminat
 ## Usage
 
 ```rust
-use flipdot_serial::SerialSignBus;
 use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 
 // Populate bus with signs from addresses 2 to 126

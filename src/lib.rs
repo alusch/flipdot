@@ -14,7 +14,7 @@
 //! ```no_run
 //! use std::cell::RefCell;
 //! use std::rc::Rc;
-//! use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
+//! use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType, SerialSignBus};
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! #
@@ -35,14 +35,17 @@
 //! page1.set_pixel(0, 0, true);
 //! let mut page2 = sign.create_page(PageId(1));
 //! page2.set_pixel(1, 1, true);
-//! sign.send_pages(&[page1, page2])?;
 //!
-//! // The first page is now loaded in the sign's memory and can be shown.
-//! sign.show_loaded_page()?;
+//! // We only need to explicitly flip pages if PageFlipStyle::Manual is returned,
+//! // otherwise the sign will automatically show and flip pages.
+//! if sign.send_pages(&[page1, page2])? == PageFlipStyle::Manual {
+//!     // The first page is now loaded in the sign's memory and can be shown.
+//!     sign.show_loaded_page()?;
 //!
-//! // Load the second page into memory, then show it.
-//! sign.load_next_page()?;
-//! sign.show_loaded_page()?;
+//!     // Load the second page into memory, then show it.
+//!     sign.load_next_page()?;
+//!     sign.show_loaded_page()?;
+//! }
 //! #
 //! # Ok(()) }
 //! ```
@@ -85,5 +88,5 @@ mod sign;
 
 pub use self::sign::{Sign, SignError};
 
-pub use crate::core::{Address, Page, PageId, SignBus, SignType};
+pub use crate::core::{Address, Page, PageFlipStyle, PageId, SignBus, SignType};
 pub use crate::serial::SerialSignBus;

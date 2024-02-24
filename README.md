@@ -22,7 +22,7 @@ Here's a full example of connecting to a sign over serial, sending pages, and sh
 ```rust
 use std::cell::RefCell;
 use std::rc::Rc;
-use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
+use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType, SerialSignBus};
 
 // Set up bus. Because the bus can be shared among
 // multiple signs, it must be wrapped in an Rc<RefCell>.
@@ -41,14 +41,17 @@ let mut page1 = sign.create_page(PageId(0));
 page1.set_pixel(0, 0, true);
 let mut page2 = sign.create_page(PageId(1));
 page2.set_pixel(1, 1, true);
-sign.send_pages(&[page1, page2])?;
 
-// The first page is now loaded in the sign's memory and can be shown.
-sign.show_loaded_page()?;
+// We only need to explicitly flip pages if PageFlipStyle::Manual is returned,
+// otherwise the sign will automatically show and flip pages.
+if sign.send_pages(&[page1, page2])? == PageFlipStyle::Manual {
+    // The first page is now loaded in the sign's memory and can be shown.
+    sign.show_loaded_page()?;
 
-// Load the second page into memory, then show it.
-sign.load_next_page()?;
-sign.show_loaded_page()?;
+    // Load the second page into memory, then show it.
+    sign.load_next_page()?;
+    sign.show_loaded_page()?;
+}
 ```
 
 ## Sub-crates

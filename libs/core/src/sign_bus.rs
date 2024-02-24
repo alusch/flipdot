@@ -15,7 +15,7 @@ use crate::Message;
 /// ```
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
-/// use flipdot::{Address, Sign, SignBus, SignType};
+/// use flipdot::{Address, PageFlipStyle, Sign, SignBus, SignType};
 /// use flipdot::serial::SerialSignBus;
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
@@ -26,7 +26,7 @@ use crate::Message;
 ///     let port = serial::open("/dev/ttyUSB0")?;
 ///     Rc::new(RefCell::new(SerialSignBus::try_new(port)?))
 /// } else {
-///     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+///     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
 /// };
 ///
 /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);

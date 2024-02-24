@@ -121,6 +121,10 @@ fn happy_path() {
             response: Ok(Some(Message::ReportState(Address(3), State::PageLoaded))),
         },
         ScriptItem {
+            expected: Message::QueryState(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::PageLoaded))),
+        },
+        ScriptItem {
             expected: Message::RequestOperation(Address(3), Operation::ShowLoadedPage),
             response: Ok(Some(Message::AckOperation(Address(3), Operation::ShowLoadedPage))),
         },
@@ -394,6 +398,10 @@ fn pixels_retry() {
         ScriptItem {
             expected: Message::PixelsComplete(Address(3)),
             response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::QueryState(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::PageLoaded))),
         },
     ];
 

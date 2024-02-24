@@ -3,7 +3,7 @@ use std::mem;
 
 use log::{debug, info, warn};
 
-use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBus, SignType, State};
+use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, PageFlipStyle, SignBus, SignType, State};
 
 /// Mock implementation of a bus containing one or more signs.
 ///
@@ -20,12 +20,13 @@ use flipdot_core::{Address, ChunkCount, Message, Offset, Operation, Page, SignBu
 /// # Examples
 ///
 /// ```no_run
+/// use flipdot_core::PageFlipStyle;
 /// use flipdot_serial::SerialSignBus;
 /// use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
-/// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
+/// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)]);
 /// let port = serial::open("/dev/ttyUSB0")?;
 /// let mut odk = Odk::try_new(port, bus)?;
 /// loop {
@@ -49,12 +50,13 @@ impl<'a> VirtualSignBus<'a> {
     /// # Examples
     ///
     /// ```no_run
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_serial::SerialSignBus;
     /// # use flipdot_testing::{Address, Odk, VirtualSign, VirtualSignBus};
     /// #
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
-    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
+    /// let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)]);
     /// let port = serial::open("COM3")?;
     /// let odk = Odk::try_new(port, bus)?;
     /// #
@@ -76,8 +78,9 @@ impl<'a> VirtualSignBus<'a> {
     /// # Examples
     ///
     /// ```
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_testing::{Address, VirtualSign, VirtualSignBus};
-    /// let signs = vec![VirtualSign::new(Address(5)), VirtualSign::new(Address(16))];
+    /// let signs = vec![VirtualSign::new(Address(5), PageFlipStyle::Manual), VirtualSign::new(Address(16), PageFlipStyle::Manual)];
     /// let bus = VirtualSignBus::new(signs);
     /// let second_sign = bus.sign(1);
     /// assert_eq!(Address(16), second_sign.address());
@@ -114,6 +117,7 @@ impl SignBus for VirtualSignBus<'_> {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct VirtualSign<'a> {
     address: Address,
+    flip_style: PageFlipStyle,
     state: State,
     pages: Vec<Page<'a>>,
     pending_data: Vec<u8>,
@@ -124,19 +128,21 @@ pub struct VirtualSign<'a> {
 }
 
 impl VirtualSign<'_> {
-    /// Creates a new `VirtualSign` with the specified address.
+    /// Creates a new `VirtualSign` with the specified address and page flip style.
     ///
     /// # Examples
     ///
     /// ```
     /// # use std::iter;
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_testing::{Address, VirtualSign, VirtualSignBus};
-    /// let sign = VirtualSign::new(Address(22));
+    /// let sign = VirtualSign::new(Address(22), PageFlipStyle::Manual);
     /// let bus = VirtualSignBus::new(iter::once(sign));
     /// ```
-    pub fn new(address: Address) -> Self {
+    pub fn new(address: Address, flip_style: PageFlipStyle) -> Self {
         VirtualSign {
             address,
+            flip_style,
             state: State::Unconfigured,
             pages: vec![],
             pending_data: vec![],
@@ -152,8 +158,9 @@ impl VirtualSign<'_> {
     /// # Examples
     ///
     /// ```
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_testing::{Address, VirtualSign};
-    /// let sign = VirtualSign::new(Address(22));
+    /// let sign = VirtualSign::new(Address(22), PageFlipStyle::Manual);
     /// assert_eq!(Address(22), sign.address());
     /// ```
     pub fn address(&self) -> Address {
@@ -165,10 +172,10 @@ impl VirtualSign<'_> {
     /// # Examples
     ///
     /// ```
-    /// # use flipdot_core::State;
+    /// # use flipdot_core::{PageFlipStyle, State};
     /// # use flipdot_testing::{Address, VirtualSign};
     /// #
-    /// let sign = VirtualSign::new(Address(3));
+    /// let sign = VirtualSign::new(Address(3), PageFlipStyle::Manual);
     /// assert_eq!(State::Unconfigured, sign.state());
     /// ```
     pub fn state(&self) -> State {
@@ -184,8 +191,9 @@ impl VirtualSign<'_> {
     /// # Examples
     ///
     /// ```
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_testing::{Address, VirtualSign};
-    /// let sign = VirtualSign::new(Address(17));
+    /// let sign = VirtualSign::new(Address(17), PageFlipStyle::Manual);
     /// assert_eq!(None, sign.sign_type());
     /// ```
     pub fn sign_type(&self) -> Option<SignType> {
@@ -199,8 +207,9 @@ impl VirtualSign<'_> {
     /// # Examples
     ///
     /// ```
+    /// # use flipdot_core::PageFlipStyle;
     /// # use flipdot_testing::{Address, VirtualSign};
-    /// let sign = VirtualSign::new(Address(1));
+    /// let sign = VirtualSign::new(Address(1), PageFlipStyle::Manual);
     /// assert!(sign.pages().is_empty());
     /// ```
     pub fn pages(&self) -> &[Page<'_>] {
@@ -212,10 +221,10 @@ impl VirtualSign<'_> {
     /// # Examples
     ///
     /// ```
-    /// # use flipdot_core::{Message, State};
+    /// # use flipdot_core::{Message, PageFlipStyle, State};
     /// # use flipdot_testing::{Address, VirtualSign};
     /// #
-    /// let mut sign = VirtualSign::new(Address(3));
+    /// let mut sign = VirtualSign::new(Address(3), PageFlipStyle::Manual);
     /// let response = sign.process_message(&Message::QueryState(Address(3)));
     /// assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
     /// ```
@@ -323,7 +332,8 @@ impl VirtualSign<'_> {
             | State::PageLoaded
             | State::PageLoadInProgress
             | State::PageShown
-            | State::PageShowInProgress => {
+            | State::PageShowInProgress
+            | State::ShowingPages => {
                 self.state = State::PixelsInProgress;
                 self.pages.clear();
                 Some(Message::AckOperation(self.address, Operation::ReceivePixels))
@@ -335,7 +345,10 @@ impl VirtualSign<'_> {
     /// Handles `PixelsComplete` messages.
     fn pixels_complete<'a>(&mut self) -> Option<Message<'a>> {
         if self.state == State::PixelsReceived {
-            self.state = State::PageLoaded;
+            self.state = match self.flip_style {
+                PageFlipStyle::Automatic => State::ShowingPages,
+                PageFlipStyle::Manual => State::PageLoaded,
+            };
             for page in &self.pages {
                 info!(
                     "Vsign {:04X} Page {} ({} x {})\n{}",
@@ -419,9 +432,11 @@ impl VirtualSign<'_> {
 mod tests {
     use super::*;
     use flipdot_core::{Data, PageId};
+    use test_case::test_case;
 
-    #[test]
-    fn normal_behavior() {
+    #[test_case(PageFlipStyle::Automatic ; "automatic page flip")]
+    #[test_case(PageFlipStyle::Manual ; "manual page flip")]
+    fn normal_behavior(flip_style: PageFlipStyle) {
         let mut page1 = Page::new(PageId(0), 90, 7);
         for x in 0..page1.width() {
             for y in 0..page1.height() {
@@ -437,7 +452,7 @@ mod tests {
         }
 
         // Initial values
-        let mut sign = VirtualSign::new(Address(3));
+        let mut sign = VirtualSign::new(Address(3), flip_style);
         assert_eq!(Address(3), sign.address());
         assert_eq!(None, sign.sign_type());
         assert_eq!(0, sign.pages().len());
@@ -505,27 +520,36 @@ mod tests {
         assert_eq!(&[page1], sign.pages());
 
         let response = sign.process_message(&Message::QueryState(Address(3)));
-        assert_eq!(Some(Message::ReportState(Address(3), State::PageLoaded)), response);
 
-        // Show page
-        let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::ShowLoadedPage));
-        assert_eq!(Some(Message::AckOperation(Address(3), Operation::ShowLoadedPage)), response);
+        match flip_style {
+            PageFlipStyle::Automatic => {
+                assert_eq!(Some(Message::ReportState(Address(3), State::ShowingPages)), response);
+            }
 
-        let response = sign.process_message(&Message::QueryState(Address(3)));
-        assert_eq!(Some(Message::ReportState(Address(3), State::PageShowInProgress)), response);
+            PageFlipStyle::Manual => {
+                assert_eq!(Some(Message::ReportState(Address(3), State::PageLoaded)), response);
 
-        let response = sign.process_message(&Message::QueryState(Address(3)));
-        assert_eq!(Some(Message::ReportState(Address(3), State::PageShown)), response);
+                // Show page
+                let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::ShowLoadedPage));
+                assert_eq!(Some(Message::AckOperation(Address(3), Operation::ShowLoadedPage)), response);
 
-        // Load next page
-        let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::LoadNextPage));
-        assert_eq!(Some(Message::AckOperation(Address(3), Operation::LoadNextPage)), response);
+                let response = sign.process_message(&Message::QueryState(Address(3)));
+                assert_eq!(Some(Message::ReportState(Address(3), State::PageShowInProgress)), response);
 
-        let response = sign.process_message(&Message::QueryState(Address(3)));
-        assert_eq!(Some(Message::ReportState(Address(3), State::PageLoadInProgress)), response);
+                let response = sign.process_message(&Message::QueryState(Address(3)));
+                assert_eq!(Some(Message::ReportState(Address(3), State::PageShown)), response);
 
-        let response = sign.process_message(&Message::QueryState(Address(3)));
-        assert_eq!(Some(Message::ReportState(Address(3), State::PageLoaded)), response);
+                // Load next page
+                let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::LoadNextPage));
+                assert_eq!(Some(Message::AckOperation(Address(3), Operation::LoadNextPage)), response);
+
+                let response = sign.process_message(&Message::QueryState(Address(3)));
+                assert_eq!(Some(Message::ReportState(Address(3), State::PageLoadInProgress)), response);
+
+                let response = sign.process_message(&Message::QueryState(Address(3)));
+                assert_eq!(Some(Message::ReportState(Address(3), State::PageLoaded)), response);
+            }
+        }
 
         // Send different page
         let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::ReceivePixels));
@@ -621,7 +645,7 @@ mod tests {
 
     #[test]
     fn invalid_operations() {
-        let mut sign = VirtualSign::new(Address(3));
+        let mut sign = VirtualSign::new(Address(3), PageFlipStyle::Manual);
 
         let response = sign.process_message(&Message::RequestOperation(Address(3), Operation::ReceivePixels));
         assert_eq!(None, response);
@@ -644,7 +668,7 @@ mod tests {
 
     #[test]
     fn unknown_config() {
-        let mut sign = VirtualSign::new(Address(3));
+        let mut sign = VirtualSign::new(Address(3), PageFlipStyle::Manual);
 
         let response = sign.process_message(&Message::Hello(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);
@@ -674,7 +698,7 @@ mod tests {
 
     #[test]
     fn invalid_config() {
-        let mut sign = VirtualSign::new(Address(3));
+        let mut sign = VirtualSign::new(Address(3), PageFlipStyle::Manual);
 
         let response = sign.process_message(&Message::Hello(Address(3)));
         assert_eq!(Some(Message::ReportState(Address(3), State::Unconfigured)), response);

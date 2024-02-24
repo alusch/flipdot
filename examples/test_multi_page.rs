@@ -1,18 +1,27 @@
+use std::env;
 use std::cell::RefCell;
 use std::error::Error;
 use std::rc::Rc;
 
-use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
-use flipdot_testing::{VirtualSign, VirtualSignBus};
+use flipdot::{Address, PageFlipStyle, PageId, SerialSignBus, Sign, SignType};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Create a virtual sign bus for testing purposes.
-    // To control a real sign you would use SerialSignBus instead.
-    let virtual_signs = vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)];
-    let bus = Rc::new(RefCell::new(VirtualSignBus::new(virtual_signs)));
+    env_logger::init();
 
-    // Create a sign for the type and address we want to control.
-    let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 3 {
+        println!("Usage: test_multi_page <serial_port> <sign_address>");
+        println!();
+        println!("serial_port should be a port name like /dev/ttyUSB0 or COM3");
+        println!("sign_address is the decimal address of a MAX3000 90 x 7 sign to communicate with");
+        return Ok(());
+    }
+
+    let port = serial::open(&args[1])?;
+    let bus = SerialSignBus::try_new(port)?;
+
+    let addr = args[2].parse::<u16>()?;
+    let sign = Sign::new(Rc::new(RefCell::new(bus)), Address(addr), SignType::Max3000Side90x7);
     sign.configure()?;
 
     // Create some pages and fill them with stripe patterns.
@@ -39,12 +48,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         sign.show_loaded_page()?;
     } else {
         println!("Sign should automatically flip pages");
-    }
-
-    // For testing purposes, print the virtual sign's configuration and pages.
-    println!("Sign configured as {:?}", bus.borrow().sign(0).sign_type());
-    for page in bus.borrow().sign(0).pages() {
-        println!("Page {}:\n{}", page.id(), page);
     }
 
     Ok(())

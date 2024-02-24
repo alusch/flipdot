@@ -15,10 +15,10 @@
 //! # Examples
 //!
 //! ```no_run
-//! use flipdot_core::{Address, Message, Operation, SignBus, SignType, State};
+//! use flipdot_core::{Address, Message, Operation, PageFlipStyle, SignBus, SignType, State};
 //! # use flipdot_testing::{VirtualSign, VirtualSignBus};
 //!
-//! # fn get_bus() -> Box<dyn SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])) }
+//! # fn get_bus() -> Box<dyn SignBus> { Box::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])) }
 //! # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 //! #
 //! // Assume we have a helper function to obtain a SignBus.
@@ -63,6 +63,6 @@ mod sign_type;
 
 pub use self::frame::{Address, Data, Frame, FrameError, MsgType};
 pub use self::message::{ChunkCount, Message, Offset, Operation, State};
-pub use self::page::{Page, PageError, PageId};
+pub use self::page::{Page, PageError, PageFlipStyle, PageId};
 pub use self::sign_bus::SignBus;
 pub use self::sign_type::{SignType, SignTypeError};

@@ -13,12 +13,12 @@ use crate::{Address, Data, Frame, MsgType};
 /// # Examples
 ///
 /// ```
-/// use flipdot_core::{Address, Message, SignBus, State};
+/// use flipdot_core::{Address, Message, PageFlipStyle, SignBus, State};
 /// use flipdot_testing::{VirtualSign, VirtualSignBus};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 /// #
-/// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3))]);
+/// let mut bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)]);
 ///
 /// // Message is the currency used to send and receive messages on a bus:
 /// let response = bus.process_message(Message::QueryState(Address(3)))?;
@@ -141,6 +141,9 @@ pub enum State {
     PageShown,
     /// Page is in the process of being shown.
     PageShowInProgress,
+    /// The sign is automatically flipping between pages.
+    /// Mutually exclusive with the Page* states above.
+    ShowingPages,
     /// Sign is ready to reset back to the `Unconfigured` state.
     ReadyToReset,
 }
@@ -239,6 +242,7 @@ impl<'a> From<Frame<'a>> for Message<'a> {
                 (MsgType(4), 0x13) => Message::ReportState(frame.address(), State::PageLoadInProgress),
                 (MsgType(4), 0x12) => Message::ReportState(frame.address(), State::PageShown),
                 (MsgType(4), 0x11) => Message::ReportState(frame.address(), State::PageShowInProgress),
+                (MsgType(4), 0x00) => Message::ReportState(frame.address(), State::ShowingPages),
                 (MsgType(4), 0x08) => Message::ReportState(frame.address(), State::ReadyToReset),
 
                 (MsgType(3), 0xA1) => Message::RequestOperation(frame.address(), Operation::ReceiveConfig),
@@ -307,6 +311,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
             Message::ReportState(address, State::PageLoadInProgress) => Frame::new(address, MsgType(4), Data::from(&[0x13])),
             Message::ReportState(address, State::PageShown) => Frame::new(address, MsgType(4), Data::from(&[0x12])),
             Message::ReportState(address, State::PageShowInProgress) => Frame::new(address, MsgType(4), Data::from(&[0x11])),
+            Message::ReportState(address, State::ShowingPages) => Frame::new(address, MsgType(4), Data::from(&[0x00])),
             Message::ReportState(address, State::ReadyToReset) => Frame::new(address, MsgType(4), Data::from(&[0x08])),
 
             Message::RequestOperation(address, Operation::ReceiveConfig) => Frame::new(address, MsgType(3), Data::from(&[0xA1])),
@@ -535,5 +540,9 @@ mod tests {
         let message = Message::Unknown(Frame::new(Address(1), MsgType(2), Data::from(&[])));
         let display = format!("{}", message);
         assert_eq!("Unknown Type 02 | Addr 0001", display);
+
+        let message = Message::Unknown(Frame::new(Address(1), MsgType(2), Data::from(&[0x0B, 0x1C])));
+        let display = format!("{}", message);
+        assert_eq!("Unknown Type 02 | Addr 0001 | Data 0B 1C ", display);
     }
 }

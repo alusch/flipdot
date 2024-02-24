@@ -2,12 +2,12 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use flipdot::core::State;
-use flipdot::{Address, PageId, Sign, SignType};
+use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
 use flipdot_testing::{VirtualSign, VirtualSignBus};
 
 #[test]
 fn sign_virtual_sign_interaction() {
-    let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3)), VirtualSign::new(Address(6))]);
+    let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual), VirtualSign::new(Address(6), PageFlipStyle::Manual)]);
     let bus = Rc::new(RefCell::new(bus));
 
     let sign = Sign::new(bus.clone(), Address(6), SignType::HorizonFront160x16);

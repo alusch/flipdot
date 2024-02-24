@@ -2,9 +2,10 @@ use std::cell::RefCell;
 use std::iter;
 use std::rc::Rc;
 
+use log::warn;
 use thiserror::Error;
 
-use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageId, SignBus, SignType, State};
+use crate::core::{Address, ChunkCount, Data, Message, Offset, Operation, Page, PageFlipStyle, PageId, SignBus, SignType, State};
 
 /// Errors related to [`Sign`]s.
 #[derive(Debug, Error)]
@@ -44,7 +45,7 @@ pub enum SignError {
 /// ```no_run
 /// use std::cell::RefCell;
 /// use std::rc::Rc;
-/// use flipdot::{Address, PageId, Sign, SignType, SerialSignBus};
+/// use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType, SerialSignBus};
 ///
 /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// #
@@ -65,14 +66,14 @@ pub enum SignError {
 /// page1.set_pixel(0, 0, true);
 /// let mut page2 = sign.create_page(PageId(1));
 /// page2.set_pixel(1, 1, true);
-/// sign.send_pages(&[page1, page2])?;
+/// if sign.send_pages(&[page1, page2])? == PageFlipStyle::Manual {
+///     // The first page is now loaded in the sign's memory and can be shown.
+///     sign.show_loaded_page()?;
 ///
-/// // The first page is now loaded in the sign's memory and can be shown.
-/// sign.show_loaded_page()?;
-///
-/// // Load the second page into memory, then show it.
-/// sign.load_next_page()?;
-/// sign.show_loaded_page()?;
+///     // Load the second page into memory, then show it.
+///     sign.load_next_page()?;
+///     sign.show_loaded_page()?;
+/// }
 /// #
 /// # Ok(()) }
 /// ```
@@ -252,12 +253,12 @@ impl Sign {
     /// ```
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
-    /// # use flipdot::{Address, PageId, Sign, SignType};
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
     /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
-    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
     /// # }
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
@@ -297,12 +298,12 @@ impl Sign {
     /// ```
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
-    /// # use flipdot::{Address, PageId, Sign, SignType};
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
     /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
-    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
     /// # }
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
@@ -311,12 +312,15 @@ impl Sign {
     /// sign.configure()?;
     ///
     /// let page = sign.create_page(PageId(1));
-    /// sign.send_pages(&[page])?;
-    /// // Page has now been loaded but not shown.
+    /// if sign.send_pages(&[page])? == PageFlipStyle::Manual {
+    ///     // Page has now been loaded but not shown.
+    /// } else {
+    ///     // Sign is now showing the page automatically.
+    /// }
     /// #
     /// # Ok(()) }
     /// ```
-    pub fn send_pages<'a, I>(&self, pages: I) -> Result<(), SignError>
+    pub fn send_pages<'a, I>(&self, pages: I) -> Result<PageFlipStyle, SignError>
     where
         I: IntoIterator<Item = &'a Page<'a>>,
         <I as IntoIterator>::IntoIter: Clone,
@@ -324,12 +328,24 @@ impl Sign {
         let data = pages.into_iter().map(Page::as_bytes);
         self.send_data(&data, Operation::ReceivePixels, State::PixelsReceived, State::PixelsFailed)?;
 
-        self.send_message_expect_response(Message::PixelsComplete(self.address), &None)
+        self.send_message_expect_response(Message::PixelsComplete(self.address), &None)?;
+
+        let response = self.send_message(Message::QueryState(self.address))?;
+        match response {
+            Some(Message::ReportState(address, state)) if address == self.address && state == State::ShowingPages => {
+                Ok(PageFlipStyle::Automatic)
+            }
+            _ => {
+                Ok(PageFlipStyle::Manual)
+            }
+        }
     }
 
     /// Loads the next page into memory.
     ///
     /// Once a page has been shown, this is called to prepare the next page to be shown.
+    ///
+    /// If [`send_pages`](Self::send_pages) returned [`PageFlipStyle::Automatic`], you should not call this function since the sign will show and flip pages itself.
     ///
     /// # Errors
     ///
@@ -343,12 +359,12 @@ impl Sign {
     /// ```
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
-    /// # use flipdot::{Address, PageId, Sign, SignType};
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
     /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
-    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
     /// # }
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
@@ -357,11 +373,12 @@ impl Sign {
     /// sign.configure()?;
     ///
     /// let pages = [sign.create_page(PageId(1)), sign.create_page(PageId(2))];
-    /// sign.send_pages(&pages)?;
-    /// sign.show_loaded_page()?;
+    /// if sign.send_pages(&pages)? == PageFlipStyle::Manual {
+    ///     sign.show_loaded_page()?;
     ///
-    /// sign.load_next_page()?;
-    /// // Page 1 is now shown and page 2 is loaded.
+    ///     sign.load_next_page()?;
+    ///     // Page 1 is now shown and page 2 is loaded.
+    /// }
     /// #
     /// # Ok(()) }
     /// ```
@@ -373,6 +390,8 @@ impl Sign {
     ///
     /// Once a page has been loaded (either via [`send_pages`](Self::send_pages) or [`load_next_page`](Self::load_next_page)), this method will make it visible.
     ///
+    /// If [`send_pages`](Self::send_pages) returned [`PageFlipStyle::Automatic`], you should not call this function since the sign will show and flip pages itself.
+    ///
     /// # Errors
     ///
     /// Returns:
@@ -385,12 +404,12 @@ impl Sign {
     /// ```
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
-    /// # use flipdot::{Address, PageId, Sign, SignType};
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
     /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
-    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
     /// # }
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
@@ -399,9 +418,10 @@ impl Sign {
     /// sign.configure()?;
     ///
     /// let page = sign.create_page(PageId(1));
-    /// sign.send_pages(&[page])?;
-    /// sign.show_loaded_page()?;
-    /// // Page is now shown.
+    /// if sign.send_pages(&[page])? == PageFlipStyle::Manual {
+    ///     sign.show_loaded_page()?;
+    ///     // Page is now shown.
+    /// }
     /// #
     /// # Ok(()) }
     /// ```
@@ -426,12 +446,12 @@ impl Sign {
     /// ```
     /// # use std::cell::RefCell;
     /// # use std::rc::Rc;
-    /// # use flipdot::{Address, PageId, Sign, SignType};
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
     /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
     /// #
     /// # // Placeholder bus for expository purposes
     /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
-    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3))])))
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
     /// # }
     /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
     /// #
@@ -440,8 +460,9 @@ impl Sign {
     /// sign.configure()?;
     ///
     /// let page = sign.create_page(PageId(1));
-    /// sign.send_pages(&[page])?;
-    /// sign.show_loaded_page()?;
+    /// if sign.send_pages(&[page])? == PageFlipStyle::Manual {
+    ///     sign.show_loaded_page()?;
+    /// }
     ///
     /// sign.shut_down()?;
     /// // Sign is now blanked.
@@ -573,6 +594,11 @@ impl Sign {
         loop {
             let response = self.send_message(Message::QueryState(self.address))?;
             match response {
+                Some(Message::ReportState(address, state)) if address == self.address && state == State::ShowingPages => {
+                    warn!("Sign flips its own pages automatically; show_loaded_page/load_next_page have no effect.");
+                    break;
+                }
+
                 Some(Message::ReportState(address, state)) if address == self.address && state == target => {
                     break;
                 }

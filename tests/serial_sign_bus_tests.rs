@@ -17,6 +17,7 @@ fn serial_sign_bus_works() {
     buf.extend(Frame::from(Message::AckOperation(Address(1), Operation::ReceivePixels)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PixelsReceived)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PageLoaded)).to_bytes_with_newline());
+    buf.extend(Frame::from(Message::ReportState(Address(1), State::PageLoaded)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::AckOperation(Address(1), Operation::ShowLoadedPage)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PageShowInProgress)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PageShown)).to_bytes_with_newline());
