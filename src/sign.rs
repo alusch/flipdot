@@ -586,6 +586,7 @@ impl Sign {
 
                 Some(Message::ReportState(address, State::PageLoadInProgress))
                 | Some(Message::ReportState(address, State::PageShowInProgress))
+                | Some(Message::ReportState(address, State::Unknown0))
                     if address == self.address => {}
 
                 _ => {

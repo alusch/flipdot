@@ -143,6 +143,8 @@ pub enum State {
     PageShowInProgress,
     /// Sign is ready to reset back to the `Unconfigured` state.
     ReadyToReset,
+    /// Unknown, but has occurred when trying to switch pages
+    Unknown0,
 }
 
 /// Operations that can be requested of a sign, which trigger actions and/or state changes.
@@ -240,6 +242,7 @@ impl<'a> From<Frame<'a>> for Message<'a> {
                 (MsgType(4), 0x12) => Message::ReportState(frame.address(), State::PageShown),
                 (MsgType(4), 0x11) => Message::ReportState(frame.address(), State::PageShowInProgress),
                 (MsgType(4), 0x08) => Message::ReportState(frame.address(), State::ReadyToReset),
+                (MsgType(4), 0x00) => Message::ReportState(frame.address(), State::Unknown0),
 
                 (MsgType(3), 0xA1) => Message::RequestOperation(frame.address(), Operation::ReceiveConfig),
                 (MsgType(3), 0xA2) => Message::RequestOperation(frame.address(), Operation::ReceivePixels),
@@ -308,6 +311,7 @@ impl<'a> From<Message<'a>> for Frame<'a> {
             Message::ReportState(address, State::PageShown) => Frame::new(address, MsgType(4), Data::from(&[0x12])),
             Message::ReportState(address, State::PageShowInProgress) => Frame::new(address, MsgType(4), Data::from(&[0x11])),
             Message::ReportState(address, State::ReadyToReset) => Frame::new(address, MsgType(4), Data::from(&[0x08])),
+            Message::ReportState(address, State::Unknown0) => Frame::new(address, MsgType(4), Data::from(&[0x00])),
 
             Message::RequestOperation(address, Operation::ReceiveConfig) => Frame::new(address, MsgType(3), Data::from(&[0xA1])),
             Message::RequestOperation(address, Operation::ReceivePixels) => Frame::new(address, MsgType(3), Data::from(&[0xA2])),
