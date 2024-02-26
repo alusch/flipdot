@@ -335,9 +335,7 @@ impl Sign {
             Some(Message::ReportState(address, state)) if address == self.address && state == State::ShowingPages => {
                 Ok(PageFlipStyle::Automatic)
             }
-            _ => {
-                Ok(PageFlipStyle::Manual)
-            }
+            _ => Ok(PageFlipStyle::Manual),
         }
     }
 

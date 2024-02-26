@@ -7,7 +7,10 @@ use flipdot_testing::{VirtualSign, VirtualSignBus};
 
 #[test]
 fn sign_virtual_sign_interaction() {
-    let bus = VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual), VirtualSign::new(Address(6), PageFlipStyle::Manual)]);
+    let bus = VirtualSignBus::new(vec![
+        VirtualSign::new(Address(3), PageFlipStyle::Manual),
+        VirtualSign::new(Address(6), PageFlipStyle::Manual),
+    ]);
     let bus = Rc::new(RefCell::new(bus));
 
     let sign = Sign::new(bus.clone(), Address(6), SignType::HorizonFront160x16);

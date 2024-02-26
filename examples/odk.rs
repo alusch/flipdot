@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Populate bus with signs from addresses 2 to 126
         // (which seems to be the possible range for actual signs).
         println!("Providing all virtual signs 2-126");
-        let signs = (2..127).map(Address).map(|addr| { VirtualSign::new(addr, PageFlipStyle::Manual) });
+        let signs = (2..127).map(Address).map(|addr| VirtualSign::new(addr, flip_style));
         bus = VirtualSignBus::new(signs);
     }
 
