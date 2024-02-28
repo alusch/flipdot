@@ -12,9 +12,9 @@ categories = ["hardware-support"]
 edition = "2021"
 
 [dependencies]
-log = "0.4.8"
+log = "0.4.21"
 serial-core = "0.4.0"
-thiserror = "1.0.16"
+thiserror = "1.0.57"
 
 flipdot-core = { version = "0.6.0", path = "../core" }
 
