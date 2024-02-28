@@ -358,9 +358,10 @@ impl Display for Page<'_> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::error::Error;
 
     #[test]
-    fn one_byte_per_column_empty() {
+    fn one_byte_per_column_empty() -> Result<(), Box<dyn Error>> {
         let page = Page::new(PageId(3), 90, 7);
         let bytes = page.as_bytes();
         #[rustfmt::skip]
@@ -374,12 +375,14 @@ mod tests {
         ];
         assert_eq!(bytes, EXPECTED);
 
-        let page2 = Page::from_bytes(90, 7, bytes).unwrap();
+        let page2 = Page::from_bytes(90, 7, bytes)?;
         assert_eq!(page, page2);
+
+        Ok(())
     }
 
     #[test]
-    fn two_bytes_per_column_empty() {
+    fn two_bytes_per_column_empty() -> Result<(), Box<dyn Error>> {
         let page = Page::new(PageId(1), 40, 12);
         let bytes = page.as_bytes();
         #[rustfmt::skip]
@@ -393,12 +396,14 @@ mod tests {
         ];
         assert_eq!(bytes, EXPECTED);
 
-        let page2 = Page::from_bytes(40, 12, bytes).unwrap();
+        let page2 = Page::from_bytes(40, 12, bytes)?;
         assert_eq!(page, page2);
+
+        Ok(())
     }
 
     #[test]
-    fn one_byte_per_column_set_bits() {
+    fn one_byte_per_column_set_bits() -> Result<(), Box<dyn Error>> {
         let mut page = Page::new(PageId(3), 90, 7);
         page.set_pixel(0, 0, true);
         page.set_pixel(89, 5, true);
@@ -417,12 +422,14 @@ mod tests {
         ];
         assert_eq!(bytes, EXPECTED);
 
-        let page2 = Page::from_bytes(90, 7, bytes).unwrap();
+        let page2 = Page::from_bytes(90, 7, bytes)?;
         assert_eq!(page, page2);
+
+        Ok(())
     }
 
     #[test]
-    fn two_bytes_per_column_set_bits() {
+    fn two_bytes_per_column_set_bits() -> Result<(), Box<dyn Error>> {
         let mut page = Page::new(PageId(1), 40, 12);
         page.set_pixel(0, 0, true);
         page.set_pixel(0, 11, true);
@@ -443,8 +450,10 @@ mod tests {
         ];
         assert_eq!(bytes, EXPECTED);
 
-        let page2 = Page::from_bytes(40, 12, bytes).unwrap();
+        let page2 = Page::from_bytes(40, 12, bytes)?;
         assert_eq!(page, page2);
+
+        Ok(())
     }
 
     #[test]

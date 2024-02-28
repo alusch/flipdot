@@ -54,7 +54,7 @@ struct ScriptItem {
 }
 
 #[test]
-fn happy_path() {
+fn happy_path() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::Hello(Address(3)),
@@ -142,18 +142,20 @@ fn happy_path() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.configure().unwrap();
+    sign.configure()?;
 
-    let page = Page::from_bytes(90, 7, DATA).unwrap();
-    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page]).unwrap());
+    let page = Page::from_bytes(90, 7, DATA)?;
+    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page])?);
 
-    sign.show_loaded_page().unwrap();
+    sign.show_loaded_page()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn config_retry() {
+fn config_retry() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::Hello(Address(3)),
@@ -197,9 +199,11 @@ fn config_retry() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.configure().unwrap();
+    sign.configure()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
@@ -321,7 +325,7 @@ fn config_retry_gives_up() {
 }
 
 #[test]
-fn pixels_retry() {
+fn pixels_retry() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::RequestOperation(Address(3), Operation::ReceivePixels),
@@ -409,14 +413,16 @@ fn pixels_retry() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let page = Page::from_bytes(90, 7, DATA).unwrap();
-    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page]).unwrap());
+    let page = Page::from_bytes(90, 7, DATA)?;
+    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page])?);
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn pixels_auto_flip() {
+fn pixels_auto_flip() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::RequestOperation(Address(3), Operation::ReceivePixels),
@@ -468,14 +474,16 @@ fn pixels_auto_flip() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    let page = Page::from_bytes(90, 7, DATA).unwrap();
-    assert_eq!(PageFlipStyle::Automatic, sign.send_pages(&[page]).unwrap());
+    let page = Page::from_bytes(90, 7, DATA)?;
+    assert_eq!(PageFlipStyle::Automatic, sign.send_pages(&[page])?);
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn page_flip() {
+fn page_flip() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::QueryState(Address(3)),
@@ -567,15 +575,17 @@ fn page_flip() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.show_loaded_page().unwrap();
-    sign.load_next_page().unwrap();
-    sign.show_loaded_page().unwrap();
+    sign.show_loaded_page()?;
+    sign.load_next_page()?;
+    sign.show_loaded_page()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn shut_down() {
+fn shut_down() -> Result<(), Box<dyn Error>> {
     let script = vec![ScriptItem {
         expected: Message::Goodbye(Address(3)),
         response: Ok(None),
@@ -585,13 +595,15 @@ fn shut_down() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.shut_down().unwrap();
+    sign.shut_down()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn config_needs_reset() {
+fn config_needs_reset() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::Hello(Address(3)),
@@ -635,13 +647,15 @@ fn config_needs_reset() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.configure().unwrap();
+    sign.configure()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]
-fn config_ready_to_reset() {
+fn config_ready_to_reset() -> Result<(), Box<dyn Error>> {
     let script = vec![
         ScriptItem {
             expected: Message::Hello(Address(3)),
@@ -677,9 +691,11 @@ fn config_ready_to_reset() {
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
-    sign.configure().unwrap();
+    sign.configure()?;
 
     bus.borrow_mut().done();
+
+    Ok(())
 }
 
 #[test]

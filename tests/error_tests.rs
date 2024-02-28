@@ -49,7 +49,7 @@ impl SignBus for ErrorSignBus {
 }
 
 #[test]
-fn format_errors() {
+fn format_errors() -> Result<(), Box<dyn Error>> {
     // Core
     print_error("Too much data", Data::try_new(vec![0; 256]));
     print_error("I/O error", Frame::read(&mut ErrorReader {}));
@@ -70,15 +70,13 @@ fn format_errors() {
     let mut odk = Odk::try_new(
         MockSerialPort::new(vec![], SerialFailure::Read),
         ErrorSignBus::new(BusFailure::Error),
-    )
-    .unwrap();
+    )?;
     print_error("ODK read error", odk.process_message());
 
     let mut odk = Odk::try_new(
         MockSerialPort::new(b":01007F02FF7F\r\n".to_vec(), SerialFailure::None),
         ErrorSignBus::new(BusFailure::Error),
-    )
-    .unwrap();
+    )?;
     print_error("ODK bus error", odk.process_message());
 
     // Flipdot
@@ -89,6 +87,8 @@ fn format_errors() {
     let bus = Rc::new(RefCell::new(ErrorSignBus::new(BusFailure::WrongMessage)));
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
     print_error("Sign wrong message", sign.configure());
+
+    Ok(())
 }
 
 fn print_error<V: Debug, E: Error>(title: &'static str, result: Result<V, E>) {

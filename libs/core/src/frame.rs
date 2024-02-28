@@ -616,57 +616,64 @@ impl_from_array_ref_with_length!(4);
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::error::Error;
 
     #[test]
-    fn roundtrip_simple_frame() {
+    fn roundtrip_simple_frame() -> Result<(), Box<dyn Error>> {
         let frame = Frame::new(Address(0x7F), MsgType(0x02), Data::from(&[0xFF]));
 
         let encoded = frame.to_bytes();
-        let decoded = Frame::from_bytes(&encoded).unwrap();
+        let decoded = Frame::from_bytes(&encoded)?;
 
         assert_eq!(b":01007F02FF7F", encoded.as_slice());
         assert_eq!(frame, decoded);
+
+        Ok(())
     }
 
     #[test]
-    fn roundtrip_complex_frame() {
+    fn roundtrip_complex_frame() -> Result<(), Box<dyn Error>> {
         let data = Data::try_new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
-        ])
-        .unwrap();
+        ])?;
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes();
-        let decoded = Frame::from_bytes(&encoded).unwrap();
+        let decoded = Frame::from_bytes(&encoded)?;
 
         assert_eq!(&b":1000000001100000000000007F7F060C187F7F00B9"[..], encoded.as_slice());
         assert_eq!(frame, decoded);
+
+        Ok(())
     }
 
     #[test]
-    fn roundtrip_complex_frame_newline() {
+    fn roundtrip_complex_frame_newline() -> Result<(), Box<dyn Error>> {
         let data = Data::try_new(vec![
             0x01, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7F, 0x7F, 0x06, 0x0C, 0x18, 0x7F, 0x7F, 0x00,
-        ])
-        .unwrap();
+        ])?;
         let frame = Frame::new(Address(0x00), MsgType(0x00), data);
 
         let encoded = frame.to_bytes_with_newline();
-        let decoded = Frame::from_bytes(&encoded).unwrap();
+        let decoded = Frame::from_bytes(&encoded)?;
 
         assert_eq!(&b":1000000001100000000000007F7F060C187F7F00B9\r\n"[..], encoded.as_slice());
         assert_eq!(frame, decoded);
+
+        Ok(())
     }
 
     #[test]
-    fn roundtrip_empty_data() {
+    fn roundtrip_empty_data() -> Result<(), Box<dyn Error>> {
         let frame = Frame::new(Address(0x2B), MsgType(0xA9), Data::from(&[]));
 
         let encoded = frame.to_bytes();
-        let decoded = Frame::from_bytes(&encoded).unwrap();
+        let decoded = Frame::from_bytes(&encoded)?;
 
         assert_eq!(b":00002BA92C", encoded.as_slice());
         assert_eq!(frame, decoded);
+
+        Ok(())
     }
 
     #[test]
@@ -683,9 +690,10 @@ mod tests {
     }
 
     #[test]
-    fn newline_accepted() {
-        let decoded = Frame::from_bytes(b":01007F02FF7F\r\n").unwrap();
+    fn newline_accepted() -> Result<(), Box<dyn Error>> {
+        let decoded = Frame::from_bytes(b":01007F02FF7F\r\n")?;
         assert_eq!(Frame::new(Address(0x7F), MsgType(0x02), Data::from(&[0xFF])), decoded);
+        Ok(())
     }
 
     #[test]
@@ -764,12 +772,13 @@ mod tests {
     }
 
     #[test]
-    fn parsed_lifetime_independent() {
+    fn parsed_lifetime_independent() -> Result<(), Box<dyn Error>> {
         let decoded = {
             let string = b":01007F02FF7F".to_owned();
-            Frame::from_bytes(&string).unwrap()
+            Frame::from_bytes(&string)?
         };
         assert_eq!(Frame::new(Address(0x7F), MsgType(0x02), Data::from(&[0xFF])), decoded);
+        Ok(())
     }
 
     #[test]
@@ -781,18 +790,20 @@ mod tests {
     }
 
     #[test]
-    fn write() {
+    fn write() -> Result<(), Box<dyn Error>> {
         let frame = Frame::new(Address(0x7F), MsgType(0x02), Data::from(&[0xFF]));
         let mut output = Vec::new();
-        frame.write(&mut output).unwrap();
+        frame.write(&mut output)?;
         assert_eq!(b":01007F02FF7F\r\n", output.as_slice());
+        Ok(())
     }
 
     #[test]
-    fn read() {
+    fn read() -> Result<(), Box<dyn Error>> {
         let mut buffer = &b":01007F02FF7F\r\n"[..];
-        let frame = Frame::read(&mut buffer).unwrap();
+        let frame = Frame::read(&mut buffer)?;
         assert_eq!(Frame::new(Address(0x7F), MsgType(0x02), Data::from(&[0xFF])), frame);
+        Ok(())
     }
 
     #[test]

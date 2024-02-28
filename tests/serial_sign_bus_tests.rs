@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::error::Error;
 use std::rc::Rc;
 
 use flipdot::core::{Frame, Message, Operation, State};
@@ -9,7 +10,7 @@ mod mock_serial_port;
 use crate::mock_serial_port::{MockSerialPort, SerialFailure};
 
 #[test]
-fn serial_sign_bus_works() {
+fn serial_sign_bus_works() -> Result<(), Box<dyn Error>> {
     let mut buf = Vec::new();
     buf.extend(Frame::from(Message::ReportState(Address(1), State::Unconfigured)).to_bytes_with_newline());
     buf.extend(Frame::from(Message::AckOperation(Address(1), Operation::ReceiveConfig)).to_bytes_with_newline());
@@ -23,7 +24,7 @@ fn serial_sign_bus_works() {
     buf.extend(Frame::from(Message::ReportState(Address(1), State::PageShown)).to_bytes_with_newline());
 
     let port = MockSerialPort::new(buf, SerialFailure::None);
-    let bus = SerialSignBus::try_new(port).unwrap();
+    let bus = SerialSignBus::try_new(port)?;
 
     // Ensure serial port was configured correctly.
     let expected = PortSettings {
@@ -33,17 +34,19 @@ fn serial_sign_bus_works() {
         stop_bits: serial_core::StopBits::Stop1,
         flow_control: serial_core::FlowControl::FlowNone,
     };
-    assert_eq!(expected, bus.port().read_settings().unwrap());
+    assert_eq!(expected, bus.port().read_settings()?);
 
     let bus = Rc::new(RefCell::new(bus));
     let sign = Sign::new(bus.clone(), Address(1), SignType::HorizonFront160x16);
 
     // Send sign commands and verify success.
-    sign.configure().unwrap();
+    sign.configure()?;
     let pages = [sign.create_page(PageId(1))];
-    sign.send_pages(&pages).unwrap();
-    sign.show_loaded_page().unwrap();
+    sign.send_pages(&pages)?;
+    sign.show_loaded_page()?;
 
     // Ensure all data read.
     bus.borrow().port().done();
+
+    Ok(())
 }
