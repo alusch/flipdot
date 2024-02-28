@@ -4,7 +4,7 @@ use std::io;
 use std::rc::Rc;
 
 use flipdot::core::{ChunkCount, Data, Message, Offset, Operation, State};
-use flipdot::{Address, Page, PageId, Sign, SignBus, SignError, SignType};
+use flipdot::{Address, Page, PageFlipStyle, PageId, Sign, SignBus, SignError, SignType};
 
 const CONFIG: &[u8] = &[
     0x04, 0x20, 0x00, 0x06, 0x07, 0x1E, 0x1E, 0x1E, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -145,7 +145,7 @@ fn happy_path() {
     sign.configure().unwrap();
 
     let page = Page::from_bytes(90, 7, DATA).unwrap();
-    sign.send_pages(&[page]).unwrap();
+    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page]).unwrap());
 
     sign.show_loaded_page().unwrap();
 
@@ -410,7 +410,66 @@ fn pixels_retry() {
     let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
 
     let page = Page::from_bytes(90, 7, DATA).unwrap();
-    sign.send_pages(&[page]).unwrap();
+    assert_eq!(PageFlipStyle::Manual, sign.send_pages(&[page]).unwrap());
+
+    bus.borrow_mut().done();
+}
+
+#[test]
+fn pixels_auto_flip() {
+    let script = vec![
+        ScriptItem {
+            expected: Message::RequestOperation(Address(3), Operation::ReceivePixels),
+            response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceivePixels))),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(0), Data::try_new(&DATA[0..16]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(16), Data::try_new(&DATA[16..32]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(32), Data::try_new(&DATA[32..48]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(48), Data::try_new(&DATA[48..64]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(64), Data::try_new(&DATA[64..80]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(80), Data::try_new(&DATA[80..96]).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::DataChunksSent(ChunkCount(6)),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::QueryState(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::PixelsReceived))),
+        },
+        ScriptItem {
+            expected: Message::PixelsComplete(Address(3)),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::QueryState(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::ShowingPages))),
+        },
+    ];
+
+    let bus = ScriptedSignBus::new(script.into_iter());
+    let bus = Rc::new(RefCell::new(bus));
+    let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
+
+    let page = Page::from_bytes(90, 7, DATA).unwrap();
+    assert_eq!(PageFlipStyle::Automatic, sign.send_pages(&[page]).unwrap());
 
     bus.borrow_mut().done();
 }

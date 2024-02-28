@@ -86,7 +86,7 @@ fn sign_virtual_sign_interaction() {
 
     sign2.show_loaded_page().unwrap();
 
-    // These functions should be no-ops for automatic flip signs.
+    // These functions should be no-ops for automatic-flip signs.
     assert_eq!(State::ShowingPages, bus.borrow().sign(0).state());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
