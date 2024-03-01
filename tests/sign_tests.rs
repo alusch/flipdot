@@ -783,7 +783,6 @@ fn create_page() {
     bus.borrow_mut().done();
 }
 
-
 #[test]
 fn configure_if_needed() -> Result<(), Box<dyn Error>> {
     let script = vec![

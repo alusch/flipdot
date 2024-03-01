@@ -288,7 +288,7 @@ impl Sign {
     /// This or [`configure`](Self::configure) must be called first before communicating with the sign.
     /// If the sign has already been configured and is in a state where it can receive pages,
     /// nothing will happen. Otherwise, it will be reset and its page memory will be cleared.
-    /// 
+    ///
     /// Use this if you are confident that the sign is already in a good state and doesn't need a full reset
     /// (e.g. updating periodically via a cron job).
     ///
@@ -323,14 +323,15 @@ impl Sign {
     pub fn configure_if_needed(&self) -> Result<(), SignError> {
         let response = self.send_message(Message::Hello(self.address))?;
         match response {
-            Some(Message::ReportState(address, State::ConfigReceived)) |
-            Some(Message::ReportState(address, State::ShowingPages)) |
-            Some(Message::ReportState(address, State::PageLoaded)) |
-            Some(Message::ReportState(address, State::PageShowInProgress)) |
-            Some(Message::ReportState(address, State::PageShown)) |
-            Some(Message::ReportState(address, State::PageLoadInProgress)) if address == self.address => {}
+            Some(Message::ReportState(address, State::ConfigReceived))
+            | Some(Message::ReportState(address, State::ShowingPages))
+            | Some(Message::ReportState(address, State::PageLoaded))
+            | Some(Message::ReportState(address, State::PageShowInProgress))
+            | Some(Message::ReportState(address, State::PageShown))
+            | Some(Message::ReportState(address, State::PageLoadInProgress))
+                if address == self.address => {}
 
-            _ => self.configure()?
+            _ => self.configure()?,
         }
         Ok(())
     }
