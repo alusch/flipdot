@@ -1,3 +1,6 @@
+//! Test program to view real ODK interactions with virtual signs to better understand the protocol.
+//! Run with `RUST_LOG=debug` environment variable to watch the bus messages go by.
+
 use std::{env, error::Error};
 
 use flipdot_core::PageFlipStyle;

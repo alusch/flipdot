@@ -1,3 +1,6 @@
+//! Test program to send multiple pages of data to a real sign and flip between them.
+//! Run with `RUST_LOG=debug` environment variable to watch the bus messages go by.
+
 use std::cell::RefCell;
 use std::env;
 use std::error::Error;

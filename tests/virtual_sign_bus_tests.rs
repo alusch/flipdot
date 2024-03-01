@@ -14,7 +14,7 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     ]);
     let bus = Rc::new(RefCell::new(bus));
 
-    let sign = Sign::new(bus.clone(), Address(6), SignType::HorizonFront160x16);
+    let sign6 = Sign::new(bus.clone(), Address(6), SignType::HorizonFront160x16);
 
     // Verify both virtual signs initially have unknown type and are in the Unconfigured state.
     assert_eq!(None, bus.borrow().sign(0).sign_type());
@@ -22,7 +22,7 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     assert_eq!(None, bus.borrow().sign(1).sign_type());
     assert_eq!(State::Unconfigured, bus.borrow().sign(1).state());
 
-    sign.configure()?;
+    sign6.configure()?;
 
     // After configuring sign 6, the corresponding virtual sign should be in the ConfigReceived
     // state with the appropriate sign type, and the other should be unaffected.
@@ -31,9 +31,9 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     assert_eq!(Some(SignType::HorizonFront160x16), bus.borrow().sign(1).sign_type());
     assert_eq!(State::ConfigReceived, bus.borrow().sign(1).state());
 
-    let mut pages = [sign.create_page(PageId(1))];
+    let mut pages = [sign6.create_page(PageId(1))];
     pages[0].set_pixel(5, 5, true);
-    sign.send_pages(&pages)?;
+    sign6.send_pages(&pages)?;
 
     // After sending pages to sign 6, the corresponding virtual sign should be in the PageLoaded
     // state with the appropriate page list, and the other should be unaffected.
@@ -42,23 +42,23 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     assert_eq!(&pages, bus.borrow().sign(1).pages());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    sign.show_loaded_page()?;
+    sign6.show_loaded_page()?;
 
     // After showing a page, the corresponding virtual sign should be in the PageShown
     // state, and the other should be unaffected.
     assert_eq!(State::Unconfigured, bus.borrow().sign(0).state());
     assert_eq!(State::PageShown, bus.borrow().sign(1).state());
 
-    sign.load_next_page()?;
+    sign6.load_next_page()?;
 
     // After loading a page, the corresponding virtual sign should be in the PageLoaded
     // state, and the other should be unaffected.
     assert_eq!(State::Unconfigured, bus.borrow().sign(0).state());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    let mut pages2 = [sign.create_page(PageId(1)), sign.create_page(PageId(2))];
+    let mut pages2 = [sign6.create_page(PageId(1)), sign6.create_page(PageId(2))];
     pages2[0].set_pixel(1, 1, true);
-    sign.send_pages(&pages2)?;
+    sign6.send_pages(&pages2)?;
 
     // After sending pages to sign 6, the corresponding virtual sign should be in the PageLoaded
     // state with the appropriate page list, and the other should be unaffected.
@@ -67,16 +67,16 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     assert_eq!(&pages2, bus.borrow().sign(1).pages());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    let sign2 = Sign::new(bus.clone(), Address(3), SignType::Max3000Dash30x7);
-    sign2.configure()?;
+    let sign3 = Sign::new(bus.clone(), Address(3), SignType::Max3000Dash30x7);
+    sign3.configure()?;
 
     // Configuring sign 3 should not have affected sign 6.
     assert_eq!(State::ConfigReceived, bus.borrow().sign(0).state());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    let mut pages3 = [sign2.create_page(PageId(1))];
+    let mut pages3 = [sign3.create_page(PageId(1))];
     pages3[0].set_pixel(2, 3, true);
-    sign2.send_pages(&pages3)?;
+    sign3.send_pages(&pages3)?;
 
     // After sending pages to sign 3, the corresponding virtual sign should be in the PageLoaded
     // state with the appropriate page list, and the other should be unaffected.
@@ -85,21 +85,24 @@ fn sign_virtual_sign_interaction() -> Result<(), Box<dyn Error>> {
     assert_eq!(&pages2, bus.borrow().sign(1).pages());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    sign2.show_loaded_page()?;
+    sign3.show_loaded_page()?;
 
     // These functions should be no-ops for automatic-flip signs.
     assert_eq!(State::ShowingPages, bus.borrow().sign(0).state());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    sign2.load_next_page()?;
+    sign3.load_next_page()?;
 
     // These functions should be no-ops for automatic flip signs.
     assert_eq!(State::ShowingPages, bus.borrow().sign(0).state());
     assert_eq!(State::PageLoaded, bus.borrow().sign(1).state());
 
-    sign.shut_down()?;
+    sign6.shut_down()?;
 
-    // After shutdown, all state should be cleared from the virtual sign.
+    // After shutdown, all state should be cleared from virtual sign 6, but 3 should not be affected.
+    assert_eq!(1, bus.borrow().sign(0).pages().len());
+    assert_eq!(State::ShowingPages, bus.borrow().sign(0).state());
+    assert_eq!(Some(SignType::Max3000Dash30x7), bus.borrow().sign(0).sign_type());
     assert!(bus.borrow().sign(1).pages().is_empty());
     assert_eq!(State::Unconfigured, bus.borrow().sign(1).state());
     assert_eq!(None, bus.borrow().sign(1).sign_type());

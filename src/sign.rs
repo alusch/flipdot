@@ -473,8 +473,8 @@ impl Sign {
     /// let page = sign.create_page(PageId(1));
     /// if sign.send_pages(&[page])? == PageFlipStyle::Manual {
     ///     sign.show_loaded_page()?;
-    ///     // Page is now shown.
     /// }
+    /// // Page is now shown.
     /// #
     /// # Ok(()) }
     /// ```
