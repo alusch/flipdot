@@ -65,7 +65,7 @@
 //! [`flipdot-core`]: https://docs.rs/flipdot-core
 //! [`flipdot-serial`]: https://docs.rs/flipdot-serial
 //! [`flipdot-testing`]: https://docs.rs/flipdot-testing
-#![doc(html_root_url = "https://docs.rs/flipdot/0.6.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot/0.7.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,
