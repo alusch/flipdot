@@ -782,3 +782,49 @@ fn create_page() {
 
     bus.borrow_mut().done();
 }
+
+
+#[test]
+fn configure_if_needed() -> Result<(), Box<dyn Error>> {
+    let script = vec![
+        ScriptItem {
+            expected: Message::Hello(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::Unconfigured))),
+        },
+        ScriptItem {
+            expected: Message::Hello(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::Unconfigured))),
+        },
+        ScriptItem {
+            expected: Message::RequestOperation(Address(3), Operation::ReceiveConfig),
+            response: Ok(Some(Message::AckOperation(Address(3), Operation::ReceiveConfig))),
+        },
+        ScriptItem {
+            expected: Message::SendData(Offset(0), Data::try_new(CONFIG).unwrap()),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::DataChunksSent(ChunkCount(1)),
+            response: Ok(None),
+        },
+        ScriptItem {
+            expected: Message::QueryState(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::ConfigReceived))),
+        },
+        ScriptItem {
+            expected: Message::Hello(Address(3)),
+            response: Ok(Some(Message::ReportState(Address(3), State::ConfigReceived))),
+        },
+    ];
+
+    let bus = ScriptedSignBus::new(script.into_iter());
+    let bus = Rc::new(RefCell::new(bus));
+    let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
+
+    sign.configure_if_needed()?;
+    sign.configure_if_needed()?;
+
+    bus.borrow_mut().done();
+
+    Ok(())
+}

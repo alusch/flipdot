@@ -238,8 +238,10 @@ impl Sign {
 
     /// Opens communications with the sign and sends the necessary configuration.
     ///
-    /// This must be called first before communicating with the sign. If the sign has already
-    /// been configured, it will be reset and its page memory will be cleared.
+    /// This or [`configure_if_needed`](Self::configure_if_needed) must be called first before communicating with the sign.
+    /// If the sign has already been configured, it will be reset and its page memory will be cleared.
+    ///
+    /// This method will ensure you have a clean slate no matter how the sign was previously configured.
     ///
     /// # Errors
     ///
@@ -279,6 +281,58 @@ impl Sign {
             State::ConfigReceived,
             State::ConfigFailed,
         )
+    }
+
+    /// Opens communications with the sign and sends the necessary configuration if needed.
+    ///
+    /// This or [`configure`](Self::configure) must be called first before communicating with the sign.
+    /// If the sign has already been configured and is in a state where it can receive pages,
+    /// nothing will happen. Otherwise, it will be reset and its page memory will be cleared.
+    /// 
+    /// Use this if you are confident that the sign is already in a good state and doesn't need a full reset
+    /// (e.g. updating periodically via a cron job).
+    ///
+    /// # Errors
+    ///
+    /// Returns:
+    /// * [`SignError::Bus`] if the underlying bus failed to process a message.
+    /// * [`SignError::UnexpectedResponse`] if the sign did not send the expected response according
+    ///   to the protocol. In this case it is recommended to re-[`configure`](Self::configure) the sign and start over.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use std::cell::RefCell;
+    /// # use std::rc::Rc;
+    /// # use flipdot::{Address, PageFlipStyle, PageId, Sign, SignType};
+    /// # use flipdot_testing::{VirtualSign, VirtualSignBus};
+    /// #
+    /// # // Placeholder bus for expository purposes
+    /// # fn get_bus<'a>() -> Rc<RefCell<VirtualSignBus<'a>>> {
+    /// #     Rc::new(RefCell::new(VirtualSignBus::new(vec![VirtualSign::new(Address(3), PageFlipStyle::Manual)])))
+    /// # }
+    /// # fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// #
+    /// let bus = get_bus();
+    /// let sign = Sign::new(bus.clone(), Address(3), SignType::Max3000Side90x7);
+    /// sign.configure_if_needed()?;
+    /// // Sign is now ready to receive pages.
+    /// #
+    /// # Ok(()) }
+    /// ```
+    pub fn configure_if_needed(&self) -> Result<(), SignError> {
+        let response = self.send_message(Message::Hello(self.address))?;
+        match response {
+            Some(Message::ReportState(address, State::ConfigReceived)) |
+            Some(Message::ReportState(address, State::ShowingPages)) |
+            Some(Message::ReportState(address, State::PageLoaded)) |
+            Some(Message::ReportState(address, State::PageShowInProgress)) |
+            Some(Message::ReportState(address, State::PageShown)) |
+            Some(Message::ReportState(address, State::PageLoadInProgress)) if address == self.address => {}
+
+            _ => self.configure()?
+        }
+        Ok(())
     }
 
     /// Sends one or more pages of pixel data to the sign.
