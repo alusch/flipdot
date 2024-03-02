@@ -21,6 +21,6 @@ thiserror = "1.0.57"
 [dev-dependencies]
 serial = "0.4.0"
 
-flipdot = { version = "0.7.0", path = "../.." }
-flipdot-serial = { version = "0.7.0", path = "../serial" }
-flipdot-testing = { version = "0.7.0", path = "../testing" }
+flipdot = { path = "../.." }
+flipdot-serial = { path = "../serial" }
+flipdot-testing = { path = "../testing" }
