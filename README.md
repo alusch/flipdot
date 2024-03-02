@@ -1,6 +1,8 @@
 # flipdot
 
-![Build status](https://github.com/alusch/flipdot/workflows/build/badge.svg)
+[![Build status](https://github.com/alusch/flipdot/workflows/build/badge.svg)](https://github.com/alusch/flipdot/actions)
+[![Crates.io](https://img.shields.io/crates/v/flipdot.svg?logo=rust)](https://crates.io/crates/flipdot)
+[![Docs.rs](https://img.shields.io/docsrs/flipdot.svg?logo=docs.rs)](https://docs.rs/flipdot)
 
 A Rust library for interacting with Luminator flip-dot and LED signs over RS-485.
 
