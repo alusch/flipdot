@@ -35,7 +35,7 @@
 //! ```
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
-#![doc(html_root_url = "https://docs.rs/flipdot-testing/0.7.0")]
+#![doc(html_root_url = "https://docs.rs/flipdot-testing/0.7.1")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,
