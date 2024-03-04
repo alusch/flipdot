@@ -31,6 +31,8 @@ pub enum PageError {
     },
 }
 
+const HEADER_LEN: usize = 4;
+
 /// A page of a message for display on a sign.
 ///
 /// # Examples
@@ -287,6 +289,25 @@ impl<'a> Page<'a> {
         }
     }
 
+    /// Turns all the pixels on the page on or off.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use flipdot_core::{Page, PageId};
+    /// let mut page = Page::new(PageId(1), 90, 7);
+    /// // Turn on a couple pixels
+    /// page.set_pixel(5, 5, true);
+    /// page.set_pixel(6, 6, true);
+    ///
+    /// // And clear the page again
+    /// page.set_all_pixels(false);
+    /// ```
+    pub fn set_all_pixels(&mut self, value: bool) {
+        let byte = if value { 0xFF } else { 0x00 };
+        self.bytes.to_mut()[HEADER_LEN..Self::data_bytes(self.width, self.height)].fill(byte);
+    }
+
     /// Returns the raw byte representation of this page.
     ///
     /// This is generally called on your behalf when sending a page to a sign.
@@ -311,7 +332,7 @@ impl<'a> Page<'a> {
 
     /// Returns the number of actual meaningful bytes (including header but not padding).
     fn data_bytes(width: u32, height: u32) -> usize {
-        4 + width as usize * Self::bytes_per_column(height)
+        HEADER_LEN + width as usize * Self::bytes_per_column(height)
     }
 
     /// Returns the total number of bytes, including the padding.
@@ -359,6 +380,7 @@ impl Display for Page<'_> {
 mod tests {
     use super::*;
     use std::error::Error;
+    use test_case::test_case;
 
     #[test]
     fn one_byte_per_column_empty() -> Result<(), Box<dyn Error>> {
@@ -510,5 +532,29 @@ mod tests {
                         | @|\n\
                         +--+";
         assert_eq!(expected, display);
+    }
+
+    fn verify_all_pixels(page: &Page, value: bool) {
+        for x in 0..page.width() {
+            for y in 0..page.height() {
+                assert_eq!(value, page.get_pixel(x, y));
+            }
+        }
+    }
+
+    #[test_case(Page::new(PageId(3), 90, 7) ; "one byte per column")]
+    #[test_case(Page::new(PageId(1), 40, 12) ; "two bytes per column")]
+    fn set_all_pixels(mut page: Page) {
+        let bytes_before = page.as_bytes().to_vec();
+
+        verify_all_pixels(&page, false);
+
+        page.set_all_pixels(true);
+        verify_all_pixels(&page, true);
+
+        page.set_all_pixels(false);
+        verify_all_pixels(&page, false);
+
+        assert_eq!(bytes_before, page.as_bytes());
     }
 }

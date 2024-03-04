@@ -20,6 +20,7 @@ thiserror = "1.0.57"
 
 [dev-dependencies]
 serial = "0.4.0"
+test-case = "3.3.1"
 
 flipdot = { path = "../.." }
 flipdot-serial = { path = "../serial" }
