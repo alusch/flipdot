@@ -671,7 +671,7 @@ impl Sign {
                     return Err(SignError::UnexpectedResponse {
                         expected: format!("Some(ReportState({:?}, Page*))", self.address),
                         actual: format!("{:?}", response),
-                    })
+                    });
                 }
             };
         }

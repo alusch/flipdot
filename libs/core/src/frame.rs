@@ -599,8 +599,8 @@ impl<'a> Data<'a> {
 // over integers yet, so use a macro to implement for common array lengths.
 macro_rules! impl_from_array_ref_with_length {
     ($length:expr) => {
-        impl From<&'static [u8; $length]> for Data<'_> {
-            fn from(value: &'static [u8; $length]) -> Data<'_> {
+        impl From<&'static [u8; $length]> for Data<'static> {
+            fn from(value: &'static [u8; $length]) -> Data<'static> {
                 Data::try_new(&value[..]).unwrap()
             }
         }

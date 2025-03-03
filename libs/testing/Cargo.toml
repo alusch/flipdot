@@ -9,7 +9,7 @@ repository = "https://github.com/alusch/flipdot"
 readme = "README.md"
 keywords = ["flip-dot", "Luminator", "bus"]
 categories = ["hardware-support", "development-tools::testing"]
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 log = "0.4.21"
