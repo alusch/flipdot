@@ -12,9 +12,9 @@ categories = ["hardware-support", "development-tools::testing"]
 edition = "2024"
 
 [dependencies]
-log = "0.4.21"
+log = "0.4.26"
 serial-core = "0.4.0"
-thiserror = "1.0.57"
+thiserror = "2.0.12"
 
 flipdot-core = { version = "0.7.1", path = "../core" }
 flipdot-serial = { version = "0.7.1", path = "../serial" }

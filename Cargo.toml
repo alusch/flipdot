@@ -12,14 +12,14 @@ categories = ["hardware-support"]
 edition = "2024"
 
 [dependencies]
-log = "0.4.21"
-thiserror = "1.0.57"
+log = "0.4.26"
+thiserror = "2.0.12"
 
 flipdot-core = { version = "0.7.1", path = "libs/core" }
 flipdot-serial = { version = "0.7.1", path = "libs/serial" }
 
 [dev-dependencies]
-env_logger = "0.11.2"
+env_logger = "0.11.6"
 serial = "0.4.0"
 serial-core = "0.4.0"
 
