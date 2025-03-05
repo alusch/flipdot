@@ -23,7 +23,7 @@
 //! ```
 //!
 //! [`flipdot`]: https://docs.rs/flipdot
-#![doc(html_root_url = "https://docs.rs/flipdot-serial/0.7.1")]
+#![doc(html_root_url = "https://docs.rs/flipdot-serial/0.8.0")]
 #![deny(
     missing_copy_implementations,
     missing_debug_implementations,

@@ -1,6 +1,6 @@
 [package]
 name = "flipdot-core"
-version = "0.7.1" # remember to update html_root_url
+version = "0.8.0" # remember to update html_root_url
 authors = ["Adam Lusch <alusch@gmail.com>"]
 description = "Core types for describing communication with Luminator flip-dot and LED signs"
 license = "MIT"
