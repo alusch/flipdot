@@ -10,6 +10,9 @@ Provides a way to connect to a sign, define messages spanning one or more pages,
 then switch between them. No special graphics or text functionality is provided; you are responsible for setting
 the pixels on the pages yourself.
 
+Most projects should start with [`flipdot-graphics`] instead, which builds on this crate and provides an easy
+interface to draw text and graphics to a sign using the [`embedded-graphics`] crate.
+
 Tested with a MAX3000 90 × 7 side sign. Should work with any flip-dot or LED sign that uses the 7-pin circular
 connector, but no guarantees.
 
@@ -70,6 +73,8 @@ that can be combined for more specialized use-cases.
 
 Distributed under the [MIT license].
 
+[`flipdot-graphics`]: https://github.com/alusch/flipdot-graphics
+[`embedded-graphics`]: https://crates.io/crates/embedded-graphics
 [`flipdot-core`]: /libs/core
 [`flipdot-serial`]: /libs/serial
 [`flipdot-testing`]: /libs/testing
