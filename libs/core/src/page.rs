@@ -327,7 +327,7 @@ impl<'a> Page<'a> {
 
     /// Returns the number of bytes used to store each column.
     fn bytes_per_column(height: u32) -> usize {
-        (height as usize + 7) / 8 // Divide by 8 rounding up
+        (height as usize).div_ceil(8) // Divide by 8 rounding up
     }
 
     /// Returns the number of actual meaningful bytes (including header but not padding).
@@ -337,7 +337,7 @@ impl<'a> Page<'a> {
 
     /// Returns the total number of bytes, including the padding.
     fn total_bytes(width: u32, height: u32) -> usize {
-        (Self::data_bytes(width, height) + 15) / 16 * 16 // Round to multiple of 16
+        Self::data_bytes(width, height).div_ceil(16) * 16 // Round to multiple of 16
     }
 
     /// Given an x-y coordinate, returns the byte and bit at which it is stored.

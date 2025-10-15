@@ -465,7 +465,7 @@ impl Display for Frame<'_> {
     /// Useful for viewing traffic on a bus. All numbers are in hex.
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "Type {:02X} | Addr {:04X}", self.message_type.0, self.address.0)?;
-        if self.data.0.len() > 0 {
+        if !self.data.0.is_empty() {
             write!(f, " | Data ")?;
             for byte in self.data.0.iter() {
                 write!(f, "{:02X} ", byte)?;
